@@ -1,0 +1,21 @@
+npm install anychart-react
+
+npm install react-redux
+npm install @reduxjs/toolkit
+
+npm install react-router-dom
+
+npm install react-query
+
+npm install axios
+
+npm install react-bootstrap bootstrap
+https://react-bootstrap.github.io/docs/components/dropdowns/#dropdownmenu
+
+npm install react-icons --save
+
+npm install react-color
+
+
+Can use https://react-bootstrap.netlify.app/docs/components/dropdowns#drop-directions 
++ https://codesandbox.io/s/react-vertical-menu-9sqfk?file=/src/components/CustomNav.js??
