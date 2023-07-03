@@ -274,8 +274,21 @@ function TheChart(props) {
 
       indicator.charts.forEach((ind, index) => {
         if ("condition" in ind) {
-          if (apiInputParam[ind.condition.parameter] !== ind.condition.value)
-            return;
+          if (Array.isArray(ind.condition)) {
+            if (
+              !ind.condition.reduce(
+                (accumulator, currentCond) =>
+                  accumulator &&
+                  apiInputParam[currentCond.parameter] === currentCond.value,
+                true
+              )
+            ) {
+              return;
+            }
+          } else {
+            if (apiInputParam[ind.condition.parameter] !== ind.condition.value)
+              return;
+          }
         }
         let addResult;
 
@@ -390,6 +403,10 @@ function TheChart(props) {
 
               if (conditions_temp) {
                 return strokeColor;
+              } else {
+                if ("defaultStroke" in ind) {
+                  return ind.defaultStroke;
+                }
               }
 
               return this.sourceColor;
@@ -414,6 +431,10 @@ function TheChart(props) {
         }
         if ("markerType" in ind) {
           chartTemp.type(ind.markerType);
+        }
+
+        if ("fill" in ind) {
+          chartTemp.fill(ind.fill);
         }
         console.log(
           moment(realEndTime.current)
@@ -460,18 +481,23 @@ function TheChart(props) {
       });
       if (annotations.length > 0) {
         indicator.annotations.forEach((anno, index) => {
-          console.log(
-            allResult.filter(
-              (p) => p[anno.condition.column] === anno.condition.value
-            )
-          );
           let annoMappings = allResult
-            .filter((p) => p[anno.condition.column] === anno.condition.value)
+            .filter((p, idx) => {
+              if ("func" in anno.condition) {
+                return idx < 1
+                  ? true
+                  : anno.condition.func(p, allResult[idx - 1]);
+              }
+              return p[anno.condition.column] === anno.condition.value;
+            })
             .map((p) => {
               return {
                 xAnchor: moment(p.date).valueOf(),
                 valueAnchor: p[anno.parameters.valueAnchor],
-                text: p[anno.parameters.text],
+                text:
+                  "textParam" in anno.parameters
+                    ? p[anno.parameters.text]
+                    : anno.parameters.text,
                 normal: {
                   fontColor: anno.parameters.fontColor,
                 },
@@ -727,12 +753,22 @@ function TheChart(props) {
 
           indicator.annotations.forEach((anno, index) => {
             let annoMappings = allResult
-              .filter((p) => p[anno.condition.column] === anno.condition.value)
+              .filter((p, idx) => {
+                if ("func" in anno.condition) {
+                  return idx < 1
+                    ? true
+                    : anno.condition.func(p, allResult[idx - 1]);
+                }
+                return p[anno.condition.column] === anno.condition.value;
+              })
               .map((p) => {
                 return {
                   xAnchor: moment(p.date).valueOf(),
                   valueAnchor: p[anno.parameters.valueAnchor],
-                  text: p[anno.parameters.text],
+                  text:
+                    "textParam" in anno.parameters
+                      ? p[anno.parameters.text]
+                      : anno.parameters.text,
                   normal: {
                     fontColor: anno.parameters.fontColor,
                   },
@@ -790,12 +826,23 @@ function TheChart(props) {
               }
             }
           }
-          console.log(indicator.charts[k]);
-          console.log(seriesIndex);
-          if (
-            apiInputParam[indicator.charts[k].condition.parameter] !==
-            indicator.charts[k].condition.value
-          ) {
+          let condResult;
+          if (Array.isArray(indicator.charts[k].condition)) {
+            condResult = indicator.charts[k].condition.reduce(
+              (accumulator, currentCond) =>
+                accumulator &&
+                apiInputParam[currentCond.parameter] === currentCond.value,
+              true
+            );
+            condResult = !condResult;
+          } else {
+            condResult =
+              apiInputParam[indicator.charts[k].condition.parameter] !==
+              indicator.charts[k].condition.value;
+          }
+          console.log(apiInputParam);
+          console.log(condResult);
+          if (condResult) {
             console.log(seriesIndex);
             if (seriesIndex > -1) {
               console.log(indicator.charts[k]);
@@ -835,7 +882,9 @@ function TheChart(props) {
               let addResult = allResult.map((p) => {
                 return [
                   moment(p.date).valueOf(),
-                  +p[indicator.charts[k].column],
+                  p[indicator.charts[k].column] === null
+                    ? null
+                    : +p[indicator.charts[k].column],
                 ];
               });
               table = anychart.data.table();
@@ -858,6 +907,10 @@ function TheChart(props) {
               }
               if ("markerType" in indicator.charts[k]) {
                 chartTemp.type(indicator.charts[k].markerType);
+              }
+
+              if ("fill" in indicator.charts[k]) {
+                chartTemp.fill(indicator.charts[k].fill);
               }
               chart.current
                 .plot(0)

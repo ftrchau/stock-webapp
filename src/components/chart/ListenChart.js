@@ -239,6 +239,7 @@ function ListenChart(props) {
 
                 console.log(seriesLength);
                 var conditions_temp = "";
+                let chartTemp;
                 for (let i = seriesLength; i > -1; i--) {
                   conditions_temp = "";
                   if (
@@ -255,7 +256,7 @@ function ListenChart(props) {
                       console.log(i);
                       console.log(Array.isArray(indicator.charts[p].stroke));
                       if (Array.isArray(indicator.charts[p].stroke)) {
-                        props.chart.current
+                        chartTemp = props.chart.current
                           .plot(indicator.charts[p].plotIndex)
                           .getSeries(i)
                           .data(mapping)
@@ -379,7 +380,7 @@ function ListenChart(props) {
                             return this.sourceColor;
                           });
                       } else {
-                        props.chart.current
+                        chartTemp = props.chart.current
                           .plot(indicator.charts[p].plotIndex)
                           .getSeries(i)
                           .data(mapping)
@@ -388,6 +389,17 @@ function ListenChart(props) {
                         // console.log(i);
                         // console.log(indicator.charts[p]);
                         // console.log(i);
+                      }
+
+                      if (indicator.charts[p].seriesType === "marker") {
+                        chartTemp.size(indicator.charts[p].size);
+                      }
+                      if ("markerType" in indicator.charts[p]) {
+                        chartTemp.type(indicator.charts[p].markerType);
+                      }
+
+                      if ("fill" in indicator.charts[p]) {
+                        chartTemp.fill(indicator.charts[p].fill);
                       }
                     }
                   }
@@ -406,14 +418,22 @@ function ListenChart(props) {
                 // eslint-disable-next-line no-loop-func
                 indicator.annotations.forEach((anno, index) => {
                   let annoMappings = allResult
-                    .filter(
-                      (p) => p[anno.condition.column] === anno.condition.value
-                    )
+                    .filter((p, idx) => {
+                      if ("func" in anno.condition) {
+                        return idx < 1
+                          ? true
+                          : anno.condition.func(p, allResult[idx - 1]);
+                      }
+                      return p[anno.condition.column] === anno.condition.value;
+                    })
                     .map((p) => {
                       return {
                         xAnchor: moment(p.date).valueOf(),
                         valueAnchor: p[anno.parameters.valueAnchor],
-                        text: p[anno.parameters.text],
+                        text:
+                          "textParam" in anno.parameters
+                            ? p[anno.parameters.text]
+                            : anno.parameters.text,
                         normal: {
                           fontColor: anno.parameters.fontColor,
                         },

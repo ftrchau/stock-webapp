@@ -358,7 +358,7 @@ const indicatorSlice = createSlice({
               },
               parameters: {
                 valueAnchor: "FLB",
-                text: "BSIGNAL",
+                textParam: "BSIGNAL",
                 fontColor: "#363A45",
               },
               background: {
@@ -377,7 +377,7 @@ const indicatorSlice = createSlice({
               },
               parameters: {
                 valueAnchor: "FUB",
-                text: "SSIGNAL",
+                textParam: "SSIGNAL",
                 fontColor: "#363A45",
               },
               background: {
@@ -764,18 +764,6 @@ const indicatorSlice = createSlice({
               type: "checkbox",
             },
             {
-              name: "Show Buy/Sell label?",
-              label: "Show Buy/Sell label?",
-              value: true,
-              type: "checkbox",
-            },
-            {
-              name: "Draw zero line?",
-              label: "Draw zero line?",
-              value: false,
-              type: "checkbox",
-            },
-            {
               name: "long_short",
               label: "Long or short",
               value: "Long",
@@ -806,11 +794,16 @@ const indicatorSlice = createSlice({
             {
               name: "VM2",
               column: "vm2",
+              condition: {
+                parameter: "Draw 2nd line?",
+                value: true,
+              },
               seriesType: "line",
               plotIndexOffset: 0,
               plotIndex: 0,
               index: -1,
               result: [],
+              defaultStroke: "2 rgb(41, 98, 255)",
               stroke: [
                 {
                   color: "rgb(96, 200, 241)",
@@ -825,6 +818,10 @@ const indicatorSlice = createSlice({
             {
               name: "MA Crossing source",
               column: "src",
+              condition: {
+                parameter: "Show data source?",
+                value: true,
+              },
               seriesType: "line",
               plotIndexOffset: 0,
               plotIndex: 0,
@@ -840,8 +837,11 @@ const indicatorSlice = createSlice({
               plotIndex: 0,
               annotationIndex: [],
               condition: {
-                func: function () {
+                func: function (curr, prev) {
                   var condition = false;
+
+                  if (curr.vm1 > curr.vm2 && prev.vm1 < prev.vm2)
+                    condition = true;
 
                   return condition;
                 },
@@ -862,8 +862,11 @@ const indicatorSlice = createSlice({
               plotIndex: 0,
               annotationIndex: [],
               condition: {
-                func: function () {
+                func: function (curr, prev) {
                   var condition = false;
+
+                  if (curr.vm1 < curr.vm2 && prev.vm1 > prev.vm2)
+                    return condition;
 
                   return condition;
                 },
@@ -880,214 +883,6 @@ const indicatorSlice = createSlice({
             },
           ],
         },
-
-        {
-          name: "MA deviation",
-          value: "MA deviation",
-          groupIndex: 1,
-          draw: false,
-          calculateMADeviation: "calculateMADeviation",
-          parameters: [
-            {
-              name: "Source",
-              value: "adjclose",
-              type: "select-one",
-              items: ["open", "high", "low", "close", "adjclose"],
-            },
-            {
-              name: "MA type",
-              value: "HMA",
-              type: "select-one",
-              items: ["EMA", "HMA", "WMA"],
-            },
-            {
-              name: "MA period",
-              value: "50",
-              type: "text",
-            },
-            {
-              name: "Sum period",
-              value: "2",
-              type: "text",
-            },
-            {
-              name: "Long or short",
-              value: "Long & Short",
-              type: "select-one",
-              items: ["Long", "Short", "Long & Short"],
-            },
-            {
-              name: "Data display",
-              value: "Signal",
-              type: "select-one",
-              items: [
-                "Signal",
-                "profit/trade",
-                "P&L accum",
-                "Price & Cost",
-                "Draw down",
-                "NAV $100",
-              ],
-            },
-            {
-              name: "Annual NAV",
-              value: true,
-              type: "checkbox",
-            },
-            {
-              name: "Annual Profit",
-              value: false,
-              type: "checkbox",
-            },
-          ],
-          seriesType: "line",
-          component: [
-            {
-              name: "MAD",
-              stroke: "2 rgb(41, 98, 255)",
-              positiveStroke: "rgb(0, 230, 118)",
-              negativeStroke: "rgb(255, 82, 82)",
-              condition: {
-                paramName: "Data display",
-                paramValue: "Signal",
-              },
-              newPlot: true,
-              chartRender: [
-                {
-                  method: "column",
-                  param: "MADeviationSumMapping",
-                  fromComponent: false,
-                },
-                {
-                  method: "fill",
-                  param: "positiveStroke",
-                  fromComponent: true,
-                },
-                {
-                  method: "negativeFill",
-                  param: "negativeStroke",
-                  fromComponent: true,
-                },
-              ],
-            },
-            {
-              name: "MA deviation profit/trade",
-              stroke: "rgb(136, 14, 79)",
-              condition: {
-                paramName: "Data display",
-                paramValue: "profit/trade",
-              },
-              newPlot: true,
-              chartRender: [
-                {
-                  method: "column",
-                  param: "MADeviationProfitMapping",
-                  fromComponent: false,
-                },
-                {
-                  method: "fill",
-                  param: "stroke",
-                  fromComponent: true,
-                },
-              ],
-            },
-            {
-              name: "MA deviation P&L accum",
-              stroke: "2 rgb(255, 109, 0)",
-              condition: {
-                paramName: "Data display",
-                paramValue: "P&L accum",
-              },
-              newPlot: true,
-              chartRender: [
-                {
-                  method: "line",
-                  param: "MAPLMapping",
-                  fromComponent: false,
-                },
-                {
-                  method: "fill",
-                  param: "stroke",
-                  fromComponent: true,
-                },
-              ],
-            },
-
-            {
-              name: "MA deviation Price",
-              stroke: "rgb(255, 82, 82)",
-              condition: {
-                paramName: "Data display",
-                paramValue: "Price & Cost",
-              },
-              newPlot: true,
-              chartRender: [
-                {
-                  method: "line",
-                  param: "MAPriceMapping",
-                  fromComponent: false,
-                },
-                {
-                  method: "stroke",
-                  param: "stroke",
-                  fromComponent: true,
-                },
-              ],
-            },
-            {
-              name: "MA deviation Cost",
-              stroke: "rgb(76, 175, 80)",
-              condition: {
-                paramName: "Data display",
-                paramValue: "Price & Cost",
-              },
-              newPlot: true,
-              chartRender: [
-                {
-                  method: "line",
-                  param: "MACostMapping",
-                  fromComponent: false,
-                },
-                {
-                  method: "stroke",
-                  param: "stroke",
-                  fromComponent: true,
-                },
-              ],
-            },
-            {
-              name: "MA deviation Draw down",
-              stroke: "2 rgb(41, 98, 255)",
-              longStroke: "rgb(224, 64, 251)",
-              shortStroke: "rgb(255, 152, 0)",
-              condition: {
-                paramName: "Data display",
-                paramValue: "Price & Cost",
-              },
-              newPlot: true,
-              chartRender: [
-                {
-                  method: "line",
-                  param: "MACostMapping",
-                  fromComponent: false,
-                },
-                {
-                  method: "stroke",
-                  param: "stroke",
-                  fromComponent: true,
-                },
-              ],
-            },
-            {
-              name: "MA deviation nav",
-              stroke: "rgb(76, 175, 80)",
-            },
-            {
-              name: "MA deviation NAV $100",
-              stroke: "rgb(33, 150, 243)",
-            },
-          ],
-        },
         {
           name: "MA Drift",
           value: "MA Drift",
@@ -1096,35 +891,68 @@ const indicatorSlice = createSlice({
           apiFunc: "calculateMidDrift",
           parameters: [
             {
-              name: "Hi-Lo period",
+              name: "n",
+              label: "Hi-Lo period",
               value: "9",
               type: "text",
             },
             {
-              name: "Z for bounds",
+              name: "z",
+              label: "Z for bounds",
               value: "2",
               type: "text",
             },
             {
               name: "plot bounds?",
+              label: "plot bounds?",
               value: true,
               type: "checkbox",
             },
           ],
-          seriesType: "line",
-          component: [
+          charts: [
             {
               name: "mm",
-              stroke: "rgb(163, 165, 173)",
-              risingStroke: "rgb(0, 230, 118)",
-              fallingStroke: "rgb(255, 152, 0)",
+              column: "mm",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              defaultStroke: "rgb(163, 165, 173)",
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: ["increase"],
+                },
+                {
+                  color: "rgb(255, 152, 0)",
+                  conditions: ["decrease"],
+                },
+              ],
             },
             {
               name: "upper bound",
+              column: "ub",
+              condition: {
+                parameter: "plot bounds?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
               stroke: "2 rgb(33, 150, 243)",
             },
             {
               name: "lower bound",
+              column: "lb",
+              condition: {
+                parameter: "plot bounds?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
               stroke: "2 rgb(33, 150, 243)",
             },
           ],
@@ -1137,49 +965,89 @@ const indicatorSlice = createSlice({
           apiFunc: "calculateMACDModified",
           parameters: [
             {
-              name: "Fast Length",
+              name: "fast_length",
+              label: "Fast Length",
               value: "12",
               type: "text",
             },
             {
-              name: "Slow Length",
+              name: "slow_length",
+              label: "Slow Length",
               value: "26",
               type: "text",
             },
             {
-              name: "Source",
+              name: "src",
+              label: "Source",
               value: "adjclose",
               type: "select-one",
               items: ["open", "high", "low", "close", "adjclose"],
             },
             {
-              name: "Signal Smoothing",
+              name: "signal_length",
+              label: "Signal Smoothing",
               value: "9",
               type: "text",
             },
           ],
-          seriesType: "line",
-          component: [
+          charts: [
+            {
+              name: "Signal",
+              column: "signal",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              index: -1,
+              plotIndex: 0,
+              stroke: "rgba(255, 106, 0, 1)",
+            },
             {
               name: "Histogram+",
+              column: "hist",
+              seriesType: "column",
+              result: [],
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
               stroke: [
-                "rgba(38, 166, 154, 1)",
-                "rgba(255, 205, 210, 1)",
-                "rgba(178, 223, 219, 1)",
-                "rgba(239, 83, 80, 1)",
+                {
+                  color: "rgb(38, 166, 154)",
+                  conditions: ["positive", "increase"],
+                },
+                {
+                  color: "rgb(255, 205, 210)",
+                  conditions: ["negative", "increase"],
+                },
+                {
+                  color: "rgb(178, 223, 219)",
+                  conditions: ["positive", "decrease"],
+                },
+                {
+                  color: "rgb(239, 83, 80)",
+                  conditions: ["negative", "decrease"],
+                },
               ],
             },
             {
               name: "MACD",
-              stroke: ["rgba(83, 104, 120, 1)", "rgba(0, 148, 255, 1)"],
-            },
-            {
-              name: "Signal",
-              stroke: "rgba(255, 106, 0, 1)",
+              column: "macd",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              result: [],
+              index: -1,
+              stroke: [
+                {
+                  color: "rgba(83, 104, 120, 1)",
+                  conditions: ["decrease"],
+                },
+                {
+                  color: "rgba(0, 148, 255, 1)",
+                  conditions: ["increase"],
+                },
+              ],
             },
           ],
         },
-
         {
           name: "RSI Modified",
           value: "RSI Modified",
@@ -1188,45 +1056,112 @@ const indicatorSlice = createSlice({
           apiFunc: "calculateRSIModified",
           parameters: [
             {
-              name: "RSI period",
+              name: "period",
+              label: "RSI period",
               value: "14",
               type: "text",
             },
             {
-              name: "RSI Smooth",
+              name: "speriod",
+              label: "RSI Smooth",
               value: "5",
               type: "text",
             },
             {
-              name: "Upper bar",
+              name: "ub",
+              label: "Upper bar",
               value: "53",
               type: "text",
             },
             {
-              name: "Lower bar",
+              name: "lb",
+              label: "Lower bar",
               value: "47",
               type: "text",
             },
             {
               name: "Plot RSI=50 reference line?",
+              label: "Plot RSI=50 reference line?",
               value: false,
               type: "checkbox",
             },
           ],
-          seriesType: "line",
-          component: [
+          charts: [
             {
               name: "RSI+",
+              column: "prisma",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              result: [],
+              index: -1,
+              defaultStroke: "2 rgb(169, 232, 245)",
               stroke: [
-                "2 rgb(76, 175, 80)",
-                "2 rgb(118, 255, 122)",
-                "2 rgb(247, 184, 209)",
-                "2 rgb(156, 28, 28)",
-                "2 rgb(169, 232, 245)",
+                {
+                  color: "2 rgb(76, 175, 80)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["trend"] === 2)
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "2 rgb(118, 255, 122)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["trend"] === 1)
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "2 rgb(247, 184, 209)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["trend"] === -1)
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "2 rgb(156, 28, 28)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["trend"] === -2)
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
               ],
             },
             {
               name: "RSI50",
+              column: "mid",
+              condition: {
+                parameter: "Plot RSI=50 reference line?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
               stroke: "rgb(120, 123, 134)",
             },
           ],
@@ -1239,49 +1174,216 @@ const indicatorSlice = createSlice({
           apiFunc: "calculateTurtleTrade",
           parameters: [
             {
-              name: "Entry length",
+              name: "entryLength",
+              label: "Entry length",
               value: "6",
               type: "text",
             },
             {
-              name: "Exit length",
+              name: "exitLength",
+              label: "Exit length",
               value: "6",
               type: "text",
             },
             {
               name: "Exit method",
-              value: "Tutrle cut",
+              label: "Exit method",
+              value: "Turtle cut",
               type: "select-one",
-              items: ["Tutrle cut", "ATR cut"],
+              items: ["Turtle cut", "ATR cut"],
             },
             {
-              name: "ATR factor",
+              name: "atrFactor",
+              label: "ATR factor",
               value: "0.8",
               type: "text",
             },
             {
               name: "Fill up & align?",
-              value: true,
+              label: "Fill up & align?",
+              value: false,
+              // value: true,
               type: "checkbox",
             },
           ],
-          seriesType: "line",
-          component: [
+          charts: [
             {
               name: "Turtle cut buy",
+              column: "llevel",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "green",
+              stroke: "green",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "Turtle cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: false,
+                },
+              ],
             },
             {
               name: "Turtle cut sell",
+              column: "hlevel",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "red",
+              stroke: "red",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "Turtle cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: false,
+                },
+              ],
             },
             {
-              name: "ART cut buy",
+              name: "ATR cut buy",
+              column: "llevelSecond",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "green",
+              stroke: "green",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "ATR cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: false,
+                },
+              ],
             },
             {
               name: "ATR cut sell",
+              column: "hlevelSecond",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "red",
+              stroke: "red",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "ATR cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: false,
+                },
+              ],
+            },
+            {
+              name: "Turtle cut buy Ts",
+              column: "llevelTs",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "green",
+              stroke: "green",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "Turtle cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: true,
+                },
+              ],
+            },
+            {
+              name: "Turtle cut sell Ts",
+              column: "hlevelTs",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "red",
+              stroke: "red",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "Turtle cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: true,
+                },
+              ],
+            },
+            {
+              name: "ART cut buy Second",
+              column: "llevelTsSecond",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "green",
+              stroke: "green",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "ATR cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: true,
+                },
+              ],
+            },
+            {
+              name: "ATR cut sell Second",
+              column: "hlevelTsSecond",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "red",
+              stroke: "red",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "ATR cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: true,
+                },
+              ],
             },
           ],
-          buyStroke: "rgb(76, 175, 80)",
-          sellStroke: "rgb(255, 82, 82)",
         },
       ],
     },
