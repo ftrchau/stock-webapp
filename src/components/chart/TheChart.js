@@ -108,6 +108,7 @@ function TheChart(props) {
         p.high,
         p.low,
         adjustDividend ? p.adjclose : p.close,
+        p.volume,
       ];
     });
     console.log(newStockData);
@@ -951,6 +952,8 @@ function TheChart(props) {
         <Col>
           <ChartTopBar
             chart={chart}
+            ticker={ticker}
+            stockData={stockData}
             addIndicator={addIndicator}
             updateIndicator={updateIndicator}
             removeIndicator={removeIndicator}
@@ -958,8 +961,12 @@ function TheChart(props) {
             toggleRealTime={toggleRealTime}
             changeTimeZone={changeTimeZone}
             interval={interval}
+            adjustDividend={adjustDividend}
+            realStartTime={realStartTime}
+            realEndTime={realEndTime}
             realTime={realTime}
             timezone={timezone}
+            plotIndex={plotIndex}
           />
           <AnyChart
             id="stock-chart"

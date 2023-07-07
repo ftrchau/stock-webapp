@@ -1388,6 +1388,193 @@ const indicatorSlice = createSlice({
       ],
     },
     currentIndicators: [],
+    stockTools: [
+      {
+        name: "Volume Profile",
+        parameters: [
+          {
+            name: "Row Size",
+            label: "Row Size",
+            value: "24",
+            type: "text",
+          },
+        ],
+        positiveVolumeFill: "rgb(38, 166, 154)",
+        negativeVolumeFill: "rgb(239, 83, 80)",
+        VolumeStroke: "1 rgb(255, 255, 255)",
+        draw: false,
+      },
+      {
+        name: "Pivot Hi Lo",
+        parameters: [
+          {
+            name: "left",
+            label: "Left",
+            value: "10",
+            type: "text",
+          },
+          {
+            name: "right",
+            label: "Right",
+            value: "10",
+            type: "text",
+          },
+          {
+            name: "Draw Fibo line?",
+            label: "Draw Fibo line?",
+            value: true,
+            type: "checkbox",
+          },
+          {
+            name: "Extend upward fibo?",
+            label: "Extend upward fibo?",
+            value: false,
+            type: "checkbox",
+          },
+          {
+            name: "Extend downward fibo?",
+            label: "Extend downward fibo?",
+            value: false,
+            type: "checkbox",
+          },
+        ],
+        pivotHighStroke: "rgb(136, 14, 79)",
+        pivotLowStroke: "rgb(33, 150, 243)",
+        chartIndex: -1,
+        draw: false,
+      },
+      {
+        name: "52 Wk Hi Lo Range - Buy Sell",
+        parameters: [
+          {
+            name: "adjust",
+            label: "Adjust Data for dividends?",
+            value: true,
+            type: "checkbox",
+          },
+          {
+            name: "len",
+            label: "Period",
+            value: "90",
+            type: "text",
+          },
+          {
+            name: "UB",
+            label: "Hi trigger level",
+            value: "93",
+            type: "text",
+          },
+          {
+            name: "LB",
+            label: "Lo trigger Level",
+            value: "7",
+            type: "text",
+          },
+        ],
+        chartIndex: -1,
+        draw: false,
+      },
+      {
+        name: "MR Bottom Detector",
+        parameters: [
+          {
+            name: "fastLength",
+            label: "Fast Length",
+            value: "12",
+            type: "text",
+          },
+          {
+            name: "slowLength",
+            label: "Slow Length",
+            value: "26",
+            type: "text",
+          },
+          {
+            name: "rinput",
+            label: "Sensitivity (1:weak)",
+            value: "2",
+            type: "select-one",
+            items: ["1", "2", "3"],
+          },
+          {
+            name: "bandselect",
+            label: "Bands select",
+            value: "auto",
+            type: "select-one",
+            items: ["auto", "my input"],
+          },
+          {
+            name: "L1",
+            label: "auto Hi Band threshold",
+            value: "30",
+            type: "text",
+          },
+          {
+            name: "L2",
+            label: "auto M Band threshold",
+            value: "20",
+            type: "text",
+          },
+          {
+            name: "band",
+            label: "Filters Band",
+            value: "Hi band",
+            type: "select",
+            items: ["Hi band", "M band", "Lo band"],
+          },
+        ],
+        chartIndex: -1,
+        draw: false,
+      },
+      {
+        name: "Linear Regression Channel on Pivot",
+        parameters: [
+          {
+            name: "left",
+            label: "Left",
+            value: "20",
+            type: "text",
+          },
+          {
+            name: "Right",
+            label: "Right",
+            value: "20",
+            type: "text",
+          },
+          {
+            name: "shl",
+            label: "Base on Pivot",
+            value: "Hi",
+            type: "select-one",
+            items: ["Hi", "Lo"],
+          },
+          {
+            name: "Display Pivot lines?",
+            label: "Display Pivot lines?",
+            value: false,
+            type: "checkbox",
+          },
+          {
+            name: "deviations",
+            label: "Deviation(s)",
+            value: "2",
+            type: "text",
+          },
+          {
+            name: "Extend Method",
+            label: "Extend Method",
+            value: "None",
+            type: "select-one",
+            items: ["Right", "None"],
+          },
+        ],
+        chartIndex: -1,
+        draw: false,
+        pivotHighStroke: "rgb(136, 14, 79)",
+        pivotLowStroke: "rgb(33, 150, 243)",
+      },
+    ],
+    currentStockTools: [],
   },
   reducers: {
     addIndicator(state, action) {
@@ -1439,6 +1626,35 @@ const indicatorSlice = createSlice({
           }
         }
       }
+    },
+    addStockTools(state, action) {
+      state.currentStockTools.push(action.payload);
+    },
+    setToolChartAnnotationIndex(state, action) {
+      const { stockToolName, annotationIndex } = action.payload;
+
+      const stockToolIndex = state.currentStockTools.findIndex(
+        (p) => p.name === stockToolName
+      );
+
+      if (stockToolIndex > -1) {
+        var paraFind = state.currentStockTools.find(
+          (elem) => elem.name === stockToolName
+        );
+        paraFind.annotationIndex = annotationIndex;
+      }
+    },
+    removeSelectedStockTool(state, action) {
+      console.log(action.payload);
+      state.currentStockTools.splice(action.payload, 1);
+    },
+    setStockToolParams(state, action) {
+      action.payload.parameters.forEach((param, index) => {
+        state.currentStockTools[action.payload.index].parameters[index] = {
+          ...state.currentStockTools[action.payload.index].parameters[index],
+          ...param,
+        };
+      });
     },
   },
 });

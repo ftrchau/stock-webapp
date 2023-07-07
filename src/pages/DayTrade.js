@@ -3,7 +3,7 @@ import { useState } from "react";
 import TheChart from "../components/chart/TheChart";
 
 function DayTrade() {
-  const [ticker, setTicker] = useState("NVDA");
+  const [ticker, setTicker] = useState("TSLA");
 
   return (
     <>

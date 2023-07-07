@@ -11,6 +11,9 @@ import stockApi from "../../api/stock";
 import indicatorApi from "../../api/indicator";
 
 import drawingTool from "../toolbar/DRAWINGTOOL";
+
+import annotationIndex from "../chart/annotationIndex";
+
 const indicatorCallback = async (api_func, params) => {
   return await indicatorApi[api_func](params);
 };
@@ -43,6 +46,7 @@ const outputStockData = (apiResult, adjustDividend) => {
       p.high,
       p.low,
       adjustDividend ? p.adjclose : p.close,
+      p.volume,
     ];
   });
 };
@@ -76,6 +80,436 @@ const intervalTimeUnitSingular = (interval) => {
   return timeUnit;
 };
 
+const getPartialVolume = (y11, y12, y21, y22, height, vol) => {
+  return height !== 0
+    ? (Math.max(
+        Math.min(Math.max(y11, y12), Math.max(y21, y22)) -
+          Math.max(Math.min(y11, y12), Math.min(y21, y22)),
+        0
+      ) *
+        vol) /
+        height
+    : 0;
+};
+
+const drawVolumeProfileFunction = (stockTool, chart, stockData) => {
+  annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
+    chart.plot(0).annotations().removeAnnotation(elem);
+  });
+  annotationIndex.VolumeProfileannotationIndex = [];
+
+  let range = chart.getSelectedRange();
+  let stockToolParameters = stockTool.parameters.find(
+    (p) => p.name === "Row Size"
+  );
+  let cnum = +stockToolParameters.value; // row size
+  let startPoint = stockTool.startPoint || range.firstSelected;
+  let endPoint = stockTool.endPoint || range.lastSelected;
+
+  let visibleStockData = stockData.filter((p) => {
+    return startPoint <= p[0] && endPoint >= p[0];
+  });
+
+  console.log(visibleStockData);
+
+  let bbars = stockTool.bbars || visibleStockData.length;
+  let drawPOCLabel = stockTool.drawPOCLabel || false;
+
+  console.log(startPoint);
+  console.log(endPoint);
+
+  var high = visibleStockData.map((p) => p[2]);
+  var low = visibleStockData.map((p) => p[3]);
+  var top = Math.max(...high);
+  var bot = Math.min(...low);
+  var dist = (top - bot) / 500;
+  var step = (top - bot) / cnum;
+  var levels = [];
+  var volumes = [];
+  var totalvols = [];
+  for (let j = 0; j < cnum + 1; j++) {
+    levels.push(bot + j * step);
+    volumes.push(0);
+    totalvols.push(0);
+  }
+
+  for (let j = cnum; j < 2 * cnum + 1; j++) {
+    volumes.push(0);
+  }
+
+  console.log(bbars);
+
+  for (let bars = 0; bars < bbars; bars++) {
+    let body_top = Math.max(
+      visibleStockData[bars][4],
+      visibleStockData[bars][1]
+    );
+    let body_bot = Math.min(
+      visibleStockData[bars][4],
+      visibleStockData[bars][1]
+    );
+    let itsgreen = visibleStockData[bars][4] >= visibleStockData[bars][1];
+
+    let topwick = visibleStockData[bars][2] - body_top;
+    let bottomwick = body_bot - visibleStockData[bars][3];
+    let body = body_top - body_bot;
+
+    let bodyvol =
+      (body * visibleStockData[bars][5]) /
+      (2 * topwick + 2 * bottomwick + body);
+    let topwickvol =
+      (2 * topwick * visibleStockData[bars][5]) /
+      (2 * topwick + 2 * bottomwick + body);
+    let bottomwickvol =
+      (2 * bottomwick * visibleStockData[bars][5]) /
+      (2 * topwick + 2 * bottomwick + body);
+
+    for (let j = 0; j < cnum; j++) {
+      volumes[j] +=
+        (itsgreen
+          ? getPartialVolume(
+              levels[j],
+              levels[j + 1],
+              body_bot,
+              body_top,
+              body,
+              bodyvol
+            )
+          : 0) +
+        getPartialVolume(
+          levels[j],
+          levels[j + 1],
+          body_top,
+          visibleStockData[bars][2],
+          topwick,
+          topwickvol
+        ) /
+          2 +
+        getPartialVolume(
+          levels[j],
+          levels[j + 1],
+          body_bot,
+          visibleStockData[bars][3],
+          bottomwick,
+          bottomwickvol
+        ) /
+          2;
+
+      volumes[j + cnum] +=
+        (itsgreen
+          ? 0
+          : getPartialVolume(
+              levels[j],
+              levels[j + 1],
+              body_bot,
+              body_top,
+              body,
+              bodyvol
+            )) +
+        getPartialVolume(
+          levels[j],
+          levels[j + 1],
+          body_top,
+          visibleStockData[bars][2],
+          topwick,
+          topwickvol
+        ) /
+          2;
+      //    +
+      // getPartialVolume(
+      //   levels[j],
+      //   levels[j + 1],
+      //   body_bot,
+      //   visibleStockData[bars][3],
+      //   bottomwick,
+      //   bottomwickvol
+      // ) /
+      //   2;
+    }
+  }
+  console.log(volumes);
+  for (let j = 0; j < cnum; j++) {
+    totalvols[j] = volumes[j] + volumes[j + cnum];
+  }
+  var poc = totalvols.indexOf(Math.max(...totalvols));
+  var poc_level = (levels[poc] + levels[poc + 1]) / 2;
+  var maxvol = Math.max(...totalvols);
+  for (let j = 0; j < 2 * cnum; j++) {
+    volumes[j] =
+      (volumes[j] *
+        (visibleStockData[visibleStockData.length - 1][0] -
+          visibleStockData[0][0])) /
+      (maxvol * 3);
+  }
+  var controller = chart.plot(0).annotations();
+
+  for (let j = 0; j < cnum; j++) {
+    annotationIndex.VolumeProfileannotationIndex.push(
+      controller
+        .rectangle({
+          xAnchor: startPoint,
+          valueAnchor: levels[j],
+          secondXAnchor: startPoint + Math.round(volumes[j]),
+          secondValueAnchor: levels[j + 1],
+          normal: {
+            fill: stockTool.positiveVolumeFill + " 0.3",
+            stroke: stockTool.VolumeStroke,
+          },
+          hovered: {
+            fill: stockTool.positiveVolumeFill + " 0.3",
+            stroke: stockTool.VolumeStroke,
+          },
+          selected: {
+            fill: stockTool.positiveVolumeFill + " 0.3",
+            stroke: stockTool.VolumeStroke,
+          },
+        })
+        .allowEdit(false)
+    );
+    // get the number of annotations
+    // controller.getAnnotationsCount();
+    // annotationIndex.push(controller.getAnnotationsCount() - 1);
+    annotationIndex.VolumeProfileannotationIndex.push(
+      controller
+        .rectangle({
+          xAnchor: startPoint + Math.round(volumes[j]),
+          valueAnchor: levels[j],
+          secondXAnchor:
+            startPoint + Math.round(volumes[j]) + Math.round(volumes[j + cnum]),
+          secondValueAnchor: levels[j + 1],
+          normal: {
+            fill: stockTool.negativeVolumeFill + " 0.2",
+            stroke: stockTool.VolumeStroke,
+          },
+          hovered: {
+            fill: stockTool.negativeVolumeFill + " 0.2",
+            stroke: stockTool.VolumeStroke,
+          },
+          selected: {
+            fill: stockTool.negativeVolumeFill + " 0.2",
+            stroke: stockTool.VolumeStroke,
+          },
+        })
+        .allowEdit(false)
+    );
+    // annotationIndex.push(controller.getAnnotationsCount() - 1);
+  }
+  annotationIndex.VolumeProfileannotationIndex.push(
+    controller
+      .line({
+        xAnchor: startPoint,
+        valueAnchor: poc_level,
+        secondXAnchor: visibleStockData[visibleStockData.length - 1][0],
+        secondValueAnchor: poc_level,
+      })
+      .allowEdit(false)
+  );
+  if (drawPOCLabel) {
+    annotationIndex.VolumeProfileannotationIndex.push(
+      controller
+        .label({
+          xAnchor: endPoint,
+          valueAnchor: poc_level,
+          text: poc_level.toFixed(2),
+          normal: {
+            fontColor: "rgb(255, 235, 59)",
+          },
+          hovered: {
+            fontColor: "rgb(255, 235, 59)",
+          },
+          selected: {
+            fontColor: "rgb(255, 235, 59)",
+          },
+        })
+        .background({
+          fill: "rgb(33, 150, 243)",
+          stroke: "rgb(44, 152, 240)",
+        })
+        .allowEdit(false)
+    );
+  }
+};
+
+const addLinearRegression = async function (
+  chart,
+  interval,
+  stockData,
+  stockTool,
+  ticker,
+  adjustDividend,
+  realStartTime,
+  realEndTime,
+  update = false
+) {
+  let apiInputParam = {};
+  stockTool.parameters.forEach((opt) => {
+    apiInputParam[opt.name] =
+      Number.isNaN(+opt.value) || typeof opt.value == "boolean"
+        ? opt.value
+        : +opt.value;
+  });
+  const LinearRegressionresult = await indicatorApi.calculateLinearRegression({
+    ...apiInputParam,
+    ticker,
+    interval,
+    adjustDividend,
+    startDate: realStartTime.current,
+    endDate: realEndTime.current,
+  });
+
+  if (LinearRegressionresult) {
+    let LinearRegressionUpperData = LinearRegressionresult.filter(
+      (p) => p.upperChannelLine
+    ).map((p) => {
+      return [moment(p.date).valueOf(), p.upperChannelLine];
+    });
+    let LinearRegressionMedianData = LinearRegressionresult.filter(
+      (p) => p.medianChannelLine
+    ).map((p) => {
+      return [moment(p.date).valueOf(), p.medianChannelLine];
+    });
+    let LinearRegressionLowerData = LinearRegressionresult.filter(
+      (p) => p.lowerChannelLine
+    ).map((p) => {
+      return [moment(p.date).valueOf(), p.lowerChannelLine];
+    });
+    let LinearRegressionpvhData = LinearRegressionresult.map((p) => {
+      return [moment(p.date).valueOf(), p.pvh];
+    });
+    let LinearRegressionpvlData = LinearRegressionresult.map((p) => {
+      return [moment(p.date).valueOf(), p.pvl];
+    });
+
+    var LinearRegressionUpperTable = anychart.data.table();
+
+    LinearRegressionUpperTable.addData(LinearRegressionUpperData);
+    var LinearRegressionUpperMapping = LinearRegressionUpperTable.mapAs();
+    LinearRegressionUpperMapping.addField("value", 1);
+
+    var LinearRegressionMedianTable = anychart.data.table();
+
+    LinearRegressionMedianTable.addData(LinearRegressionMedianData);
+    var LinearRegressionMedianMapping = LinearRegressionMedianTable.mapAs();
+    LinearRegressionMedianMapping.addField("value", 1);
+
+    var LinearRegressionLowerTable = anychart.data.table();
+    LinearRegressionLowerTable.addData(LinearRegressionLowerData);
+    var LinearRegressionLowerMapping = LinearRegressionLowerTable.mapAs();
+    LinearRegressionLowerMapping.addField("value", 1);
+
+    var LinearRegressionpvhTable = anychart.data.table();
+    LinearRegressionpvhTable.addData(LinearRegressionpvhData);
+    var LinearRegressionpvhMapping = LinearRegressionpvhTable.mapAs();
+    LinearRegressionpvhMapping.addField("value", 1);
+
+    var LinearRegressionpvlTable = anychart.data.table();
+    LinearRegressionpvlTable.addData(LinearRegressionpvlData);
+    var LinearRegressionpvlMapping = LinearRegressionpvlTable.mapAs();
+    LinearRegressionpvlMapping.addField("value", 1);
+
+    if (!update) {
+      chart.current
+        .plot(0)
+        .line(LinearRegressionUpperMapping)
+        .stroke("#FF0000")
+        .name("Upper Channel Line");
+
+      chart.current
+        .plot(0)
+        .line(LinearRegressionMedianMapping)
+        .stroke("#C0C000")
+        .name("Middle Channel Line");
+
+      chart.current
+        .plot(0)
+        .line(LinearRegressionLowerMapping)
+        .stroke("#00FF00")
+        .name("Lower Channel Line");
+
+      if (
+        stockTool.parameters.find((p) => p.name === "Display Pivot lines?")
+          .value
+      ) {
+        chart.current
+          .plot(0)
+          .line(LinearRegressionpvhMapping)
+          .stroke(stockTool.pivotHighStroke, 1, 1)
+          .name("Pivot High");
+
+        chart.current
+          .plot(0)
+          .line(LinearRegressionpvlMapping)
+          .stroke(stockTool.pivotLowStroke, 1, 1)
+          .name("Pivot Low");
+      }
+    } else {
+      let seriesNames = [
+        "Upper Channel Line",
+        "Middle Channel Line",
+        "Lower Channel Line",
+      ];
+      let seriesMapping = {
+        "Upper Channel Line": LinearRegressionUpperMapping,
+        "Middle Channel Line": LinearRegressionMedianMapping,
+        "Lower Channel Line": LinearRegressionLowerMapping,
+      };
+      let switchNames = ["Pivot High", "Pivot Low"];
+      let switchSeriesFound = {
+        "Pivot High": false,
+        "Pivot Low": false,
+      };
+      let switchSeriesMapping = {
+        "Pivot High": LinearRegressionpvhMapping,
+        "Pivot Low": LinearRegressionpvlMapping,
+      };
+      let switchSeriesStroke = {
+        "Pivot High": stockTool.pivotHighStroke,
+        "Pivot Low": stockTool.pivotLowStroke,
+      };
+      let seriesLength = chart.current.plot(0).getSeriesCount();
+
+      for (let i = seriesLength - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(0).getSeries(i)) {
+          let seriesName = chart.current.plot(0).getSeries(i).name();
+          if (seriesNames.includes(seriesName)) {
+            chart.current.plot(0).getSeries(i).data(seriesMapping[seriesName]);
+          }
+          if (switchNames.includes(seriesName)) {
+            switchSeriesFound[seriesName] = true;
+            if (
+              stockTool.parameters.find(
+                (p) => p.name === "Display Pivot lines?"
+              ).value
+            ) {
+              chart.current
+                .plot(0)
+                .getSeries(i)
+                .data(switchSeriesMapping[seriesName]);
+            } else {
+              chart.current.plot(0).removeSeries(i);
+            }
+          }
+        }
+      }
+
+      if (
+        stockTool.parameters.find((p) => p.name === "Display Pivot lines?")
+          .value
+      ) {
+        for (let key in switchSeriesFound) {
+          if (!switchSeriesFound[key]) {
+            chart.current
+              .plot(0)
+              .line(switchSeriesMapping[key])
+              .stroke(switchSeriesStroke[key], 1, 1)
+              .name(key);
+          }
+        }
+      }
+    }
+  }
+};
+
 function ListenChart(props) {
   const dispatch = useDispatch();
 
@@ -86,6 +520,9 @@ function ListenChart(props) {
 
   const currentIndicators = useSelector(
     (state) => state.indicator.currentIndicators
+  );
+  const currentStockTools = useSelector(
+    (state) => state.indicator.currentStockTools
   );
 
   // const textAreaListen = useCallback((e, selectedAnnos, textArea) => {
@@ -124,7 +561,7 @@ function ListenChart(props) {
       var newEndDate = endDate;
       var tempStockData = newStockData;
       var oldStartDate = startDate;
-      props.chart.current.listen(
+      var chartListenKey = props.chart.current.listen(
         "selectedrangechangefinish",
         async function (e) {
           var max = getStockMax(tempStockData, e.firstVisible, e.lastSelected);
@@ -469,6 +906,49 @@ function ListenChart(props) {
                 moment(realEndTime.current).format("YYYY-MM-DD HH:mm:ss")
               );
             }
+
+            for await (let stockTool of currentStockTools) {
+              console.log(stockTool);
+              if (stockTool.name === "Volume Profile") {
+                drawVolumeProfileFunction(
+                  stockTool,
+                  props.chart.current,
+                  tempStockData
+                );
+              }
+              if (stockTool.name === "Linear Regression Channel on Pivot") {
+                await addLinearRegression(
+                  props.chart,
+                  interval,
+                  tempStockData,
+                  stockTool,
+                  ticker,
+                  adjustDividend,
+                  realStartTime,
+                  realEndTime,
+                  true
+                );
+              }
+            }
+          } else {
+            // for volume profile only
+            for (let stockTool of currentStockTools) {
+              console.log(stockTool);
+              if (stockTool.name === "Volume Profile") {
+                annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
+                  props.chart.current
+                    .plot(0)
+                    .annotations()
+                    .removeAnnotation(elem);
+                });
+                annotationIndex.VolumeProfileannotationIndex = [];
+                drawVolumeProfileFunction(
+                  stockTool,
+                  props.chart.current,
+                  tempStockData
+                );
+              }
+            }
           }
         }
       );
@@ -528,6 +1008,10 @@ function ListenChart(props) {
         dispatch(drawingActions.toogleDrawToolBar(true));
       });
     }
+
+    return () => {
+      if (chartListenKey) props.chart.current.unlistenByKey(chartListenKey);
+    };
   }, [
     props.chart,
     adjustDividend,
@@ -541,6 +1025,7 @@ function ListenChart(props) {
     startDate,
     ticker,
     dispatch,
+    currentStockTools,
   ]);
 
   return <div></div>;
