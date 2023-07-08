@@ -542,7 +542,8 @@ const addFline = async function (
   ticker,
   adjustDividend,
   realStartTime,
-  realEndTime
+  realEndTime,
+  update = false
 ) {
   let apiInputParam = {};
   stockTool.parameters.forEach((opt) => {
@@ -582,17 +583,34 @@ const addFline = async function (
 
     console.log(PivotHiLopvhData);
     console.log(PivotHiLopvlData);
-    chart.current
-      .plot(0)
-      .line(PivotHiLopvhMapping)
-      .stroke(stockTool.pivotHighStroke, 1, 1)
-      .name("Pivot High");
+    if (!update) {
+      chart.current
+        .plot(0)
+        .line(PivotHiLopvhMapping)
+        .stroke(stockTool.pivotHighStroke, 1, 1)
+        .name("Pivot High");
 
-    chart.current
-      .plot(0)
-      .line(PivotHiLopvlMapping)
-      .stroke(stockTool.pivotLowStroke, 1, 1)
-      .name("Pivot Low");
+      chart.current
+        .plot(0)
+        .line(PivotHiLopvlMapping)
+        .stroke(stockTool.pivotLowStroke, 1, 1)
+        .name("Pivot Low");
+    } else {
+      let seriesNames = ["Pivot High", "Pivot Low"];
+      let seriesMapping = {
+        "Pivot High": PivotHiLopvhMapping,
+        "Pivot Low": PivotHiLopvlMapping,
+      };
+      let seriesLength = chart.current.plot(0).getSeriesCount();
+      for (let i = seriesLength - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(0).getSeries(i)) {
+          let seriesName = chart.current.plot(0).getSeries(i).name();
+          if (seriesNames.includes(seriesName)) {
+            chart.current.plot(0).getSeries(i).data(seriesMapping[seriesName]);
+          }
+        }
+      }
+    }
 
     if (stockTool.parameters.find((p) => p.name === "Draw Fibo line?").value) {
       var lastPvh = [];
@@ -1264,7 +1282,15 @@ function ChartTopBar(props) {
           adjustDividend,
           realStartTime,
           realEndTime,
-          plotIndex
+          plotIndex,
+          false
+        );
+
+        dispatch(
+          indicatorActions.setToolChartPlotIndex({
+            stockToolName: stockTool.name,
+            plotIndex: wkHiLoChartIndex,
+          })
         );
       }
 
@@ -1327,15 +1353,6 @@ function ChartTopBar(props) {
           chart.current.plot(0).annotations().removeAnnotation(elem);
         });
         FLineannotationIndex = [];
-        var seriesLength = chart.current.plot(0).getSeriesCount();
-        for (let i = seriesLength - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(0).getSeries(i)) {
-            let seriesName = chart.current.plot(0).getSeries(i).name();
-            if (seriesName === "Pivot High" || seriesName === "Pivot Low") {
-              chart.current.plot(0).removeSeries(i);
-            }
-          }
-        }
 
         await addFline(
           chart,
@@ -1345,7 +1362,8 @@ function ChartTopBar(props) {
           ticker,
           adjustDividend,
           realStartTime,
-          realEndTime
+          realEndTime,
+          true
         );
       }
       if (stockTool.name === "52 Wk Hi Lo Range - Buy Sell") {

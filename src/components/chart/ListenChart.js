@@ -330,6 +330,141 @@ const drawVolumeProfileFunction = (stockTool, chart, stockData) => {
   }
 };
 
+const addWkHiLo = async function (
+  chart,
+  interval,
+  stockData,
+  stockTool,
+  ticker,
+  adjustDividend,
+  realStartTime,
+  realEndTime,
+  plotIndex,
+  update = false
+) {
+  let apiInputParam = {};
+  stockTool.parameters.forEach((opt) => {
+    apiInputParam[opt.name] =
+      Number.isNaN(+opt.value) || typeof opt.value == "boolean"
+        ? opt.value
+        : +opt.value;
+  });
+  const WkHiLoRangeresult = await indicatorApi.calculateWkHiLoRange({
+    ...apiInputParam,
+    ticker,
+    interval,
+    adjustDividend,
+    startDate: realStartTime.current,
+    endDate: realEndTime.current,
+  });
+  console.log(WkHiLoRangeresult);
+  if (WkHiLoRangeresult) {
+    let WkHiLoRangeHHpctData = WkHiLoRangeresult.map((p) => {
+      return [moment(p.date).valueOf(), p.HHpct];
+    });
+    let WkHiLoRangeLLpctData = WkHiLoRangeresult.map((p) => {
+      return [moment(p.date).valueOf(), p.LLpct];
+    });
+    let WkHiLoRangeblineData = WkHiLoRangeresult.map((p) => {
+      return [moment(p.date).valueOf(), p.bline];
+    });
+    let WkHiLoRangeslineData = WkHiLoRangeresult.map((p) => {
+      return [moment(p.date).valueOf(), p.sline];
+    });
+
+    var UBLineData = WkHiLoRangeresult.map((p) => {
+      return [
+        moment(p.date).valueOf(),
+        +stockTool.parameters.find((p) => p.name === "UB").value,
+      ];
+    });
+
+    var LBLineData = WkHiLoRangeresult.map((p) => {
+      return [
+        moment(p.date).valueOf(),
+        +stockTool.parameters.find((s) => s.name === "LB").value,
+      ];
+    });
+    var MidLineData = WkHiLoRangeresult.map((p) => {
+      return [moment(p.date).valueOf(), 50];
+    });
+
+    var WkHiLoRangeHHpctTable = anychart.data.table();
+    WkHiLoRangeHHpctTable.addData(WkHiLoRangeHHpctData);
+    var WkHiLoRangeHHpctMapping = WkHiLoRangeHHpctTable.mapAs();
+    WkHiLoRangeHHpctMapping.addField("value", 1);
+
+    var WkHiLoRangeLLpctTable = anychart.data.table();
+    WkHiLoRangeLLpctTable.addData(WkHiLoRangeLLpctData);
+    var WkHiLoRangeLLpctMapping = WkHiLoRangeLLpctTable.mapAs();
+    WkHiLoRangeLLpctMapping.addField("value", 1);
+
+    var WkHiLoRangeblineTable = anychart.data.table();
+    WkHiLoRangeblineTable.addData(WkHiLoRangeblineData);
+    var WkHiLoRangeblineMapping = WkHiLoRangeblineTable.mapAs();
+    WkHiLoRangeblineMapping.addField("value", 1);
+
+    var WkHiLoRangeslineTable = anychart.data.table();
+    WkHiLoRangeslineTable.addData(WkHiLoRangeslineData);
+    var WkHiLoRangeslineMapping = WkHiLoRangeslineTable.mapAs();
+    WkHiLoRangeslineMapping.addField("value", 1);
+
+    var UBLineTable = anychart.data.table();
+    UBLineTable.addData(UBLineData);
+    var UBLineMapping = UBLineTable.mapAs();
+    UBLineMapping.addField("value", 1);
+
+    var LBLineTable = anychart.data.table();
+    LBLineTable.addData(LBLineData);
+    var LBLineMapping = LBLineTable.mapAs();
+    LBLineMapping.addField("value", 1);
+
+    var MidLineTable = anychart.data.table();
+    MidLineTable.addData(MidLineData);
+    var MidLineMapping = MidLineTable.mapAs();
+    MidLineMapping.addField("value", 1);
+    if (update) {
+      let seriesNames = [
+        "on High",
+        "on Low",
+        "UB",
+        "LB",
+        "Mid",
+        "bline",
+        "sline",
+      ];
+      let seriesMapping = {
+        "on High": WkHiLoRangeHHpctMapping,
+        "on Low": WkHiLoRangeLLpctMapping,
+        UB: UBLineMapping,
+        LB: LBLineMapping,
+        Mid: MidLineMapping,
+        bline: WkHiLoRangeblineMapping,
+        sline: WkHiLoRangeslineMapping,
+      };
+      let seriesLength = chart.current
+        .plot(stockTool.chartIndex)
+        .getSeriesCount();
+
+      for (let i = seriesLength - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(stockTool.chartIndex).getSeries(i)) {
+          let seriesName = chart.current
+            .plot(stockTool.chartIndex)
+            .getSeries(i)
+            .name();
+          if (seriesNames.includes(seriesName)) {
+            console.log(seriesName);
+            chart.current
+              .plot(stockTool.chartIndex)
+              .getSeries(i)
+              .data(seriesMapping[seriesName]);
+          }
+        }
+      }
+    }
+  }
+};
+
 const addLinearRegression = async function (
   chart,
   interval,
@@ -510,6 +645,74 @@ const addLinearRegression = async function (
   }
 };
 
+const addFline = async function (
+  chart,
+  interval,
+  stockData,
+  stockTool,
+  ticker,
+  adjustDividend,
+  realStartTime,
+  realEndTime,
+  update = false
+) {
+  let apiInputParam = {};
+  stockTool.parameters.forEach((opt) => {
+    apiInputParam[opt.name] =
+      Number.isNaN(+opt.value) || typeof opt.value == "boolean"
+        ? opt.value
+        : +opt.value;
+  });
+  const PivotHiLoresult = await indicatorApi.calculatePivotHiLo({
+    ...apiInputParam,
+    ticker,
+    interval,
+    adjustDividend,
+    startDate: realStartTime.current,
+    endDate: realEndTime.current,
+  });
+  if (PivotHiLoresult) {
+    console.log(PivotHiLoresult);
+    let PivotHiLopvhData = PivotHiLoresult.map((p) => {
+      return [moment(p.date).valueOf(), p.pvh];
+    });
+    let PivotHiLopvlData = PivotHiLoresult.map((p) => {
+      return [moment(p.date).valueOf(), p.pvl];
+    });
+
+    var PivotHiLopvhTable = anychart.data.table();
+    PivotHiLopvhTable.addData(PivotHiLopvhData);
+
+    var PivotHiLopvhMapping = PivotHiLopvhTable.mapAs();
+    PivotHiLopvhMapping.addField("value", 1);
+
+    var PivotHiLopvlTable = anychart.data.table();
+    PivotHiLopvlTable.addData(PivotHiLopvlData);
+
+    var PivotHiLopvlMapping = PivotHiLopvlTable.mapAs();
+    PivotHiLopvlMapping.addField("value", 1);
+
+    console.log(PivotHiLopvhData);
+    console.log(PivotHiLopvlData);
+    if (update) {
+      let seriesNames = ["Pivot High", "Pivot Low"];
+      let seriesMapping = {
+        "Pivot High": PivotHiLopvhMapping,
+        "Pivot Low": PivotHiLopvlMapping,
+      };
+      let seriesLength = chart.current.plot(0).getSeriesCount();
+      for (let i = seriesLength - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(0).getSeries(i)) {
+          let seriesName = chart.current.plot(0).getSeries(i).name();
+          if (seriesNames.includes(seriesName)) {
+            chart.current.plot(0).getSeries(i).data(seriesMapping[seriesName]);
+          }
+        }
+      }
+    }
+  }
+};
+
 function ListenChart(props) {
   const dispatch = useDispatch();
 
@@ -548,6 +751,7 @@ function ListenChart(props) {
     chartTable,
     chartMapping,
     ticker,
+    plotIndex,
   } = props;
 
   useEffect(() => {
@@ -914,6 +1118,33 @@ function ListenChart(props) {
                   stockTool,
                   props.chart.current,
                   tempStockData
+                );
+              }
+              if (stockTool.name === "Pivot Hi Lo") {
+                await addFline(
+                  props.chart,
+                  interval,
+                  tempStockData,
+                  stockTool,
+                  ticker,
+                  adjustDividend,
+                  realStartTime,
+                  realEndTime,
+                  true
+                );
+              }
+              if (stockTool.name === "52 Wk Hi Lo Range - Buy Sell") {
+                await addWkHiLo(
+                  props.chart,
+                  interval,
+                  tempStockData,
+                  stockTool,
+                  ticker,
+                  adjustDividend,
+                  realStartTime,
+                  realEndTime,
+                  plotIndex,
+                  true
                 );
               }
               if (stockTool.name === "Linear Regression Channel on Pivot") {

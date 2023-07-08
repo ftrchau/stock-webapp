@@ -1630,6 +1630,20 @@ const indicatorSlice = createSlice({
     addStockTools(state, action) {
       state.currentStockTools.push(action.payload);
     },
+    setToolChartPlotIndex(state, action) {
+      const { stockToolName, plotIndex } = action.payload;
+
+      const stockToolIndex = state.currentStockTools.findIndex(
+        (p) => p.name === stockToolName
+      );
+
+      if (stockToolIndex > -1) {
+        var paraFind = state.currentStockTools.find(
+          (elem) => elem.name === stockToolName
+        );
+        paraFind.chartIndex = plotIndex;
+      }
+    },
     setToolChartAnnotationIndex(state, action) {
       const { stockToolName, annotationIndex } = action.payload;
 

@@ -20,7 +20,6 @@ import { indicatorActions } from "../../store/indicator-slice";
 import indicatorApi from "../../api/indicator";
 
 import "./TheChart.css";
-import { all } from "axios";
 
 const getStockMax = (data, start, end) => {
   console.log(data);
