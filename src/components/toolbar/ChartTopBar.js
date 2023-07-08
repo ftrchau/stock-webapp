@@ -8,6 +8,8 @@ import {
   Tooltip,
   Col,
   Row,
+  Form,
+  ButtonGroup,
 } from "react-bootstrap";
 
 import { Icon } from "@iconify/react";
@@ -24,6 +26,7 @@ import { useCallback } from "react";
 import { indicatorActions } from "../../store/indicator-slice";
 
 import indicatorApi from "../../api/indicator";
+import stockApi from "../../api/stock";
 import moment from "moment";
 import anychart from "anychart";
 
@@ -44,6 +47,20 @@ const intervalSelectedName = (interval) => {
   return intervalTitle;
 };
 
+const outputStockData = (apiResult, adjustDividend) => {
+  return apiResult.quotes.map((p) => {
+    return [
+      moment(p.date).valueOf(),
+      // moment(p.date).format("YYYY-MM-DD"),
+      p.open,
+      p.high,
+      p.low,
+      adjustDividend ? p.adjclose : p.close,
+      p.volume,
+    ];
+  });
+};
+
 const getPartialVolume = (y11, y12, y21, y22, height, vol) => {
   return height !== 0
     ? (Math.max(
@@ -56,7 +73,14 @@ const getPartialVolume = (y11, y12, y21, y22, height, vol) => {
     : 0;
 };
 
-const drawVolumeProfileFunction = (stockTool, chart, stockData) => {
+const drawVolumeProfileFunction = async (
+  stockTool,
+  chart,
+  ticker,
+  interval,
+  adjustDividend,
+  realTime
+) => {
   annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
     chart.current.plot(0).annotations().removeAnnotation(elem);
   });
@@ -69,6 +93,19 @@ const drawVolumeProfileFunction = (stockTool, chart, stockData) => {
   let cnum = +stockToolParameters.value; // row size
   let startPoint = stockTool.startPoint || range.firstSelected;
   let endPoint = stockTool.endPoint || range.lastSelected;
+
+  let apiResult = await stockApi.getStockPrice({
+    ticker,
+    startDate: Math.ceil(startPoint / Math.pow(10, 3)),
+    endDate: Math.ceil(endPoint / Math.pow(10, 3)),
+    interval,
+    adjustDividend,
+    realTime,
+  });
+
+  console.log(apiResult);
+
+  let stockData = outputStockData(apiResult, adjustDividend);
 
   let visibleStockData = stockData.filter((p) => {
     return startPoint <= p[0] && endPoint >= p[0];
@@ -1216,6 +1253,375 @@ const addLinearRegression = async function (
   }
 };
 
+var ZigZagannotationIndex = [];
+const addZigZag = async function (
+  chart,
+  interval,
+  stockData,
+  stockTool,
+  ticker,
+  adjustDividend,
+  realStartTime,
+  realEndTime,
+  update = false
+) {
+  let apiInputParam = {};
+  stockTool.parameters.forEach((opt) => {
+    apiInputParam[opt.name] =
+      Number.isNaN(+opt.value) || typeof opt.value == "boolean"
+        ? opt.value
+        : +opt.value;
+  });
+  const Zigzagresult = await indicatorApi.calculateZigZag({
+    ...apiInputParam,
+    ticker,
+    interval,
+    adjustDividend,
+    startDate: realStartTime.current,
+    endDate: realEndTime.current,
+  });
+
+  if (Zigzagresult) {
+    let ZigzagLowerData = Zigzagresult.filter((p) => p.lowerChannelLine).map(
+      (p) => {
+        return [moment(p.date).valueOf(), p.lowerChannelLine];
+      }
+    );
+    let ZigzagMedianData = Zigzagresult.filter((p) => p.medianChannelLine).map(
+      (p) => {
+        return [moment(p.date).valueOf(), p.medianChannelLine];
+      }
+    );
+    let ZigzagUpperData = Zigzagresult.filter((p) => p.upperChannelLine).map(
+      (p) => {
+        return [moment(p.date).valueOf(), p.upperChannelLine];
+      }
+    );
+    let ZigzagData = Zigzagresult.filter((p) => p.value).map((p) => {
+      return [moment(p.date).valueOf(), p.value, p.dirUp];
+    });
+    let ZigzagPredictData = Zigzagresult.filter((p) => p.predictive).map(
+      (p) => {
+        return [moment(p.date).valueOf(), p.predictive];
+      }
+    );
+    let ZigzagPredictSecondData = Zigzagresult.filter(
+      (p) => p.predictiveSecond
+    ).map((p) => {
+      return [moment(p.date).valueOf(), p.predictiveSecond];
+    });
+    let ZigzagLabelData = Zigzagresult.filter(
+      (p) => p.pctLabel || p.RSIlabel
+    ).map((p) => {
+      return [
+        moment(p.date).valueOf(),
+        p.pctLabel,
+        p.RSIlabel,
+        p.lastlowUpdate,
+        p.lastHighUpdate,
+        p.lowerChannelLine,
+      ];
+    });
+
+    let ZigzagLastLabelData = [
+      moment(Zigzagresult[Zigzagresult.length - 1].date).valueOf(),
+      Zigzagresult[Zigzagresult.length - 1].lastpLabel,
+      Zigzagresult[Zigzagresult.length - 1].medianChannelLine,
+    ];
+    let ZigzagLastChangeLabelData = [
+      moment(Zigzagresult[Zigzagresult.length - 1].date).valueOf(),
+      Zigzagresult[Zigzagresult.length - 1].lastRSIlabel,
+      Zigzagresult[Zigzagresult.length - 1].lastpct,
+      Zigzagresult[Zigzagresult.length - 1].medianChannelLine,
+    ];
+    let ZigzagCountDownData = [
+      moment(Zigzagresult[Zigzagresult.length - 1].date).valueOf(),
+      Zigzagresult[Zigzagresult.length - 1].countdown + " bar",
+      Zigzagresult[Zigzagresult.length - 1].medianChannelLine -
+        Zigzagresult[Zigzagresult.length - 1].lastDeviation * 1.2,
+    ];
+    let ZigzagrsquareData = Zigzagresult.filter((p) => p.rsquarelabel).map(
+      (p) => {
+        return [moment(p.date).valueOf(), p.rsquarelabel, p.close];
+      }
+    );
+
+    let ZigzagLowerTable = anychart.data.table();
+    ZigzagLowerTable.addData(ZigzagLowerData);
+    let ZigzagLowerMapping = ZigzagLowerTable.mapAs();
+    ZigzagLowerMapping.addField("value", 1);
+
+    let ZigzagMedianTable = anychart.data.table();
+    ZigzagMedianTable.addData(ZigzagMedianData);
+    let ZigzagMedianMapping = ZigzagMedianTable.mapAs();
+    ZigzagMedianMapping.addField("value", 1);
+
+    let ZigzagUpperTable = anychart.data.table();
+    ZigzagUpperTable.addData(ZigzagUpperData);
+    let ZigzagUpperMapping = ZigzagUpperTable.mapAs();
+    ZigzagUpperMapping.addField("value", 1);
+
+    let ZigzagPredictTable = anychart.data.table();
+    ZigzagPredictTable.addData(ZigzagPredictData);
+    let ZigzagPredictMapping = ZigzagPredictTable.mapAs();
+    ZigzagPredictMapping.addField("value", 1);
+
+    let ZigzagPredictSecondTable = anychart.data.table();
+    ZigzagPredictSecondTable.addData(ZigzagPredictSecondData);
+    let ZigzagPredictSecondMapping = ZigzagPredictSecondTable.mapAs();
+    ZigzagPredictSecondMapping.addField("value", 1);
+
+    ZigZagannotationIndex.push(
+      chart
+        .plot(0)
+        .annotations()
+        .label({
+          xAnchor: ZigzagrsquareData[0][0],
+          valueAnchor: ZigzagrsquareData[0][2],
+          text: ZigzagrsquareData[0][1],
+          normal: {
+            fontColor: stockTool.lastLabelRSIFontColor,
+          },
+          hovered: {
+            fontColor: stockTool.lastLabelRSIFontColor,
+          },
+          selected: {
+            fontColor: stockTool.lastLabelRSIFontColor,
+          },
+        })
+        .background({
+          fill: stockTool.lastLabelRSIFillColor,
+          stroke: stockTool.lastLabelRSIFillColor,
+        })
+    );
+
+    let zigzagLines = ZigzagData.map((p, idx) => {
+      if (idx < ZigzagData.length - 1) {
+        return {
+          xAnchor: p[0],
+          valueAnchor: p[1],
+          secondXAnchor: ZigzagData[idx + 1][0],
+          secondValueAnchor: ZigzagData[idx + 1][1],
+          stroke: {
+            color: p[2] ? "rgb(0, 230, 118)" : "rgb(33,150,243)",
+          },
+        };
+      }
+    });
+
+    zigzagLines.forEach((zigzagLine) => {
+      ZigZagannotationIndex.push(chart.plot(0).annotations().line(zigzagLine));
+    });
+    let zigzagPredictiveLines = ZigzagPredictData.filter(
+      (p, idx) => idx < ZigzagPredictData.length - 1
+    ).map((p, idx) => {
+      return {
+        xAnchor: p[0],
+        valueAnchor: p[1],
+        secondXAnchor: ZigzagPredictData[idx + 1][0],
+        secondValueAnchor: ZigzagPredictData[idx + 1][1],
+        stroke: {
+          color: stockTool.zigzagPredictiveStrokeColor,
+          dash: "2 2",
+        },
+      };
+    });
+    zigzagPredictiveLines.forEach((zigzagPredictiveLine) => {
+      ZigZagannotationIndex.push(
+        chart.plot(0).annotations().line(zigzagPredictiveLine)
+      );
+    });
+    let zigzagSecondPredictiveLines = ZigzagPredictSecondData.filter(
+      (p, idx) => idx < ZigzagPredictSecondData.length - 1
+    ).map((p, idx) => {
+      return {
+        xAnchor: p[0],
+        valueAnchor: p[1],
+        secondXAnchor: ZigzagPredictSecondData[idx + 1][0],
+        secondValueAnchor: ZigzagPredictSecondData[idx + 1][1],
+        stroke: {
+          color: stockTool.zigzagSecondPredictiveStrokeColor,
+          dash: "2 2",
+        },
+      };
+    });
+    zigzagSecondPredictiveLines.forEach((zigzagSecondPredictiveLine) => {
+      ZigZagannotationIndex.push(
+        chart.plot(0).annotations().line(zigzagSecondPredictiveLine)
+      );
+    });
+    var zigzagLabels = [];
+    zigzagLabels = ZigzagLabelData.map((p, idx) => {
+      return {
+        xAnchor: p[0],
+        valueAnchor: p[5],
+        text: p[1],
+        normal: {
+          fontColor: stockTool.zigzagFontColor,
+        },
+        hovered: {
+          fontColor: stockTool.zigzagFontColor,
+        },
+        selected: {
+          fontColor: stockTool.zigzagFontColor,
+        },
+        lastlowUpdate: p[3],
+        lastHighUpdate: p[4],
+      };
+    });
+    ZigZagannotationIndex.push(
+      chart
+        .plot(0)
+        .annotations()
+        .label({
+          xAnchor: ZigzagLastChangeLabelData[0],
+          valueAnchor: ZigzagLastChangeLabelData[3],
+          text: ZigzagLastChangeLabelData[2],
+          normal: {
+            fontColor: stockTool.lastLabelRSIFontColor,
+          },
+          hovered: {
+            fontColor: stockTool.lastLabelRSIFontColor,
+          },
+          selected: {
+            fontColor: stockTool.lastLabelRSIFontColor,
+          },
+        })
+        .background({
+          fill: stockTool.lastLabelRSIFillColor,
+          stroke: stockTool.lastLabelRSIFillColor,
+        })
+    );
+
+    ZigZagannotationIndex.push(
+      chart
+        .plot(0)
+        .annotations()
+        .label({
+          xAnchor: ZigzagLastChangeLabelData[0],
+          valueAnchor: ZigzagLastChangeLabelData[3],
+          text: ZigzagLastChangeLabelData[1],
+          normal: {
+            fontColor: stockTool.lastLabelFontColor,
+          },
+          hovered: {
+            fontColor: stockTool.lastLabelFontColor,
+          },
+          selected: {
+            fontColor: stockTool.lastLabelFontColor,
+          },
+        })
+        .background({
+          fill: stockTool.lastLabelFillColor,
+          stroke: stockTool.lastLabelFillColor,
+        })
+    );
+
+    zigzagLabels.forEach((zigzagLabel) => {
+      ZigZagannotationIndex.push(
+        chart
+          .plot(0)
+          .annotations()
+          .label(zigzagLabel)
+          .background({
+            fill: zigzagLabel.lastlowUpdate
+              ? stockTool.lastlowUpdateFontColor
+              : stockTool.lastHighUpdateFontColor,
+            stroke: zigzagLabel.lastlowUpdate
+              ? stockTool.lastlowUpdateFontColor
+              : stockTool.lastHighUpdateFontColor,
+          })
+      );
+    });
+    ZigZagannotationIndex.push(
+      chart
+        .plot(0)
+        .annotations()
+        .label({
+          xAnchor: ZigzagLastLabelData[0],
+          valueAnchor: ZigzagLastLabelData[2],
+          text: ZigzagLastLabelData[1],
+          normal: {
+            fontColor: stockTool.lastLabelFontColor,
+          },
+          hovered: {
+            fontColor: stockTool.lastLabelFontColor,
+          },
+          selected: {
+            fontColor: stockTool.lastLabelFontColor,
+          },
+        })
+        .background({
+          fill: stockTool.lastLabelFillColor,
+          stroke: stockTool.lastLabelFillColor,
+        })
+    );
+    ZigZagannotationIndex.push(
+      chart
+        .plot(0)
+        .annotations()
+        .label({
+          xAnchor: ZigzagCountDownData[0],
+          valueAnchor: ZigzagCountDownData[2],
+          text: ZigzagCountDownData[1],
+          normal: {
+            fontColor: stockTool.lastLabelFontColor,
+          },
+          hovered: {
+            fontColor: stockTool.lastLabelFontColor,
+          },
+          selected: {
+            fontColor: stockTool.lastLabelFontColor,
+          },
+        })
+        .background({
+          fill: stockTool.lastLabelCountDownFillColor,
+          stroke: stockTool.lastLabelCountDownFillColor,
+        })
+    );
+
+    if (!update) {
+      chart
+        .plot(0)
+        .line(ZigzagUpperMapping)
+        .stroke("#FF0000")
+        .name("Upper Linear Regression Line");
+      chart
+        .plot(0)
+        .line(ZigzagMedianMapping)
+        .stroke("#C0C000")
+        .name("Median Linear Regression Line");
+      chart
+        .plot(0)
+        .line(ZigzagLowerMapping)
+        .stroke("#00FF00")
+        .name("Lower Linear Regression Line");
+    } else {
+      let seriesNames = [
+        "Upper Linear Regression Line",
+        "Median Linear Regression Line",
+        "Lower Linear Regression Line",
+      ];
+      let seriesMapping = {
+        "Upper Linear Regression Line": ZigzagUpperMapping,
+        "Median Linear Regression Line": ZigzagMedianMapping,
+        "Lower Linear Regression Line": ZigzagLowerMapping,
+      };
+
+      let seriesLength = chart.plot(0).getSeriesCount();
+
+      for (let i = seriesLength - 1 + 100; i > -1; i--) {
+        if (chart.plot(0).getSeries(i)) {
+          let seriesName = chart.plot(0).getSeries(i).name();
+          if (seriesNames.includes(seriesName)) {
+            chart.plot(0).getSeries(i).data(seriesMapping[seriesName]);
+          }
+        }
+      }
+    }
+  }
+};
+
 function ChartTopBar(props) {
   const {
     chart,
@@ -1226,6 +1632,7 @@ function ChartTopBar(props) {
     realStartTime,
     realEndTime,
     plotIndex,
+    realTime,
   } = props;
   const indicators = useSelector((state) => state.indicator.indicators);
   const currentIndicators = useSelector(
@@ -1246,16 +1653,14 @@ function ChartTopBar(props) {
 
       if (stockTool.name === "Volume Profile") {
         dispatch(indicatorActions.addStockTools(stockTool));
-        drawVolumeProfileFunction(stockTool, chart, stockData);
-        // VoluemProfileListenkey = chart.current.listen(
-        //   "selectedrangechangefinish",
-        //   function (e) {
-        //     annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
-        //       chart.current.plot(0).annotations().removeAnnotation(elem);
-        //     });
-        //     annotationIndex.VolumeProfileannotationIndex = [];
-        //   }
-        // );
+        await drawVolumeProfileFunction(
+          stockTool,
+          chart,
+          ticker,
+          interval,
+          adjustDividend,
+          realTime
+        );
       }
       if (stockTool.name === "Pivot Hi Lo") {
         dispatch(indicatorActions.addStockTools(stockTool));
@@ -1320,6 +1725,19 @@ function ChartTopBar(props) {
           realEndTime
         );
       }
+      if (stockTool.name === "Zig Zag + LR") {
+        dispatch(indicatorActions.addStockTools(stockTool));
+        await addZigZag(
+          chart.current,
+          interval,
+          stockData,
+          stockTool,
+          ticker,
+          adjustDividend,
+          realStartTime,
+          realEndTime
+        );
+      }
     },
     [
       chart,
@@ -1332,6 +1750,7 @@ function ChartTopBar(props) {
       realEndTime,
       currentStockTools,
       plotIndex,
+      realTime,
     ]
   );
 
@@ -1344,9 +1763,16 @@ function ChartTopBar(props) {
         });
         annotationIndex.VolumeProfileannotationIndex = [];
 
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-        dispatch(indicatorActions.addStockTools(stockTool));
-        drawVolumeProfileFunction(stockTool, chart, stockData);
+        // dispatch(indicatorActions.removeSelectedStockTool(index));
+        // dispatch(indicatorActions.addStockTools(stockTool));
+        await drawVolumeProfileFunction(
+          stockTool,
+          chart,
+          ticker,
+          interval,
+          adjustDividend,
+          realTime
+        );
       }
       if (stockTool.name === "Pivot Hi Lo") {
         FLineannotationIndex.forEach((elem) => {
@@ -1406,9 +1832,25 @@ function ChartTopBar(props) {
           true
         );
       }
+      if (stockTool.name === "Zig Zag + LR") {
+        ZigZagannotationIndex.forEach((elem) => {
+          chart.current.plot(0).annotations().removeAnnotation(elem);
+        });
+        ZigZagannotationIndex = [];
+        await addZigZag(
+          chart.current,
+          interval,
+          stockData,
+          stockTool,
+          ticker,
+          adjustDividend,
+          realStartTime,
+          realEndTime,
+          true
+        );
+      }
     },
     [
-      dispatch,
       chart,
       interval,
       stockData,
@@ -1417,6 +1859,7 @@ function ChartTopBar(props) {
       realStartTime,
       realEndTime,
       plotIndex,
+      realTime,
     ]
   );
   const removeStockTool = useCallback(
@@ -1426,7 +1869,6 @@ function ChartTopBar(props) {
           chart.current.plot(0).annotations().removeAnnotation(elem);
         });
         annotationIndex.VolumeProfileannotationIndex = [];
-        console.log(index);
         dispatch(indicatorActions.removeSelectedStockTool(index));
       }
       if (ind.name === "Pivot Hi Lo") {
@@ -1520,6 +1962,27 @@ function ChartTopBar(props) {
               seriesNameLinearRegression === "Lower Channel Line" ||
               seriesNameLinearRegression === "Pivot High" ||
               seriesNameLinearRegression === "Pivot Low"
+            ) {
+              chart.current.plot(0).removeSeries(i);
+            }
+          }
+        }
+      }
+      if (ind.name === "Zig Zag + LR") {
+        ZigZagannotationIndex.forEach((elem) => {
+          chart.current.plot(0).annotations().removeAnnotation(elem);
+        });
+        ZigZagannotationIndex = [];
+        dispatch(indicatorActions.removeSelectedStockTool(index));
+
+        var zigZagSeriesLength = chart.current.plot(0).getSeriesCount();
+        for (let i = zigZagSeriesLength - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(0).getSeries(i)) {
+            let seriesName = chart.current.plot(0).getSeries(i).name();
+            if (
+              seriesName === "Upper Linear Regression Line" ||
+              seriesName === "Median Linear Regression Line" ||
+              seriesName === "Lower Linear Regression Line"
             ) {
               chart.current.plot(0).removeSeries(i);
             }
@@ -1650,14 +2113,16 @@ function ChartTopBar(props) {
                 </div>
               </Dropdown.Menu>
             </Dropdown>
-            <Button
-              variant="light"
-              size="sm"
-              onClick={props.toggleRealTime}
-              active={props.realTime}
-            >
-              Toggle realtime
-            </Button>
+            <ButtonGroup>
+              <Button
+                variant="light"
+                size="sm"
+                onClick={props.toggleRealTime}
+                active={props.realTime}
+              >
+                Toggle realtime
+              </Button>
+            </ButtonGroup>
             <Dropdown>
               <Dropdown.Toggle variant="light" id="dropdown-timezone" size="sm">
                 <OverlayTrigger
@@ -1712,8 +2177,13 @@ function ChartTopBar(props) {
                 ))}
               </Dropdown.Menu>
             </Dropdown>
+            <div className="pe-3 ps-3">From</div>
+            <Form.Control type="date" size="sm" style={{ height: "50%" }} />
+            <div className="pe-3 ps-3">To</div>
+            <Form.Control type="date" size="sm" style={{ height: "50%" }} />
           </main>
         </Col>
+        <Col></Col>
       </Row>
       <Row>
         <Col>

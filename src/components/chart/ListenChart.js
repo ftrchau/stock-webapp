@@ -92,7 +92,14 @@ const getPartialVolume = (y11, y12, y21, y22, height, vol) => {
     : 0;
 };
 
-const drawVolumeProfileFunction = (stockTool, chart, stockData) => {
+const drawVolumeProfileFunction = async (
+  stockTool,
+  chart,
+  ticker,
+  interval,
+  adjustDividend,
+  realTime
+) => {
   annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
     chart.plot(0).annotations().removeAnnotation(elem);
   });
@@ -105,6 +112,19 @@ const drawVolumeProfileFunction = (stockTool, chart, stockData) => {
   let cnum = +stockToolParameters.value; // row size
   let startPoint = stockTool.startPoint || range.firstSelected;
   let endPoint = stockTool.endPoint || range.lastSelected;
+
+  let apiResult = await stockApi.getStockPrice({
+    ticker,
+    startDate: Math.ceil(startPoint / Math.pow(10, 3)),
+    endDate: Math.ceil(endPoint / Math.pow(10, 3)),
+    interval,
+    adjustDividend,
+    realTime,
+  });
+
+  console.log(apiResult);
+
+  let stockData = outputStockData(apiResult, adjustDividend);
 
   let visibleStockData = stockData.filter((p) => {
     return startPoint <= p[0] && endPoint >= p[0];
@@ -244,6 +264,14 @@ const drawVolumeProfileFunction = (stockTool, chart, stockData) => {
   var controller = chart.plot(0).annotations();
 
   for (let j = 0; j < cnum; j++) {
+    if (
+      !levels[j] ||
+      !volumes[j] ||
+      !levels[j + 1] ||
+      !volumes[j + cnum] ||
+      !startPoint
+    )
+      continue;
     annotationIndex.VolumeProfileannotationIndex.push(
       controller
         .rectangle({
@@ -796,7 +824,7 @@ function ListenChart(props) {
             let apiResult = await stockApi.getStockPrice({
               ticker,
               startDate: newStartDate,
-              endDate: newEndDate,
+              endDate: moment(newEndDate),
               interval,
               adjustDividend,
               realTime,
@@ -1114,10 +1142,13 @@ function ListenChart(props) {
             for await (let stockTool of currentStockTools) {
               console.log(stockTool);
               if (stockTool.name === "Volume Profile") {
-                drawVolumeProfileFunction(
+                await drawVolumeProfileFunction(
                   stockTool,
                   props.chart.current,
-                  tempStockData
+                  ticker,
+                  interval,
+                  adjustDividend,
+                  realTime
                 );
               }
               if (stockTool.name === "Pivot Hi Lo") {
@@ -1173,10 +1204,13 @@ function ListenChart(props) {
                     .removeAnnotation(elem);
                 });
                 annotationIndex.VolumeProfileannotationIndex = [];
-                drawVolumeProfileFunction(
+                await drawVolumeProfileFunction(
                   stockTool,
                   props.chart.current,
-                  tempStockData
+                  ticker,
+                  interval,
+                  adjustDividend,
+                  realTime
                 );
               }
             }
@@ -1257,6 +1291,7 @@ function ListenChart(props) {
     ticker,
     dispatch,
     currentStockTools,
+    plotIndex,
   ]);
 
   return <div></div>;

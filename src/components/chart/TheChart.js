@@ -157,6 +157,12 @@ function TheChart(props) {
         return this.rawValue.toFixed(2);
       });
 
+    chart.current.xScale().maximumGap({
+      intervalsCount: 50,
+      unitType: "day",
+      unitCount: 1,
+    });
+
     if (["m", "h"].includes(interval.charAt(interval.length - 1))) {
       chart.current
         .crosshair()
@@ -236,7 +242,6 @@ function TheChart(props) {
   const changeTimeZone = useCallback((opt) => {
     if (opt.name === "Exchange") opt.value = exchangeTimeZone.current.value;
     if (opt.value === exchangeTimeZone.current.value) opt.name = "Exchange";
-    console.log(opt);
     anychart.format.outputTimezone(opt.value * 60 * -1);
     setTimezone(opt);
   }, []);
@@ -496,7 +501,7 @@ function TheChart(props) {
                 valueAnchor: p[anno.parameters.valueAnchor],
                 text:
                   "textParam" in anno.parameters
-                    ? p[anno.parameters.text]
+                    ? p[anno.parameters.textParam]
                     : anno.parameters.text,
                 normal: {
                   fontColor: anno.parameters.fontColor,

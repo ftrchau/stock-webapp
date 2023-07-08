@@ -358,7 +358,7 @@ const indicatorSlice = createSlice({
               },
               parameters: {
                 valueAnchor: "FLB",
-                textParam: "BSIGNAL",
+                textParam: "ST_BUY_SELL",
                 fontColor: "#363A45",
               },
               background: {
@@ -377,7 +377,7 @@ const indicatorSlice = createSlice({
               },
               parameters: {
                 valueAnchor: "FUB",
-                textParam: "SSIGNAL",
+                textParam: "ST_BUY_SELL",
                 fontColor: "#363A45",
               },
               background: {
@@ -1572,6 +1572,50 @@ const indicatorSlice = createSlice({
         draw: false,
         pivotHighStroke: "rgb(136, 14, 79)",
         pivotLowStroke: "rgb(33, 150, 243)",
+      },
+      {
+        name: "Zig Zag + LR",
+        parameters: [
+          {
+            name: "length",
+            label: "High/Low length",
+            value: "20",
+            type: "text",
+          },
+          {
+            name: "Period for VP & Fibo",
+            label: "Period for VP & Fibo",
+            value: "Auto",
+            type: "select-one",
+            items: ["Auto", "My input"],
+          },
+          {
+            name: "Display Linear Regression?",
+            label: "Display Linear Regression?",
+            value: true,
+            type: "checkbox",
+          },
+          {
+            name: "reset1",
+            label: "Version",
+            value: "A",
+            type: "select-one",
+            items: ["A", "B"],
+          },
+        ],
+        chartIndex: -1,
+        annotationIndex: [],
+        draw: false,
+        zigzagFontColor: "rgb(54,58,69)",
+        lastlowUpdateFontColor: "rgb(242, 46, 173, 90)",
+        lastHighUpdateFontColor: "rgb(46, 242, 59, 72)",
+        lastLabelFontColor: "rgb(255,255,255)",
+        lastLabelFillColor: "rgb(44, 152, 240)",
+        lastLabelRSIFillColor: "rgb(235, 241, 35)",
+        lastLabelRSIFontColor: "rgb(54,58,69)",
+        lastLabelCountDownFillColor: "rgb(239, 189, 113)",
+        zigzagPredictiveStrokeColor: "rgb(181, 175, 21)",
+        zigzagSecondPredictiveStrokeColor: "rgb(255, 82, 82)",
       },
     ],
     currentStockTools: [],
