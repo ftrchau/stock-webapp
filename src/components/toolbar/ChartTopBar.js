@@ -10,20 +10,29 @@ import {
   Row,
   Form,
   ButtonGroup,
+  NavDropdown,
 } from "react-bootstrap";
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker-cssmodules.css";
+
+import "react-datepicker/dist/react-datepicker.css";
 
 import { Icon } from "@iconify/react";
 import { FiTool } from "react-icons/fi";
+import { BsCalendar } from "react-icons/bs";
 
 import intervalSelection from "./INTERVAL";
 import timezoneSelection from "./TIMEZONE";
 
 import IndicatorSettings from "../settings/IndicatorSettings";
 import StockToolSettings from "../settings/StockToolSettings";
+import rangeSelection from "./RANGESELECTION";
 import DrawToolBar from "./DrawToolBar";
 import { useCallback } from "react";
 
 import { indicatorActions } from "../../store/indicator-slice";
+import { stockActions } from "../../store/stock-slice";
 
 import indicatorApi from "../../api/indicator";
 import stockApi from "../../api/stock";
@@ -354,7 +363,6 @@ const intervalTimeUnit = (interval) => {
   return timeUnit;
 };
 
-var FLineannotationIndex = [];
 var FLineMax = 0;
 var FLineMin = 0;
 
@@ -384,7 +392,7 @@ const drawFLine = (
     secondValueAnchor: base,
     normal: { stroke: "1 #00E676" },
   });
-  FLineannotationIndex.push(line);
+  annotationIndex.FLineannotationIndex.push(line);
   var label = controller.label({
     xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
     valueAnchor: base,
@@ -393,7 +401,7 @@ const drawFLine = (
   });
   label.background(false);
   label.allowEdit(false);
-  FLineannotationIndex.push(label);
+  annotationIndex.FLineannotationIndex.push(label);
 
   var line236 = controller.line({
     xAnchor: lastPvl[0],
@@ -402,7 +410,7 @@ const drawFLine = (
     secondValueAnchor: base + 0.236 * dd * ud,
     normal: { stroke: "1 #787B86" },
   });
-  FLineannotationIndex.push(line236);
+  annotationIndex.FLineannotationIndex.push(line236);
 
   var label236 = controller.label({
     xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
@@ -412,7 +420,7 @@ const drawFLine = (
   });
   label236.background(false);
   label236.allowEdit(false);
-  FLineannotationIndex.push(label236);
+  annotationIndex.FLineannotationIndex.push(label236);
   // label236.anchor("center-top");
   // label236.padding(0, 0, 0, 0);
 
@@ -423,7 +431,7 @@ const drawFLine = (
     secondValueAnchor: base + 0.382 * dd * ud,
     normal: { stroke: "1 #808000" },
   });
-  FLineannotationIndex.push(line382);
+  annotationIndex.FLineannotationIndex.push(line382);
 
   var label382 = controller.label({
     xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
@@ -433,7 +441,7 @@ const drawFLine = (
   });
   label382.background(false);
   label382.allowEdit(false);
-  FLineannotationIndex.push(label382);
+  annotationIndex.FLineannotationIndex.push(label382);
 
   var line500 = controller.line({
     xAnchor: lastPvl[0],
@@ -442,7 +450,7 @@ const drawFLine = (
     secondValueAnchor: base + 0.5 * dd * ud,
     normal: { stroke: "1 #E040FB" },
   });
-  FLineannotationIndex.push(line500);
+  annotationIndex.FLineannotationIndex.push(line500);
 
   var label500 = controller.label({
     xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
@@ -452,7 +460,7 @@ const drawFLine = (
   });
   label500.background(false);
   label500.allowEdit(false);
-  FLineannotationIndex.push(label500);
+  annotationIndex.FLineannotationIndex.push(label500);
 
   var line618 = controller.line({
     xAnchor: lastPvl[0],
@@ -461,7 +469,7 @@ const drawFLine = (
     secondValueAnchor: base + 0.618 * dd * ud,
     normal: { stroke: "1 #808000" },
   });
-  FLineannotationIndex.push(line618);
+  annotationIndex.FLineannotationIndex.push(line618);
   var label618 = controller.label({
     xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
     valueAnchor: base + 0.618 * dd * ud,
@@ -470,7 +478,7 @@ const drawFLine = (
   });
   label618.background(false);
   label618.allowEdit(false);
-  FLineannotationIndex.push(label618);
+  annotationIndex.FLineannotationIndex.push(label618);
   var line786 = controller.line({
     xAnchor: lastPvl[0],
     valueAnchor: base + 0.786 * dd * ud,
@@ -478,7 +486,7 @@ const drawFLine = (
     secondValueAnchor: base + 0.786 * dd * ud,
     normal: { stroke: "1 #787B86" },
   });
-  FLineannotationIndex.push(line786);
+  annotationIndex.FLineannotationIndex.push(line786);
   var label786 = controller.label({
     xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
     valueAnchor: base + 0.786 * dd * ud,
@@ -487,7 +495,7 @@ const drawFLine = (
   });
   label786.background(false);
   label786.allowEdit(false);
-  FLineannotationIndex.push(label786);
+  annotationIndex.FLineannotationIndex.push(label786);
   var line100 = controller.line({
     xAnchor: lastPvl[0],
     valueAnchor: base + 1 * dd * ud,
@@ -495,7 +503,7 @@ const drawFLine = (
     secondValueAnchor: base + 1 * dd * ud,
     normal: { stroke: "1 #FF9800" },
   });
-  FLineannotationIndex.push(line100);
+  annotationIndex.FLineannotationIndex.push(line100);
   var label100 = controller.label({
     xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
     valueAnchor: base + 1.0 * dd * ud,
@@ -504,7 +512,7 @@ const drawFLine = (
   });
   label100.background(false);
   label100.allowEdit(false);
-  FLineannotationIndex.push(label100);
+  annotationIndex.FLineannotationIndex.push(label100);
   if (showH) {
     var labH = controller.label({
       xAnchor: lastPvl[0],
@@ -514,7 +522,7 @@ const drawFLine = (
     });
     labH.background(false);
     labH.allowEdit(false);
-    FLineannotationIndex.push(labH);
+    annotationIndex.FLineannotationIndex.push(labH);
   }
 
   if (showL) {
@@ -526,7 +534,7 @@ const drawFLine = (
     });
     labL.background(false);
     labL.allowEdit(false);
-    FLineannotationIndex.push(labL);
+    annotationIndex.FLineannotationIndex.push(labL);
   }
 
   // var max = Math.max(this.globalMax, base, base + 1.236 * dd * ud);
@@ -555,20 +563,20 @@ const drawFLine = (
     .yScale()
     .minimum((FLineMin * 0.99).toFixed(2));
 
-  FLineannotationIndex.push(line);
-  FLineannotationIndex.push(label);
-  FLineannotationIndex.push(line236);
-  FLineannotationIndex.push(label236);
-  FLineannotationIndex.push(line382);
-  FLineannotationIndex.push(label382);
-  FLineannotationIndex.push(line500);
-  FLineannotationIndex.push(label500);
-  FLineannotationIndex.push(line618);
-  FLineannotationIndex.push(label618);
-  FLineannotationIndex.push(line786);
-  FLineannotationIndex.push(label786);
-  FLineannotationIndex.push(line100);
-  FLineannotationIndex.push(label100);
+  annotationIndex.FLineannotationIndex.push(line);
+  annotationIndex.FLineannotationIndex.push(label);
+  annotationIndex.FLineannotationIndex.push(line236);
+  annotationIndex.FLineannotationIndex.push(label236);
+  annotationIndex.FLineannotationIndex.push(line382);
+  annotationIndex.FLineannotationIndex.push(label382);
+  annotationIndex.FLineannotationIndex.push(line500);
+  annotationIndex.FLineannotationIndex.push(label500);
+  annotationIndex.FLineannotationIndex.push(line618);
+  annotationIndex.FLineannotationIndex.push(label618);
+  annotationIndex.FLineannotationIndex.push(line786);
+  annotationIndex.FLineannotationIndex.push(label786);
+  annotationIndex.FLineannotationIndex.push(line100);
+  annotationIndex.FLineannotationIndex.push(label100);
 };
 
 const addFline = async function (
@@ -594,8 +602,8 @@ const addFline = async function (
     ticker,
     interval,
     adjustDividend,
-    startDate: realStartTime.current,
-    endDate: realEndTime.current,
+    startDate: realStartTime,
+    endDate: realEndTime,
   });
   if (PivotHiLoresult) {
     console.log(PivotHiLoresult);
@@ -770,8 +778,8 @@ const addWkHiLo = async function (
     ticker,
     interval,
     adjustDividend,
-    startDate: realStartTime.current,
-    endDate: realEndTime.current,
+    startDate: realStartTime,
+    endDate: realEndTime,
   });
   console.log(WkHiLoRangeresult);
   if (WkHiLoRangeresult) {
@@ -940,8 +948,8 @@ const addMRButton = async function (
     ticker,
     interval,
     adjustDividend,
-    startDate: realStartTime.current,
-    endDate: realEndTime.current,
+    startDate: realStartTime,
+    endDate: realEndTime,
   });
 
   if (MRBottomresult) {
@@ -1096,8 +1104,8 @@ const addLinearRegression = async function (
     ticker,
     interval,
     adjustDividend,
-    startDate: realStartTime.current,
-    endDate: realEndTime.current,
+    startDate: realStartTime,
+    endDate: realEndTime,
   });
 
   if (LinearRegressionresult) {
@@ -1253,7 +1261,6 @@ const addLinearRegression = async function (
   }
 };
 
-var ZigZagannotationIndex = [];
 const addZigZag = async function (
   chart,
   interval,
@@ -1277,8 +1284,8 @@ const addZigZag = async function (
     ticker,
     interval,
     adjustDividend,
-    startDate: realStartTime.current,
-    endDate: realEndTime.current,
+    startDate: realStartTime,
+    endDate: realEndTime,
   });
 
   if (Zigzagresult) {
@@ -1371,7 +1378,7 @@ const addZigZag = async function (
     let ZigzagPredictSecondMapping = ZigzagPredictSecondTable.mapAs();
     ZigzagPredictSecondMapping.addField("value", 1);
 
-    ZigZagannotationIndex.push(
+    annotationIndex.ZigZagannotationIndex.push(
       chart
         .plot(0)
         .annotations()
@@ -1410,7 +1417,9 @@ const addZigZag = async function (
     });
 
     zigzagLines.forEach((zigzagLine) => {
-      ZigZagannotationIndex.push(chart.plot(0).annotations().line(zigzagLine));
+      annotationIndex.ZigZagannotationIndex.push(
+        chart.plot(0).annotations().line(zigzagLine)
+      );
     });
     let zigzagPredictiveLines = ZigzagPredictData.filter(
       (p, idx) => idx < ZigzagPredictData.length - 1
@@ -1427,7 +1436,7 @@ const addZigZag = async function (
       };
     });
     zigzagPredictiveLines.forEach((zigzagPredictiveLine) => {
-      ZigZagannotationIndex.push(
+      annotationIndex.ZigZagannotationIndex.push(
         chart.plot(0).annotations().line(zigzagPredictiveLine)
       );
     });
@@ -1446,7 +1455,7 @@ const addZigZag = async function (
       };
     });
     zigzagSecondPredictiveLines.forEach((zigzagSecondPredictiveLine) => {
-      ZigZagannotationIndex.push(
+      annotationIndex.ZigZagannotationIndex.push(
         chart.plot(0).annotations().line(zigzagSecondPredictiveLine)
       );
     });
@@ -1469,7 +1478,7 @@ const addZigZag = async function (
         lastHighUpdate: p[4],
       };
     });
-    ZigZagannotationIndex.push(
+    annotationIndex.ZigZagannotationIndex.push(
       chart
         .plot(0)
         .annotations()
@@ -1493,7 +1502,7 @@ const addZigZag = async function (
         })
     );
 
-    ZigZagannotationIndex.push(
+    annotationIndex.ZigZagannotationIndex.push(
       chart
         .plot(0)
         .annotations()
@@ -1518,7 +1527,7 @@ const addZigZag = async function (
     );
 
     zigzagLabels.forEach((zigzagLabel) => {
-      ZigZagannotationIndex.push(
+      annotationIndex.ZigZagannotationIndex.push(
         chart
           .plot(0)
           .annotations()
@@ -1533,7 +1542,7 @@ const addZigZag = async function (
           })
       );
     });
-    ZigZagannotationIndex.push(
+    annotationIndex.ZigZagannotationIndex.push(
       chart
         .plot(0)
         .annotations()
@@ -1556,7 +1565,7 @@ const addZigZag = async function (
           stroke: stockTool.lastLabelFillColor,
         })
     );
-    ZigZagannotationIndex.push(
+    annotationIndex.ZigZagannotationIndex.push(
       chart
         .plot(0)
         .annotations()
@@ -1623,17 +1632,8 @@ const addZigZag = async function (
 };
 
 function ChartTopBar(props) {
-  const {
-    chart,
-    stockData,
-    ticker,
-    interval,
-    adjustDividend,
-    realStartTime,
-    realEndTime,
-    plotIndex,
-    realTime,
-  } = props;
+  const { chart, ticker, stockData, adjustDividend, plotIndex, realTime } =
+    props;
   const indicators = useSelector((state) => state.indicator.indicators);
   const currentIndicators = useSelector(
     (state) => state.indicator.currentIndicators
@@ -1642,7 +1642,53 @@ function ChartTopBar(props) {
   const currentStockTools = useSelector(
     (state) => state.indicator.currentStockTools
   );
+
+  const rangeStartDate = useSelector((state) => state.stock.rangeStartDate);
+
+  const rangeEndDate = useSelector((state) => state.stock.rangeEndDate);
+  const realStartTime = useSelector((state) => state.stock.startDate);
+  const realEndTime = useSelector((state) => state.stock.endDate);
+  const interval = useSelector((state) => state.stock.interval);
+  // const stockData = useSelector((state) => state.stock.stockData);
+  console.log(rangeStartDate);
+  console.log(rangeEndDate);
   const dispatch = useDispatch();
+
+  const changeRange = useCallback(
+    (rangeOpt) => {
+      dispatch(stockActions.setRangeOption(rangeOpt));
+    },
+    [dispatch]
+  );
+
+  const setRangeStartDate = useCallback(
+    (inputDate) => {
+      console.log(inputDate);
+      dispatch(stockActions.setRangeStartDate(inputDate));
+    },
+    [dispatch]
+  );
+  const setRangeEndDate = useCallback(
+    (inputDate) => {
+      console.log(inputDate);
+      dispatch(stockActions.setRangeEndDate(inputDate));
+    },
+    [dispatch]
+  );
+
+  const setLongestRange = useCallback(() => {
+    dispatch(stockActions.setLongestRange());
+    console.log(stockData);
+    const max = Math.max(
+      ...stockData.filter((p) => p[2] != null).map((p) => p[2])
+    );
+    const min = Math.min(
+      ...stockData.filter((p) => p[3] != null).map((p) => p[3])
+    );
+
+    chart.current.plot(0).yScale().maximum(max.toFixed(2));
+    chart.current.plot(0).yScale().minimum(min.toFixed(2));
+  }, [dispatch, stockData, chart]);
 
   const addStockTool = useCallback(
     async (stockTool) => {
@@ -1652,7 +1698,6 @@ function ChartTopBar(props) {
       }
 
       if (stockTool.name === "Volume Profile") {
-        dispatch(indicatorActions.addStockTools(stockTool));
         await drawVolumeProfileFunction(
           stockTool,
           chart,
@@ -1663,7 +1708,6 @@ function ChartTopBar(props) {
         );
       }
       if (stockTool.name === "Pivot Hi Lo") {
-        dispatch(indicatorActions.addStockTools(stockTool));
         await addFline(
           chart,
           interval,
@@ -1677,7 +1721,6 @@ function ChartTopBar(props) {
       }
 
       if (stockTool.name === "52 Wk Hi Lo Range - Buy Sell") {
-        dispatch(indicatorActions.addStockTools(stockTool));
         await addWkHiLo(
           chart,
           interval,
@@ -1691,16 +1734,17 @@ function ChartTopBar(props) {
           false
         );
 
-        dispatch(
-          indicatorActions.setToolChartPlotIndex({
-            stockToolName: stockTool.name,
-            plotIndex: wkHiLoChartIndex,
-          })
-        );
+        // dispatch(
+        //   indicatorActions.setToolChartPlotIndex({
+        //     stockToolName: stockTool.name,
+        //     plotIndex: wkHiLoChartIndex,
+        //   })
+        // );
+
+        stockTool = { ...stockTool, plotIndex: wkHiLoChartIndex };
       }
 
       if (stockTool.name === "MR Bottom Detector") {
-        dispatch(indicatorActions.addStockTools(stockTool));
         await addMRButton(
           chart,
           interval,
@@ -1713,7 +1757,6 @@ function ChartTopBar(props) {
         );
       }
       if (stockTool.name === "Linear Regression Channel on Pivot") {
-        dispatch(indicatorActions.addStockTools(stockTool));
         await addLinearRegression(
           chart,
           interval,
@@ -1726,7 +1769,6 @@ function ChartTopBar(props) {
         );
       }
       if (stockTool.name === "Zig Zag + LR") {
-        dispatch(indicatorActions.addStockTools(stockTool));
         await addZigZag(
           chart.current,
           interval,
@@ -1738,6 +1780,7 @@ function ChartTopBar(props) {
           realEndTime
         );
       }
+      dispatch(indicatorActions.addStockTools(stockTool));
     },
     [
       chart,
@@ -1775,10 +1818,10 @@ function ChartTopBar(props) {
         );
       }
       if (stockTool.name === "Pivot Hi Lo") {
-        FLineannotationIndex.forEach((elem) => {
+        annotationIndex.FLineannotationIndex.forEach((elem) => {
           chart.current.plot(0).annotations().removeAnnotation(elem);
         });
-        FLineannotationIndex = [];
+        annotationIndex.FLineannotationIndex = [];
 
         await addFline(
           chart,
@@ -1833,10 +1876,10 @@ function ChartTopBar(props) {
         );
       }
       if (stockTool.name === "Zig Zag + LR") {
-        ZigZagannotationIndex.forEach((elem) => {
+        annotationIndex.ZigZagannotationIndex.forEach((elem) => {
           chart.current.plot(0).annotations().removeAnnotation(elem);
         });
-        ZigZagannotationIndex = [];
+        annotationIndex.ZigZagannotationIndex = [];
         await addZigZag(
           chart.current,
           interval,
@@ -1872,10 +1915,10 @@ function ChartTopBar(props) {
         dispatch(indicatorActions.removeSelectedStockTool(index));
       }
       if (ind.name === "Pivot Hi Lo") {
-        FLineannotationIndex.forEach((elem) => {
+        annotationIndex.FLineannotationIndex.forEach((elem) => {
           chart.current.plot(0).annotations().removeAnnotation(elem);
         });
-        FLineannotationIndex = [];
+        annotationIndex.FLineannotationIndex = [];
         var seriesLength = chart.current.plot(0).getSeriesCount();
         for (let i = seriesLength - 1 + 100; i > -1; i--) {
           if (chart.current.plot(0).getSeries(i)) {
@@ -1969,10 +2012,10 @@ function ChartTopBar(props) {
         }
       }
       if (ind.name === "Zig Zag + LR") {
-        ZigZagannotationIndex.forEach((elem) => {
+        annotationIndex.ZigZagannotationIndex.forEach((elem) => {
           chart.current.plot(0).annotations().removeAnnotation(elem);
         });
-        ZigZagannotationIndex = [];
+        annotationIndex.ZigZagannotationIndex = [];
         dispatch(indicatorActions.removeSelectedStockTool(index));
 
         var zigZagSeriesLength = chart.current.plot(0).getSeriesCount();
@@ -2005,18 +2048,39 @@ function ChartTopBar(props) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="tooltip-interval">
-                      {intervalSelectedName(props.interval)}
+                      {intervalSelectedName(interval)}
                     </Tooltip>
                   }
                 >
-                  <span>{props.interval}</span>
+                  <span>{interval}</span>
                 </OverlayTrigger>
               </Dropdown.Toggle>
               <Dropdown.Menu>
                 {Object.keys(intervalSelection).map((key, index) => {
                   return (
                     <div key={key}>
-                      <Dropdown.Header key={key + index}>{key}</Dropdown.Header>
+                      <Dropdown.Header key={key + index}>
+                        <OverlayTrigger
+                          key="bottom"
+                          placement="bottom"
+                          overlay={
+                            <Tooltip className="tooltip" id="tooltip-range">
+                              Select Range
+                            </Tooltip>
+                          }
+                        >
+                          <NavDropdown title={key} id="nav-dropdown">
+                            {rangeSelection[key].map((rangeOpt) => (
+                              <NavDropdown.Item
+                                eventKey="4.1"
+                                onClick={() => changeRange(rangeOpt)}
+                              >
+                                {rangeOpt.label}
+                              </NavDropdown.Item>
+                            ))}
+                          </NavDropdown>
+                        </OverlayTrigger>
+                      </Dropdown.Header>
                       {intervalSelection[key].map((interval) => (
                         <Dropdown.Item
                           as="button"
@@ -2113,16 +2177,15 @@ function ChartTopBar(props) {
                 </div>
               </Dropdown.Menu>
             </Dropdown>
-            <ButtonGroup>
-              <Button
-                variant="light"
-                size="sm"
-                onClick={props.toggleRealTime}
-                active={props.realTime}
-              >
-                Toggle realtime
-              </Button>
-            </ButtonGroup>
+            <Button
+              variant="light"
+              size="sm"
+              onClick={props.toggleRealTime}
+              active={props.realTime}
+              style={{ whiteSpace: "nowrap" }}
+            >
+              Toggle realtime
+            </Button>
             <Dropdown>
               <Dropdown.Toggle variant="light" id="dropdown-timezone" size="sm">
                 <OverlayTrigger
@@ -2177,10 +2240,48 @@ function ChartTopBar(props) {
                 ))}
               </Dropdown.Menu>
             </Dropdown>
-            <div className="pe-3 ps-3">From</div>
-            <Form.Control type="date" size="sm" style={{ height: "50%" }} />
-            <div className="pe-3 ps-3">To</div>
-            <Form.Control type="date" size="sm" style={{ height: "50%" }} />
+            <div className="pe-1 ps-1">From</div>
+            <BsCalendar />
+            {interval.charAt(interval.length - 1) !== "m" &&
+              interval.charAt(interval.length - 1) !== "h" && (
+                <DatePicker
+                  selected={rangeStartDate}
+                  dateFormat="yyyy-MMM-dd"
+                  className="react-datetime-input"
+                  onChange={(date) => setRangeStartDate(date)}
+                />
+              )}
+            {(interval.charAt(interval.length - 1) === "m" ||
+              interval.charAt(interval.length - 1) === "h") && (
+              <span style={{ whiteSpace: "nowrap" }}>
+                {moment(rangeStartDate).format("YYYY-MM-DD hh:mm:ss")}
+              </span>
+            )}
+            <div className="pe-1 ps-1">To</div>
+            <BsCalendar />
+            {interval.charAt(interval.length - 1) !== "m" &&
+              interval.charAt(interval.length - 1) !== "h" && (
+                <DatePicker
+                  selected={rangeEndDate}
+                  dateFormat="yyyy-MMM-dd"
+                  className="react-datetime-input"
+                  onChange={(date) => setRangeEndDate(date)}
+                />
+              )}
+            {(interval.charAt(interval.length - 1) === "m" ||
+              interval.charAt(interval.length - 1) === "h") && (
+              <span style={{ whiteSpace: "nowrap" }}>
+                {moment(rangeEndDate).format("YYYY-MM-DD hh:mm:ss")}
+              </span>
+            )}
+            <Button
+              variant="light"
+              size="sm"
+              onClick={() => setLongestRange()}
+              style={{ whiteSpace: "nowrap" }}
+            >
+              Longest Time
+            </Button>
           </main>
         </Col>
         <Col></Col>

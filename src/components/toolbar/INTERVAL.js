@@ -1,4 +1,36 @@
 const intervalSelection = {
+  Days: [
+    {
+      name: "1 day",
+      value: "1d",
+    },
+    {
+      name: "5 day",
+      value: "5d",
+    },
+  ],
+  Weeks: [
+    {
+      name: "1 week",
+      value: "1wk",
+    },
+  ],
+  Months: [
+    {
+      name: "1 month",
+      value: "1mo",
+    },
+    {
+      name: "3 months",
+      value: "3mo",
+    },
+  ],
+  Hours: [
+    {
+      name: "1 hour",
+      value: "1h",
+    },
+  ],
   Minutes: [
     {
       name: "1 minute",
@@ -27,34 +59,6 @@ const intervalSelection = {
     {
       title: "90 minutes",
       value: "90m",
-    },
-  ],
-  Hours: [
-    {
-      name: "1 hour",
-      value: "1h",
-    },
-  ],
-  Days: [
-    {
-      name: "1 day",
-      value: "1d",
-    },
-    {
-      name: "5 day",
-      value: "5d",
-    },
-    {
-      name: "1 week",
-      value: "1wk",
-    },
-    {
-      name: "1 month",
-      value: "1mo",
-    },
-    {
-      name: "3 months",
-      value: "3mo",
     },
   ],
 };

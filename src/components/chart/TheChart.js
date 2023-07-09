@@ -9,13 +9,15 @@ import anychart from "anychart";
 import ChartToolBar from "../toolbar/ChartToolBar";
 import ChartTopBar from "../toolbar/ChartTopBar";
 import ListenChart from "./ListenChart";
+import IndicatorUpdate from "./IndicatorUpdate";
 
 import { Container, Row, Col } from "react-bootstrap";
 
 import { getStockData } from "../../api/stock";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { indicatorActions } from "../../store/indicator-slice";
+import { stockActions } from "../../store/stock-slice";
 
 import indicatorApi from "../../api/indicator";
 
@@ -24,12 +26,16 @@ import "./TheChart.css";
 const getStockMax = (data, start, end) => {
   console.log(data);
   return Math.max(
-    ...data.filter((p) => p[0] > start && p[0] < end).map((p) => p[2])
+    ...data
+      .filter((p) => p[0] > start && p[0] < end && p[2] != null)
+      .map((p) => p[2])
   );
 };
 const getStockMin = (data, start, end) => {
   return Math.min(
-    ...data.filter((p) => p[0] > start && p[0] < end).map((p) => p[3])
+    ...data
+      .filter((p) => p[0] > start && p[0] < end && p[3] !== null)
+      .map((p) => p[3])
   );
 };
 
@@ -44,7 +50,7 @@ const scrollLeftTimeUnit = (interval) => {
   if (intervalChar === "m") {
     timeUnit = "hours";
   } else if (intervalChar === "h") {
-    timeUnit = "days";
+    timeUnit = "day";
   } else if (
     intervalChar === "d" ||
     intervalChar === "k" ||
@@ -56,16 +62,423 @@ const scrollLeftTimeUnit = (interval) => {
   return timeUnit;
 };
 
+const intervalTimeUnit = (interval) => {
+  let timeUnit = "";
+  let intervalChar = interval.charAt(interval.length - 1);
+  if (intervalChar === "m") {
+    timeUnit = "minutes";
+  } else if (intervalChar === "h") {
+    timeUnit = "hours";
+  } else if (intervalChar === "d") {
+    timeUnit = "days";
+  } else if (intervalChar === "k") {
+    timeUnit = "weeks";
+  } else if (intervalChar === "o") {
+    timeUnit = "months";
+  }
+
+  return timeUnit;
+};
+
+var FLineannotationIndex = [];
+var FLineMax = 0;
+var FLineMin = 0;
+
+const drawFLine = (
+  chart,
+  interval,
+  stockData,
+  lastPvh,
+  lastPvl,
+  firstPvh,
+  firstPvl,
+  ud,
+  j,
+  showH,
+  showL,
+  toolName
+) => {
+  var controller = chart.plot(0).annotations();
+  var lastPoint = stockData[stockData.length - 1][0];
+  var dd = lastPvh[1] - lastPvl[1];
+  var base = lastPvl[1] + j * dd;
+
+  var line = controller.line({
+    xAnchor: lastPvl[0],
+    valueAnchor: base,
+    secondXAnchor: lastPoint,
+    secondValueAnchor: base,
+    normal: { stroke: "1 #00E676" },
+  });
+  FLineannotationIndex.push(line);
+  var label = controller.label({
+    xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
+    valueAnchor: base,
+    text: "0 ( " + base.toFixed(2) + " ) ",
+    normal: { fontColor: "rgb(41, 98, 255)" },
+  });
+  label.background(false);
+  label.allowEdit(false);
+  FLineannotationIndex.push(label);
+
+  var line236 = controller.line({
+    xAnchor: lastPvl[0],
+    valueAnchor: base + 0.236 * dd * ud,
+    secondXAnchor: lastPoint,
+    secondValueAnchor: base + 0.236 * dd * ud,
+    normal: { stroke: "1 #787B86" },
+  });
+  FLineannotationIndex.push(line236);
+
+  var label236 = controller.label({
+    xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
+    valueAnchor: base + 0.236 * dd * ud,
+    text: "0.236 ( " + (base + 0.236 * dd * ud).toFixed(2) + " ) ",
+    normal: { fontColor: "rgb(41, 98, 255)" },
+  });
+  label236.background(false);
+  label236.allowEdit(false);
+  FLineannotationIndex.push(label236);
+  // label236.anchor("center-top");
+  // label236.padding(0, 0, 0, 0);
+
+  var line382 = controller.line({
+    xAnchor: lastPvl[0],
+    valueAnchor: base + 0.382 * dd * ud,
+    secondXAnchor: lastPoint,
+    secondValueAnchor: base + 0.382 * dd * ud,
+    normal: { stroke: "1 #808000" },
+  });
+  FLineannotationIndex.push(line382);
+
+  var label382 = controller.label({
+    xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
+    valueAnchor: base + 0.382 * dd * ud,
+    text: "0.382 ( " + (base + 0.382 * dd * ud).toFixed(2) + " ) ",
+    normal: { fontColor: "rgb(41, 98, 255)" },
+  });
+  label382.background(false);
+  label382.allowEdit(false);
+  FLineannotationIndex.push(label382);
+
+  var line500 = controller.line({
+    xAnchor: lastPvl[0],
+    valueAnchor: base + 0.5 * dd * ud,
+    secondXAnchor: lastPoint,
+    secondValueAnchor: base + 0.5 * dd * ud,
+    normal: { stroke: "1 #E040FB" },
+  });
+  FLineannotationIndex.push(line500);
+
+  var label500 = controller.label({
+    xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
+    valueAnchor: base + 0.5 * dd * ud,
+    text: "0.5 ( " + (base + 0.5 * dd * ud).toFixed(2) + " ) ",
+    normal: { fontColor: "rgb(41, 98, 255)" },
+  });
+  label500.background(false);
+  label500.allowEdit(false);
+  FLineannotationIndex.push(label500);
+
+  var line618 = controller.line({
+    xAnchor: lastPvl[0],
+    valueAnchor: base + 0.618 * dd * ud,
+    secondXAnchor: lastPoint,
+    secondValueAnchor: base + 0.618 * dd * ud,
+    normal: { stroke: "1 #808000" },
+  });
+  FLineannotationIndex.push(line618);
+  var label618 = controller.label({
+    xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
+    valueAnchor: base + 0.618 * dd * ud,
+    text: "0.618 ( " + (base + 0.618 * dd * ud).toFixed(2) + " ) ",
+    normal: { fontColor: "rgb(41, 98, 255)" },
+  });
+  label618.background(false);
+  label618.allowEdit(false);
+  FLineannotationIndex.push(label618);
+  var line786 = controller.line({
+    xAnchor: lastPvl[0],
+    valueAnchor: base + 0.786 * dd * ud,
+    secondXAnchor: lastPoint,
+    secondValueAnchor: base + 0.786 * dd * ud,
+    normal: { stroke: "1 #787B86" },
+  });
+  FLineannotationIndex.push(line786);
+  var label786 = controller.label({
+    xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
+    valueAnchor: base + 0.786 * dd * ud,
+    text: "0.786 ( " + (base + 0.786 * dd * ud).toFixed(2) + " ) ",
+    normal: { fontColor: "rgb(41, 98, 255)" },
+  });
+  label786.background(false);
+  label786.allowEdit(false);
+  FLineannotationIndex.push(label786);
+  var line100 = controller.line({
+    xAnchor: lastPvl[0],
+    valueAnchor: base + 1 * dd * ud,
+    secondXAnchor: lastPoint,
+    secondValueAnchor: base + 1 * dd * ud,
+    normal: { stroke: "1 #FF9800" },
+  });
+  FLineannotationIndex.push(line100);
+  var label100 = controller.label({
+    xAnchor: moment(firstPvl[0]).add(2, intervalTimeUnit(interval)).valueOf(),
+    valueAnchor: base + 1.0 * dd * ud,
+    text: "1.0 ( " + (base + 1.0 * dd * ud).toFixed(2) + " ) ",
+    normal: { fontColor: "rgb(41, 98, 255)" },
+  });
+  label100.background(false);
+  label100.allowEdit(false);
+  FLineannotationIndex.push(label100);
+  if (showH) {
+    var labH = controller.label({
+      xAnchor: lastPvl[0],
+      valueAnchor: base + 1.0 * dd * ud,
+      text: "Hi",
+      normal: { fontColor: "rgb(255, 82, 82)" },
+    });
+    labH.background(false);
+    labH.allowEdit(false);
+    FLineannotationIndex.push(labH);
+  }
+
+  if (showL) {
+    var labL = controller.label({
+      xAnchor: lastPvl[0],
+      valueAnchor: base,
+      text: "Lo",
+      normal: { fontColor: "rgb(33, 150, 243)" },
+    });
+    labL.background(false);
+    labL.allowEdit(false);
+    FLineannotationIndex.push(labL);
+  }
+
+  // var max = Math.max(this.globalMax, base, base + 1.236 * dd * ud);
+  // var min = Math.min(this.globalMin, base, base + 1.236 * dd * ud);
+  // var max = Math.max(base, base + 1.236 * dd * ud);
+  // var min = Math.min(base, base + 1.236 * dd * ud);
+
+  // chart.plot(0).yScale().maximum(max.toFixed(2));
+  // chart.plot(0).yScale().minimum(min.toFixed(2));
+  let range = chart.getSelectedRange();
+  let visibleStockData = stockData.filter((p) => {
+    return range.firstSelected <= p[0] && range.lastSelected >= p[0];
+  });
+
+  let stockMax = visibleStockData.map((p) => p[2]);
+  let stockMin = visibleStockData.map((p) => p[3]);
+  FLineMax = Math.max(...stockMax, base, base + 1.236 * dd * ud);
+  FLineMin = Math.min(...stockMin, base, base + 1.236 * dd * ud);
+
+  chart
+    .plot(0)
+    .yScale()
+    .maximum((FLineMax * 1.01).toFixed(2));
+  chart
+    .plot(0)
+    .yScale()
+    .minimum((FLineMin * 0.99).toFixed(2));
+
+  FLineannotationIndex.push(line);
+  FLineannotationIndex.push(label);
+  FLineannotationIndex.push(line236);
+  FLineannotationIndex.push(label236);
+  FLineannotationIndex.push(line382);
+  FLineannotationIndex.push(label382);
+  FLineannotationIndex.push(line500);
+  FLineannotationIndex.push(label500);
+  FLineannotationIndex.push(line618);
+  FLineannotationIndex.push(label618);
+  FLineannotationIndex.push(line786);
+  FLineannotationIndex.push(label786);
+  FLineannotationIndex.push(line100);
+  FLineannotationIndex.push(label100);
+};
+
+const addFline = async function (
+  chart,
+  interval,
+  stockData,
+  stockTool,
+  ticker,
+  adjustDividend,
+  startDate,
+  endDate,
+  update = false
+) {
+  let apiInputParam = {};
+  stockTool.parameters.forEach((opt) => {
+    apiInputParam[opt.name] =
+      Number.isNaN(+opt.value) || typeof opt.value == "boolean"
+        ? opt.value
+        : +opt.value;
+  });
+  const PivotHiLoresult = await indicatorApi.calculatePivotHiLo({
+    ...apiInputParam,
+    ticker,
+    interval,
+    adjustDividend,
+    startDate,
+    endDate,
+  });
+  if (PivotHiLoresult) {
+    console.log(PivotHiLoresult);
+    let PivotHiLopvhData = PivotHiLoresult.map((p) => {
+      return [moment(p.date).valueOf(), p.pvh];
+    });
+    let PivotHiLopvlData = PivotHiLoresult.map((p) => {
+      return [moment(p.date).valueOf(), p.pvl];
+    });
+
+    var PivotHiLopvhTable = anychart.data.table();
+    PivotHiLopvhTable.addData(PivotHiLopvhData);
+
+    var PivotHiLopvhMapping = PivotHiLopvhTable.mapAs();
+    PivotHiLopvhMapping.addField("value", 1);
+
+    var PivotHiLopvlTable = anychart.data.table();
+    PivotHiLopvlTable.addData(PivotHiLopvlData);
+
+    var PivotHiLopvlMapping = PivotHiLopvlTable.mapAs();
+    PivotHiLopvlMapping.addField("value", 1);
+
+    console.log(PivotHiLopvhData);
+    console.log(PivotHiLopvlData);
+    if (!update) {
+      chart.current
+        .plot(0)
+        .line(PivotHiLopvhMapping)
+        .stroke(stockTool.pivotHighStroke, 1, 1)
+        .name("Pivot High");
+
+      chart.current
+        .plot(0)
+        .line(PivotHiLopvlMapping)
+        .stroke(stockTool.pivotLowStroke, 1, 1)
+        .name("Pivot Low");
+    } else {
+      let seriesNames = ["Pivot High", "Pivot Low"];
+      let seriesMapping = {
+        "Pivot High": PivotHiLopvhMapping,
+        "Pivot Low": PivotHiLopvlMapping,
+      };
+      let seriesLength = chart.current.plot(0).getSeriesCount();
+      for (let i = seriesLength - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(0).getSeries(i)) {
+          let seriesName = chart.current.plot(0).getSeries(i).name();
+          if (seriesNames.includes(seriesName)) {
+            chart.current.plot(0).getSeries(i).data(seriesMapping[seriesName]);
+          }
+        }
+      }
+    }
+
+    if (stockTool.parameters.find((p) => p.name === "Draw Fibo line?").value) {
+      var lastPvh = [];
+      var lastPvl = [];
+      var firstPvh = [];
+      var firstPvl = [];
+
+      for (let i = PivotHiLopvhData.length - 1; i > -1; i--) {
+        if (
+          PivotHiLopvhData[i][1] &&
+          PivotHiLopvhData[i - 1][1] !== PivotHiLopvhData[i][1]
+        ) {
+          lastPvh = PivotHiLopvhData[i];
+          break;
+        }
+      }
+      for (let i = PivotHiLopvlData.length - 1; i > -1; i--) {
+        if (
+          PivotHiLopvlData[i][1] &&
+          PivotHiLopvlData[i - 1][1] !== PivotHiLopvlData[i][1]
+        ) {
+          lastPvl = PivotHiLopvlData[i];
+          break;
+        }
+      }
+      for (let i = PivotHiLopvhData.length - 1; i > -1; i--) {
+        if (PivotHiLopvhData[i][1]) {
+          firstPvh = PivotHiLopvhData[i];
+          break;
+        }
+      }
+      for (let i = PivotHiLopvlData.length - 1; i > -1; i--) {
+        if (PivotHiLopvlData[i][1]) {
+          firstPvl = PivotHiLopvlData[i];
+          break;
+        }
+      }
+      if (lastPvh.length > 0 && lastPvl.length > 0) {
+        drawFLine(
+          chart.current,
+          interval,
+          stockData,
+          lastPvh,
+          lastPvl,
+          firstPvh,
+          firstPvl,
+          1,
+          0,
+          true,
+          true,
+          stockTool.name
+        );
+
+        if (
+          stockTool.parameters.find((p) => p.name === "Extend upward fibo?")
+            .value
+        ) {
+          drawFLine(
+            chart.current,
+            interval,
+            stockData,
+            lastPvh,
+            lastPvl,
+            firstPvh,
+            firstPvl,
+            1,
+            1,
+            false,
+            false,
+            stockTool.name
+          );
+        }
+        if (
+          stockTool.parameters.find((p) => p.name === "Extend downward fibo?")
+            .value
+        ) {
+          drawFLine(
+            chart.current,
+            interval,
+            stockData,
+            lastPvh,
+            lastPvl,
+            firstPvh,
+            firstPvl,
+            -1,
+            0,
+            false,
+            false,
+            stockTool.name
+          );
+        }
+      }
+    }
+  }
+};
+
 function TheChart(props) {
   console.log("function rerender??");
   const dispatch = useDispatch();
 
   const { ticker } = props;
-  const [startDate, setStartDate] = useState(
-    moment().subtract(21, "month").format("YYYY-MM-DD")
-  );
-  const [endDate, setEndDate] = useState(moment().format("YYYY-MM-DD"));
-  const [interval, setInterval] = useState("1d");
+  const startDate = useSelector((state) => state.stock.startDate);
+  const endDate = useSelector((state) => state.stock.endDate);
+  const interval = useSelector((state) => state.stock.interval);
+
   const [adjustDividend, setAdjustDividend] = useState(false);
   const [realTime, setRealTime] = useState(false);
   const [stockData, setStockData] = useState([]);
@@ -112,10 +525,12 @@ function TheChart(props) {
     });
     console.log(newStockData);
     setStockData(newStockData);
+    // dispatch(stockActions.setStockData(newStockData)) // not working
     exchangeTimeZone.current = {
       name: "Exchange",
       value: Number(data.meta.gmtoffset) / 3600,
     };
+
     if (Object.keys(timezone).length === 0) {
       setTimezone(exchangeTimeZone.current);
       console.log("triggered?");
@@ -136,17 +551,38 @@ function TheChart(props) {
     chart.current.plot(0).candlestick(chartMapping.current).name(ticker);
     chart.current.tooltip(false);
     chart.current.crosshair().displayMode("float");
+    const subtractUnit = scrollLeftTimeUnit(interval);
+    let subtractValue = 0;
+    const intervalChar = interval.charAt(interval.length - 1);
+    if (intervalChar === "d") {
+      subtractValue = 3;
+    } else if (intervalChar === "k") {
+      subtractValue = 12;
+    } else if (intervalChar === "o") {
+      subtractValue = 60;
+    } else if (intervalChar === "h") {
+      subtractValue = 10;
+    } else if (intervalChar === "m") {
+      subtractValue = 4;
+    }
+    console.log(intervalChar);
+    console.log(subtractValue);
+    console.log(subtractUnit);
     let startRange = moment(newStockData[newStockData.length - 1][0]).subtract(
-      11,
-      scrollLeftTimeUnit(interval)
+      subtractValue,
+      subtractUnit
     );
     let endRange = moment(newStockData[newStockData.length - 1][0]);
+    console.log(startRange.valueOf());
+    console.log(endRange.valueOf());
     chart.current.selectRange(
-      startRange.format("YYYY-MM-DD HH:mm:ss"),
-      endRange.format("YYYY-MM-DD HH:mm:ss")
+      moment().subtract(subtractValue, subtractUnit).valueOf(),
+      moment().valueOf()
     );
     var max = getStockMax(newStockData, startRange, endRange);
     var min = getStockMin(newStockData, startRange, endRange);
+    console.log(max);
+    console.log(min);
 
     chart.current.plot(0).yScale().maximum(max.toFixed(2));
     chart.current.plot(0).yScale().minimum(min.toFixed(2));
@@ -157,11 +593,9 @@ function TheChart(props) {
         return this.rawValue.toFixed(2);
       });
 
-    chart.current.xScale().maximumGap({
-      intervalsCount: 50,
-      unitType: "day",
-      unitCount: 1,
-    });
+    chart.current
+      .xScale()
+      .maximumGap({ intervalsCount: 10, unitType: "weeks", unitCount: 1 });
 
     if (["m", "h"].includes(interval.charAt(interval.length - 1))) {
       chart.current
@@ -220,6 +654,10 @@ function TheChart(props) {
       fill: priceMarkerColor,
     });
     priceTextMarker.fontColor("#FFFFFF");
+
+    return () => {
+      if (chart.current) chart.current = null;
+    };
   }, [
     data,
     ticker,
@@ -231,9 +669,14 @@ function TheChart(props) {
     realTime,
   ]);
 
-  const changeInterval = useCallback((interval) => {
-    setInterval(interval.value);
-  }, []);
+  const changeInterval = useCallback(
+    (interval) => {
+      // setInterval(interval.value);
+      console.log(interval.value);
+      dispatch(stockActions.setStartDateEndDate(interval.value));
+    },
+    [dispatch]
+  );
 
   const toggleRealTime = useCallback(() => {
     setRealTime((prev) => !prev);
@@ -245,6 +688,25 @@ function TheChart(props) {
     anychart.format.outputTimezone(opt.value * 60 * -1);
     setTimezone(opt);
   }, []);
+
+  // const addStockTool = useCallback(
+  //   async (stockTool) => {
+  //     if (stockTool.name === "Pivot Hi Lo") {
+  //       await addFline(
+  //         chart,
+  //         interval,
+  //         stockData,
+  //         stockTool,
+  //         ticker,
+  //         adjustDividend,
+  //         startDate,
+  //         endDate
+  //       );
+  //       dispatch(indicatorActions.addStockTools(stockTool));
+  //     }
+  //   },
+  //   [adjustDividend, dispatch, endDate, interval, startDate, stockData, ticker]
+  // );
 
   const addIndicator = useCallback(
     async (indicator) => {
@@ -270,8 +732,8 @@ function TheChart(props) {
         ticker,
         interval,
         adjustDividend,
-        startDate: realStartTime.current,
-        endDate: realEndTime.current,
+        startDate,
+        endDate,
         realTime,
       });
 
@@ -441,17 +903,17 @@ function TheChart(props) {
         if ("fill" in ind) {
           chartTemp.fill(ind.fill);
         }
-        console.log(
-          moment(realEndTime.current)
-            .subtract(9, scrollLeftTimeUnit(interval))
-            .format("YYYY-MM-DD HH:mm:ss")
-        );
-        chart.current.selectRange(
-          moment(realEndTime.current)
-            .subtract(9, scrollLeftTimeUnit(interval))
-            .format("YYYY-MM-DD HH:mm:ss"),
-          moment(realEndTime.current).format("YYYY-MM-DD HH:mm:ss")
-        );
+        // console.log(
+        //   moment(realEndTime.current)
+        //     .subtract(9, scrollLeftTimeUnit(interval))
+        //     .format("YYYY-MM-DD HH:mm:ss")
+        // );
+        // chart.current.selectRange(
+        //   moment(realEndTime.current)
+        //     .subtract(9, scrollLeftTimeUnit(interval))
+        //     .format("YYYY-MM-DD HH:mm:ss"),
+        //   moment(realEndTime.current).format("YYYY-MM-DD HH:mm:ss")
+        // );
         if (ind.plotIndexOffset > plotAddedBy) {
           plotIndex.current += 1;
           plotAddedBy += 1;
@@ -964,7 +1426,6 @@ function TheChart(props) {
             changeInterval={changeInterval}
             toggleRealTime={toggleRealTime}
             changeTimeZone={changeTimeZone}
-            interval={interval}
             adjustDividend={adjustDividend}
             realStartTime={realStartTime}
             realEndTime={realEndTime}
@@ -984,11 +1445,16 @@ function TheChart(props) {
             interval={interval}
             adjustDividend={adjustDividend}
             realTime={realTime}
-            startDate={startDate}
-            endDate={endDate}
             newStockData={stockData}
-            chartTable={chartTable}
-            chartMapping={chartMapping}
+            ticker={ticker}
+          />
+          <IndicatorUpdate
+            chart={chart}
+            newStockData={stockData}
+            plotIndex={plotIndex}
+            interval={interval}
+            adjustDividend={adjustDividend}
+            realTime={realTime}
             ticker={ticker}
           />
         </Col>
