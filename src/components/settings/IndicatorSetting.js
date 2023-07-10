@@ -11,12 +11,14 @@ import {
 } from "react-bootstrap";
 import { BsGear } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
+import { BsQuestionCircle } from "react-icons/bs";
 
 import { useDispatch } from "react-redux";
 import { indicatorActions } from "../../store/indicator-slice";
 
 function IndicatorSetting(props) {
   const [show, setShow] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
   const dispatch = useDispatch();
 
   const formSubmittionHandler = (submitEvent) => {
@@ -64,6 +66,28 @@ function IndicatorSetting(props) {
     <div>
       {props.ind.name}
       <ButtonGroup>
+        {props.ind.description && (
+          <Button variant="light" size="sm">
+            <BsQuestionCircle onClick={() => setShowInfo(true)} />
+          </Button>
+        )}
+        {props.ind.description && (
+          <Modal
+            show={showInfo}
+            onHide={() => setShowInfo(false)}
+            dialogClassName="modal-90w"
+            aria-labelledby="example-custom-modal-styling-title"
+          >
+            <Modal.Header closeButton>
+              <Modal.Title id="example-custom-modal-styling-title">
+                {props.ind.name}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body
+              dangerouslySetInnerHTML={{ __html: props.ind.description }}
+            ></Modal.Body>
+          </Modal>
+        )}
         <OverlayTrigger
           key="bottom-setting"
           placement="bottom"

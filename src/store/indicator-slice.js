@@ -8,6 +8,8 @@ const indicatorSlice = createSlice({
         {
           name: "ALMA",
           value: "ALMA",
+          description:
+            "Arnaud Legoux Moving Average (ALMA) is one of the least lagging moving average by nature. <br /><br /> This script builds two ALMA line, Fast and Slow, and to check their crossing over to generate Buy / Sell Signals. <br /><br /> The drawback of Moving average crossing strategy is the too many crossing during a range trading, therefore, a third ALMA is used to show the trend of the ticker's price as a reference. <br /><br /> The default value for the Trend ALMA is 70 bars, it is due to the quick response of the Arnaud Legoux MA. <br /><br />The Trend ALMA is plotted in dotted line for reference only, it does not affect the Buy/Sell signal generate from the crossing of the Fast and Slow ALMA lines.",
           groupIndex: 0,
           draw: false,
           apiFunc: "calculateStockALMA",
@@ -72,10 +74,52 @@ const indicatorSlice = createSlice({
               index: -1,
             },
           ],
+          annotations: [
+            {
+              name: "ALMA buy label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              condition: {
+                column: "BSIGNAL",
+                value: "BUY",
+              },
+              parameters: {
+                valueAnchor: "fastALMA",
+                textParam: "BUY_SELL",
+                fontColor: "#363A45",
+              },
+              background: {
+                fill: "#00E676",
+                stroke: "#00E676",
+              },
+            },
+            {
+              name: "ALMA sell label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              condition: {
+                column: "SSIGNAL",
+                value: "SELL",
+              },
+              parameters: {
+                valueAnchor: "fastALMA",
+                textParam: "BUY_SELL",
+                fontColor: "#363A45",
+              },
+              background: {
+                fill: "#FF5252",
+                stroke: "#FF5252",
+              },
+            },
+          ],
         },
         {
           name: "Bollinger Bands",
           value: "Bollinger Bands",
+          description:
+            "Bollinger Bands (BB) are a widely popular technical analysis instrument created by John Bollinger in the early 1980’s. Bollinger Bands consist of a band of three lines which are plotted in relation to security prices. <br /><br /> The line in the middle is usually a Simple Moving Average (SMA) set to a period of 20 days (The type of trend line and period can be changed by the trader; however a 20 day moving average is by far the most popular). <br /><br /> The SMA then serves as a base for the Upper and Lower Bands. <br /><br /> The Upper and Lower Bands are used as a way to measure volatility by observing the relationship between the Bands and price. <br /><br /> Typically the Upper and Lower Bands are set to two standard deviations away from the SMA (The Middle Line); <br /><br /> however the number of standard deviations can also be adjusted by the trader.",
           groupIndex: 0,
           draw: false,
           apiFunc: "calculateBB",
@@ -126,6 +170,8 @@ const indicatorSlice = createSlice({
         {
           name: "MACD",
           value: "MACD",
+          description:
+            "MACD is an extremely popular indicator used in technical analysis. <br /><br /> MACD can be used to identify aspects of a security's overall trend. Most notably these aspects are momentum, as well as trend direction and duration. <br /><br /> What makes MACD so informative is that it is actually the combination of two different types of indicators. <br /><br /> First, MACD employs two Moving Averages of varying lengths (which are lagging indicators) to identify trend direction and duration. Then, MACD takes the difference in values between those two Moving Averages (MACD Line) and an EMA of those Moving Averages (Signal Line) and plots that difference between the two lines as a histogram which oscillates above and below a center Zero Line. <br /><br /> The histogram is used as a good indication of a security's momentum.",
           groupIndex: 0,
           draw: false,
           apiFunc: "calculateMACD",
@@ -218,6 +264,8 @@ const indicatorSlice = createSlice({
         {
           name: "OBV",
           value: "OBV",
+          description:
+            "The On Balance Volume indicator (OBV) is used in technical analysis to measure buying and selling pressure. <br /><br /> It is a cumulative indicator meaning that on days where price went up, that day's volume is added to the cumulative OBV total. <br /><br /> If price went down, then that day's volume is subtracted from the OBV total. <br /><br /> The OBV value is then plotted as a line for easy interpretation. On Balance volume is primarily used to confirm or identify overall price trends or to anticipate price movements after divergences.",
           groupIndex: 0,
           draw: false,
           parameters: [],
@@ -255,6 +303,8 @@ const indicatorSlice = createSlice({
         {
           name: "RSI",
           value: "RSI",
+          description:
+            "The Relative Strength Index (RSI) is a well versed momentum based oscillator which is used to measure the speed (velocity) as well as the change (magnitude) of directional price movements. <br /><br /> Essentially RSI, when graphed, provides a visual mean to monitor both the current, as well as historical, strength and weakness of a particular market. The strength or weakness is based on closing prices over the duration of a specified trading period creating a reliable metric of price and momentum changes. <br /><br /> Given the popularity of cash settled instruments (stock indexes) and leveraged financial products (the entire field of derivatives); <br /><br /> RSI has proven to be a viable indicator of price movements.",
           groupIndex: 0,
           draw: false,
           apiFunc: "calculateRSI",
@@ -288,6 +338,8 @@ const indicatorSlice = createSlice({
         {
           name: "supertrend",
           value: "supertrend",
+          description:
+            "Supertrend is a trend-following indicator based on Average True Range (ATR). <br /><br /> The calculation of its single line combines trend detection and volatility. <br /><br /> It can be used to detect changes in trend direction and to position stops.",
           groupIndex: 0,
           draw: false,
           apiFunc: "calculateStockSuperTrend",
@@ -392,6 +444,8 @@ const indicatorSlice = createSlice({
         {
           name: "ARIMA",
           value: "ARIMA",
+          description:
+            "This script applies ARIMA(P,D,Q) to forecast security price one step ahead. <br /><br /> ARIMA(1,1,2) model is based on :  people.duke.edu/~rnau/411arim.htm <br /><br /> Both AR and MA factor is 0.1 for all terms for simplification, age of data = 1/(1-0.1)=1.1, it has a one bar lag. ",
           groupIndex: 1,
           draw: false,
           apiFunc: "calculateARIMA",
@@ -641,6 +695,8 @@ const indicatorSlice = createSlice({
         {
           name: "Kalman Filter",
           value: "Kalman Filter",
+          description:
+            "This script applies ARIMA(P,D,Q) to forecast security price one step ahead. <br /><br /> ARIMA(1,1,2) model is based on :  people.duke.edu/~rnau/411arim.htm <br /><br /> Both AR and MA factor is 0.1 for all terms for simplification, <br /><br /> age of data = 1/(1-0.1)=1.1, it has a one bar lag.  ",
           groupIndex: 1,
           draw: false,
           apiFunc: "calculateKalmanFilter",
@@ -684,6 +740,8 @@ const indicatorSlice = createSlice({
         {
           name: "MA Crossing",
           value: "MA Crossing",
+          description:
+            "Use a MA, then apply the same MA with a time lag, signal Buy/Sell when the two lines crossover. <br /><br /> The MA line drew has colored for up and down, therefore, it provides the signal too for a single MA line. <br /><br /> The script assumes the 2nd MA line is the slower one to label the Buy/Sell signals.  <br /><br /> There are two kind of strategy that can be applied: <br /> 1. Cross over of the two MA lines for buy/sell <br /> 2. Focus on Line 1 color change, and use Line 2 trend to indentify noise on Line 1. <br /><br /> The crossing of two MA lines is better use with other indicators <br /><br /> There is no single setting to fit all ",
           groupIndex: 1,
           draw: false,
           apiFunc: "calculateMACrossing",
@@ -960,6 +1018,8 @@ const indicatorSlice = createSlice({
         {
           name: "MACD Modified",
           value: "MACD Modified",
+          description:
+            "Price percentage Oscillator allows different security to compare their strength. <br /><br /> This study put it into a complete MACD, by adding the signal line.  ",
           groupIndex: 1,
           draw: false,
           apiFunc: "calculateMACDModified",
@@ -1051,6 +1111,8 @@ const indicatorSlice = createSlice({
         {
           name: "RSI Modified",
           value: "RSI Modified",
+          description:
+            "RSI over 50 is long, RSI below 50 is short. It is ok for most of the security. <br /><br /> eg. Set upper and lower bar to [53 & 47] or [52 & 85] etc if the security has more trendless period. <br /><br /> Line plot by scale the RSI value (%) on the Lo-Hi of each candle. <br /><br /> Line color signaling:  Green=UP, Orange=Down, Gray= sideway or in-transit",
           groupIndex: 1,
           draw: false,
           apiFunc: "calculateRSIModified",
@@ -1169,6 +1231,8 @@ const indicatorSlice = createSlice({
         {
           name: "Turtle Trade",
           value: "Turtle Trade",
+          description:
+            "Basic Turtle trade is : <br /> Buy when close is higher than m-day high, exit Buy when close is lower than n-day low. <br /><br /> Sell when close is lower than m-day low, exit Sell when close is higher than n-day high. <br /><br /> ATR cut Turtle trade is: <br /> Exit Buy when close is lower than ATR*factor line, and exit Sell when close is higher than ATR*factor line. <br /><br /> Since Buy and Sell line runs independently, there is chance that both Buy and Sell are triggered ! <br /><br /> There are also cases that both Buy and Sell are exited.  <br /><br /> This script eliminates the overlap and blanks by compare close to close[2] for a decision of a buy or sell, its called signal train. ",
           groupIndex: 1,
           draw: false,
           apiFunc: "calculateTurtleTrade",
@@ -1406,6 +1470,8 @@ const indicatorSlice = createSlice({
       },
       {
         name: "Pivot Hi Lo",
+        description:
+          "Pivot Points (High/Low), also known as Bar Count Reversals. <br /><br />   It is the highest/lowest point from n bar in left and m bars to right. <br /><br />  So, it is a point of concern, and its suggestion for Resistance and Support levels. <br /><br />  This study will plot the line of the Highest/lowest until a new Pivot Hi/Lo shows up. ",
         parameters: [
           {
             name: "left",
@@ -1445,6 +1511,8 @@ const indicatorSlice = createSlice({
       },
       {
         name: "52 Wk Hi Lo Range - Buy Sell",
+        description:
+          "This is a study to check the position of current price in the Highest - lowest range of selected length, and provide a notification for potential sell or buy. <br /><br /> Default value = 240 is proxy to 1 year for daily chart  <br /><br /> Suggestion : Daily chart  - 2Y=480, 1Y=240, 6m=120, 3m=60  <br /> Weekly chart - 3Y=156, 2Y=104, 1Y=52   etc...",
         parameters: [
           {
             name: "adjust",
@@ -1476,6 +1544,8 @@ const indicatorSlice = createSlice({
       },
       {
         name: "MR Bottom Detector",
+        description:
+          "Applies the basic idea that strong negative MACD and low RSI level to check the possiblity of a Bottom.  <br /><br /> Since this is an estimation/predictive one, it use the colours to display the confidence of the prediction.  <br /><br /> The light color is weak and the deep color means a higher confidence.  <br /><br /> There are some instruments has a much lower volatility / true range, like currencies, so this script arrange the probabilities to be display in 3 bands: High band, mid band and Low band.  <br /><br /> User can switch manually between the two bands to see the result.  <br /><br /> eg. currencies and commodities better use low band. <br /><br /> A 100 day True Range percentage is used to set the critical level for which band to be apply to each security.  <br /><br /> RSI must be low for a bottom, however, RSI various in different environment. So a sensitivity level for manual control is built. Instead of let users input RSI hurdle, the sensitivity level picked 3 different RSI levels for easy use.  ",
         parameters: [
           {
             name: "fastLength",
@@ -1528,6 +1598,8 @@ const indicatorSlice = createSlice({
       },
       {
         name: "Linear Regression Channel on Pivot",
+        description:
+          "This auto linear regression channel is draw by input the starting point (as period of regression)  <br /><br /> Pearsons correlation coefficient  (R-sq) is provided, it is very important because a high value means the regression channel is valid. ",
         parameters: [
           {
             name: "left",
@@ -1575,6 +1647,8 @@ const indicatorSlice = createSlice({
       },
       {
         name: "Zig Zag + LR",
+        description:
+          "This script is based on the script by https://www.tradingview.com/v/I2xTwDzy/  with credit to Tr0sT. <br /><br /> This script modified the original and add the predictive lines for the last section of the zig zag.  <br /><br /> The yellow line points to latest high/low point, and then the red line points to the latest close, it service <br /><br /> as the predictive trend reversal. Both lines will keep changing !!! <br /><br /> The bar counts of the red line is showed in the orange label.  <br /><br /> Note: The yellow label shows the price % change of the Yellow dotted line **  <br /><br /> ZZ Lagging time = length : a new pivot point can only be confirm if lenght of bars checked.  <br /><br /> therefore, longer Zig Zag, longer lagging.  <br /><br /> Linear regression for the unconfirm period is added in this script. <br /><br /> Price change of zig zag pivot points and bar counts is also available.  <br /><br /> RSI is also able to display. Zig zag helps in counting waves, filter noises, pattern recongnition (eg head & shoulder, dual bottom/top etc) <br /><br /> Due to its lagging nature, not recommend for trading signals alone. ",
         parameters: [
           {
             name: "length",

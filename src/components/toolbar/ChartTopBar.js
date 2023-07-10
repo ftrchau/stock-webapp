@@ -11,6 +11,7 @@ import {
   Form,
   ButtonGroup,
   NavDropdown,
+  Popover,
 } from "react-bootstrap";
 
 import DatePicker from "react-datepicker";
@@ -21,6 +22,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Icon } from "@iconify/react";
 import { FiTool } from "react-icons/fi";
 import { BsCalendar } from "react-icons/bs";
+import { BsQuestionCircle } from "react-icons/bs";
 
 import intervalSelection from "./INTERVAL";
 import timezoneSelection from "./TIMEZONE";

@@ -1903,11 +1903,16 @@ function IndicatorUpdate(props) {
           }
           var foundCharts = [];
 
-          var seriesLength = chart.current.plot(0).getSeriesCount();
+          var seriesLength = chart.current
+            .plot(stockTool.plotIndex)
+            .getSeriesCount();
 
           for (let s = seriesLength; s > -1; s--) {
-            if (chart.current.plot(0).getSeries(s)) {
-              let seriesName = chart.current.plot(0).getSeries(s).name();
+            if (chart.current.plot(stockTool.plotIndex).getSeries(s)) {
+              let seriesName = chart.current
+                .plot(stockTool.plotIndex)
+                .getSeries(s)
+                .name();
               if (seriesChart.includes(seriesName)) {
                 foundCharts.push(seriesName);
                 break;

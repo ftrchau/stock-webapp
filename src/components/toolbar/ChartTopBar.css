@@ -1,3 +1,8 @@
 .main {
   display: flex;
 }
+.tooltipTest {
+  max-width: 1000px !important;
+  white-space: pre-line;
+  width: 100%;
+}
