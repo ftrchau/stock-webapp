@@ -1511,6 +1511,7 @@ function TheChart(props) {
             realTime={realTime}
             ticker={ticker}
             initialPicked={initialPicked}
+            addIndicator={addIndicator}
           />
         </Col>
       </Row>

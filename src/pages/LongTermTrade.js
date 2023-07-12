@@ -38,6 +38,7 @@ function LongTermTrade() {
 
   useEffect(() => {
     dispatch(indicatorActions.resetCurrentIndicatorStockTools());
+    dispatch(indicatorActions.setInitialLoad(true));
     const fetchData = async () => {
       const apiResult = await stockApi.getStockPrice({
         ticker,

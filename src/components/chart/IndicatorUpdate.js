@@ -1570,11 +1570,13 @@ function IndicatorUpdate(props) {
   const currentIndicators = useSelector(
     (state) => state.indicator.currentIndicators
   );
+  const indicators = useSelector((state) => state.indicator.indicators);
   const currentStockTools = useSelector(
     (state) => state.indicator.currentStockTools
   );
 
   const needUpdate = useSelector((state) => state.indicator.needUpdate);
+  const initialLoad = useSelector((state) => state.indicator.initialLoad);
 
   const {
     chart,
@@ -1585,6 +1587,7 @@ function IndicatorUpdate(props) {
     realTime,
     ticker,
     initialPicked,
+    addIndicator,
   } = props;
 
   useEffect(() => {
@@ -1996,6 +1999,27 @@ function IndicatorUpdate(props) {
 
         dispatch(indicatorActions.setNeedUpdate(false));
       }
+
+      if (initialLoad) {
+        const addIndicatorCallback = async () => {
+          for await (let ind of initialPicked.indicators) {
+            await addIndicator(
+              [
+                ...indicators["Traditional Indicator"],
+                ...indicators["Innovative Indicators"],
+              ].find((selind) => selind.name === ind)
+            );
+          }
+        };
+
+        // for (let stockTool of initialPicked.stockTools) {
+        //   dispatch(indicatorActions.addStockTools(stockTool));
+        // }
+
+        addIndicatorCallback();
+        // fetchCurrentStockTools();
+        dispatch(indicatorActions.setInitialLoad(false));
+      }
     }
   }, [
     chart,
@@ -2011,6 +2035,10 @@ function IndicatorUpdate(props) {
     plotIndex,
     newStockData,
     needUpdate,
+    initialLoad,
+    addIndicator,
+    indicators,
+    initialPicked,
   ]);
 
   return <div></div>;

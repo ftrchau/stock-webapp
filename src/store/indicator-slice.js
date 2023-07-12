@@ -4,6 +4,7 @@ const indicatorSlice = createSlice({
   name: "indicator",
   initialState: {
     needUpdate: false,
+    initialLoad: true,
     indicators: {
       "Traditional Indicator": [
         {
@@ -1796,6 +1797,9 @@ const indicatorSlice = createSlice({
     },
     setNeedUpdate(state, action) {
       state.needUpdate = action.payload;
+    },
+    setInitialLoad(state, action) {
+      state.initialLoad = action.payload;
     },
   },
 });
