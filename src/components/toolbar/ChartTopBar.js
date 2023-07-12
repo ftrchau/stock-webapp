@@ -1,5 +1,6 @@
 import "./ChartTopBar.css";
 
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
@@ -31,7 +32,7 @@ import IndicatorSettings from "../settings/IndicatorSettings";
 import StockToolSettings from "../settings/StockToolSettings";
 import rangeSelection from "./RANGESELECTION";
 import DrawToolBar from "./DrawToolBar";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import { indicatorActions } from "../../store/indicator-slice";
 import { stockActions } from "../../store/stock-slice";
@@ -1260,6 +1261,42 @@ const addLinearRegression = async function (
         }
       }
     }
+    let max = Math.max(
+      ...LinearRegressionUpperData.map((p) => p[1]),
+      ...LinearRegressionLowerData.map((p) => p[1]),
+      stockData
+        .filter(
+          (p) =>
+            p[0] > moment(realStartTime).valueOf() &&
+            p[0] < moment(realEndTime).valueOf()
+        )
+        .map((p) => p[2])
+    );
+    let min = Math.min(
+      ...LinearRegressionUpperData.map((p) => p[1]),
+      ...LinearRegressionLowerData.map((p) => p[1]),
+      stockData
+        .filter(
+          (p) =>
+            p[0] > moment(realStartTime).valueOf() &&
+            p[0] < moment(realEndTime).valueOf()
+        )
+        .map((p) => p[3])
+    );
+    // console.log(chart.current.plot(0).yScale().maximum());
+    chart.current
+      .plot(0)
+      .yScale()
+      .maximum(
+        Math.max(max, chart.current.plot(0).yScale().maximum()).toFixed(2)
+      );
+    chart.current
+      .plot(0)
+      .yScale()
+      .minimum(
+        Math.min(min, chart.current.plot(0).yScale().minimum()).toFixed(2)
+      );
+    // console.log(max);
   }
 };
 
@@ -1634,8 +1671,15 @@ const addZigZag = async function (
 };
 
 function ChartTopBar(props) {
-  const { chart, ticker, stockData, adjustDividend, plotIndex, realTime } =
-    props;
+  const {
+    chart,
+    ticker,
+    stockData,
+    adjustDividend,
+    plotIndex,
+    realTime,
+    addIndicator,
+  } = props;
   const indicators = useSelector((state) => state.indicator.indicators);
   const currentIndicators = useSelector(
     (state) => state.indicator.currentIndicators
@@ -1644,6 +1688,7 @@ function ChartTopBar(props) {
   const currentStockTools = useSelector(
     (state) => state.indicator.currentStockTools
   );
+  const needUpdate = useSelector((state) => state.indicator.needUpdate);
 
   const rangeStartDate = useSelector((state) => state.stock.rangeStartDate);
 
@@ -1691,6 +1736,16 @@ function ChartTopBar(props) {
     chart.current.plot(0).yScale().maximum(max.toFixed(2));
     chart.current.plot(0).yScale().minimum(min.toFixed(2));
   }, [dispatch, stockData, chart]);
+
+  const changeInterval = useCallback(
+    (interval) => {
+      // setInterval(interval.value);
+      console.log(interval.value);
+      dispatch(stockActions.setStartDateEndDate(interval.value));
+      dispatch(indicatorActions.setNeedUpdate(true));
+    },
+    [dispatch]
+  );
 
   const addStockTool = useCallback(
     async (stockTool) => {
@@ -1798,6 +1853,39 @@ function ChartTopBar(props) {
       realTime,
     ]
   );
+
+  // useEffect(() => {
+  //   const addInititalIndicators = async () => {
+  //     for await (let indicator of initialPicked.indicators) {
+  //       console.log(
+  //         [
+  //           ...indicators["Traditional Indicator"],
+  //           ...indicators["Innovative Indicators"],
+  //         ].find((ind) => ind.name === indicator)
+  //       );
+  //       await addIndicator(
+  //         [
+  //           ...indicators["Traditional Indicator"],
+  //           ...indicators["Innovative Indicators"],
+  //         ].find((ind) => ind.name === indicator)
+  //       );
+  //     }
+  //   };
+
+  //   // const addInitialStockTools = async () => {
+  //   //   for (let stockTool of initialPicked.stockTools) {
+  //   //     dispatch(
+  //   //       indicatorActions.addStockTools(
+  //   //         stockTools.find((st) => st.name === stockTool)
+  //   //       )
+  //   //     );
+  //   //     //  stockTools.find((st) => st.name === stockTool);
+  //   //   }
+  //   // };
+
+  //   addInititalIndicators();
+  //   // addInitialStockTools();
+  // }, [initialPicked, addIndicator, indicators, dispatch]);
 
   const updateStockTool = useCallback(
     async (stockTool, index) => {
@@ -2087,7 +2175,7 @@ function ChartTopBar(props) {
                         <Dropdown.Item
                           as="button"
                           key={interval.name + key}
-                          onClick={() => props.changeInterval(interval)}
+                          onClick={() => changeInterval(interval)}
                         >
                           {interval.name}
                         </Dropdown.Item>

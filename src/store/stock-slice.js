@@ -27,7 +27,7 @@ const stockSlice = createSlice({
     interval: "1d", // possible values: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
     startDate: moment().subtract(60, "month").toDate(),
     endDate: moment().valueOf(),
-    rangeStartDate: moment().subtract(3, "month").toDate(), // assume interval = "1d"
+    rangeStartDate: moment().subtract(6, "month").toDate(), // assume interval = "1d"
     rangeEndDate: moment().toDate(),
     tradingPeriod: {
       regularStart: 0,
@@ -64,7 +64,7 @@ const stockSlice = createSlice({
       const intervalChar = interval.charAt(interval.length - 1);
       if (intervalChar === "d") {
         subtractValue = 60;
-        subtractRangeValue = 3;
+        subtractRangeValue = 6;
       } else if (intervalChar === "k") {
         subtractValue = 180;
         subtractRangeValue = 12;
@@ -98,7 +98,7 @@ const stockSlice = createSlice({
 
       state.startDate = moment(regularEnd).subtract(60, "month").toDate();
       state.endDate = moment(regularEnd).toDate();
-      state.rangeStartDate = moment(regularEnd).subtract(3, "month").toDate(); // assume interval = "1d"
+      state.rangeStartDate = moment(regularEnd).subtract(6, "month").toDate(); // assume interval = "1d"
       state.rangeEndDate = moment(regularEnd).toDate();
 
       // startDate: moment().subtract(60, "month").toDate(),

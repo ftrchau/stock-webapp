@@ -369,6 +369,7 @@ function ListenChart(props) {
   const currentStockTools = useSelector(
     (state) => state.indicator.currentStockTools
   );
+  const indicators = useSelector((state) => state.indicator.indicators);
 
   const {
     newStockData,
@@ -377,6 +378,8 @@ function ListenChart(props) {
     realTime,
     ticker,
     plotIndex,
+    initialPicked,
+    addIndicator,
   } = props;
 
   const rangeStartDate = useSelector((state) => state.stock.rangeStartDate);
@@ -406,8 +409,8 @@ function ListenChart(props) {
           var max = getStockMax(tempStockData, e.firstVisible, e.lastSelected);
           var min = getStockMin(tempStockData, e.firstVisible, e.lastSelected);
 
-          props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
-          props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+          // props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
+          // props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
           // for volume profile only
           for (let stockTool of currentStockTools) {
             console.log(stockTool);
@@ -509,21 +512,40 @@ function ListenChart(props) {
           .map((p) => p[3])
       );
 
-      console.log(
-        newStockData.filter(
-          (p) =>
-            p[3] != null &&
-            moment(p[0]) > moment(rangeStartDate) &&
-            moment(p[0]) < moment(rangeEndDate)
-        )
-      );
-
       props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
       props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+
+      var seriesLength = props.chart.current.plot(0).getSeriesCount();
+
+      for (let s = seriesLength; s > -1; s--) {
+        if (props.chart.current.plot(0).getSeries(s)) {
+          console.log(props.chart.current.plot(0).getSeries(s));
+        }
+      }
+
+      // const addInititalIndicators = async () => {
+      //   for await (let indicator of initialPicked.indicators) {
+      //     console.log(
+      //       [
+      //         ...indicators["Traditional Indicator"],
+      //         ...indicators["Innovative Indicators"],
+      //       ].find((ind) => ind.name === indicator)
+      //     );
+      //     await addIndicator(
+      //       [
+      //         ...indicators["Traditional Indicator"],
+      //         ...indicators["Innovative Indicators"],
+      //       ].find((ind) => ind.name === indicator)
+      //     );
+      //   }
+      // };
+
+      // addInititalIndicators();
     }
 
     return () => {
-      if (chartListenKey) props.chart.current.unlistenByKey(chartListenKey);
+      if (chartListenKey && props.chart.current)
+        props.chart.current.unlistenByKey(chartListenKey);
     };
   }, [
     props.chart,
@@ -537,6 +559,9 @@ function ListenChart(props) {
     plotIndex,
     rangeStartDate,
     rangeEndDate,
+    initialPicked.indicators,
+    indicators,
+    addIndicator,
   ]);
 
   return <div></div>;

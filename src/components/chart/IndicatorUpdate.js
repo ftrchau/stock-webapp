@@ -5,6 +5,7 @@ import moment from "moment";
 import anychart from "anychart";
 
 import indicatorApi from "../../api/indicator";
+import { indicatorActions } from "../../store/indicator-slice";
 
 import annotationIndex from "../chart/annotationIndex";
 
@@ -401,6 +402,7 @@ const drawFLine = (
 ) => {
   annotationIndex.FLineannotationIndex = [];
   var controller = chart.plot(0).annotations();
+  if (!stockData[stockData.length - 1]) return;
   var lastPoint = stockData[stockData.length - 1][0];
   var dd = lastPvh[1] - lastPvl[1];
   var base = lastPvl[1] + j * dd;
@@ -1199,6 +1201,7 @@ const addZigZag = async function (
   realEndTime,
   update = false
 ) {
+  if (!chart.current) return;
   annotationIndex.ZigZagannotationIndex = [];
   let apiInputParam = {};
   stockTool.parameters.forEach((opt) => {
@@ -1571,6 +1574,8 @@ function IndicatorUpdate(props) {
     (state) => state.indicator.currentStockTools
   );
 
+  const needUpdate = useSelector((state) => state.indicator.needUpdate);
+
   const {
     chart,
     newStockData,
@@ -1579,6 +1584,7 @@ function IndicatorUpdate(props) {
     adjustDividend,
     realTime,
     ticker,
+    initialPicked,
   } = props;
 
   useEffect(() => {
@@ -1695,13 +1701,7 @@ function IndicatorUpdate(props) {
             if (Array.isArray(indicator.charts[p].stroke)) {
               charts[p].result = allResult;
               chartTemp = chart.current
-                .plot(
-                  indicator.charts[p].plotIndexOffset > plotAddedBy
-                    ? plotIndex.current + 1
-                    : plotAddedBy > 0
-                    ? plotIndex.current
-                    : 0
-                )
+                .plot(indicator.charts[p].plotIndex)
                 [indicator.charts[p].seriesType](mapping)
                 [
                   // eslint-disable-next-line no-loop-func
@@ -1714,7 +1714,7 @@ function IndicatorUpdate(props) {
                   // console.log(this.x);
                   let resultIndex = addResult.findIndex(
                     // (p) => p[0] === moment(this.x).valueOf()
-                    (p) => p[0] === this.x
+                    (p) => p[1] === this.value
                   );
                   if (!addResult[resultIndex - 1]) return;
                   let prevValue = addResult[resultIndex - 1][1];
@@ -1805,13 +1805,7 @@ function IndicatorUpdate(props) {
                 .name(indicator.charts[p].name);
             } else {
               chartTemp = chart.current
-                .plot(
-                  indicator.charts[p].plotIndexOffset > plotAddedBy
-                    ? plotIndex.current + 1
-                    : plotAddedBy > 0
-                    ? plotIndex.current
-                    : 0
-                )
+                .plot(indicator.charts[p].plotIndex)
                 [indicator.charts[p].seriesType](mapping)
                 ["name"](indicator.charts[p].name)
                 [
@@ -1830,37 +1824,32 @@ function IndicatorUpdate(props) {
             if ("fill" in indicator.charts[p]) {
               chartTemp.fill(indicator.charts[p].fill);
             }
-            if (indicator.charts[p].plotIndexOffset > plotAddedBy) {
-              plotIndex.current += 1;
-              plotAddedBy += 1;
 
-              chart.current
-                .plot(plotIndex.current)
-                .legend()
-                .itemsFormat(function () {
-                  var series = this.series;
-                  if (
-                    series.name() === ticker &&
-                    series.getType() === "candlestick"
-                  ) {
-                    return (
-                      ticker +
-                      " " +
-                      (this.open ? "O" + this.open.toFixed(2) : "") +
-                      (this.high ? "H" + this.high.toFixed(2) : "") +
-                      (this.low ? "L" + this.low.toFixed(2) : "") +
-                      (this.close ? "C" + this.close.toFixed(2) : "")
-                    );
-                  } else {
-                    return (
-                      series.name() +
-                      " " +
-                      (this.value ? this.value.toFixed(2) : "")
-                    );
-                  }
-                });
-            }
-            if (plotAddedBy > 0) charts[p].plotIndex = plotIndex.current;
+            chart.current
+              .plot(0)
+              .legend()
+              .itemsFormat(function () {
+                var series = this.series;
+                if (
+                  series.name() === ticker &&
+                  series.getType() === "candlestick"
+                ) {
+                  return (
+                    ticker +
+                    " " +
+                    (this.open ? "O" + this.open.toFixed(2) : "") +
+                    (this.high ? "H" + this.high.toFixed(2) : "") +
+                    (this.low ? "L" + this.low.toFixed(2) : "") +
+                    (this.close ? "C" + this.close.toFixed(2) : "")
+                  );
+                } else {
+                  return (
+                    series.name() +
+                    " " +
+                    (this.value ? this.value.toFixed(2) : "")
+                  );
+                }
+              });
           }
         }
       };
@@ -2001,13 +1990,18 @@ function IndicatorUpdate(props) {
       };
 
       //   chart.current.plot(0).removeAllSeries();
-      fetchCurrentIndicators();
-      fetchCurrentStockTools();
+      if (needUpdate) {
+        fetchCurrentIndicators();
+        fetchCurrentStockTools();
+
+        dispatch(indicatorActions.setNeedUpdate(false));
+      }
     }
   }, [
     chart,
     currentIndicators,
     currentStockTools,
+    dispatch,
     ticker,
     interval,
     adjustDividend,
@@ -2016,6 +2010,7 @@ function IndicatorUpdate(props) {
     realTime,
     plotIndex,
     newStockData,
+    needUpdate,
   ]);
 
   return <div></div>;

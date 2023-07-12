@@ -17,6 +17,13 @@ const methods = {
       console.log(e);
     }
   },
+  async getStockList(params) {
+    try {
+      return api.post("/getStockList", params);
+    } catch (e) {
+      console.log(e);
+    }
+  },
 };
 
 export default methods;

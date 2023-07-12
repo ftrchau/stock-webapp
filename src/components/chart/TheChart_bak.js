@@ -488,6 +488,10 @@ function TheChart(props) {
   const chartTable = useRef(null);
   const chartMapping = useRef(null);
   const exchangeTimeZone = useRef({});
+  const realStartTime = useRef(
+    moment().subtract(21, "month").format("YYYY-MM-DD")
+  );
+  const realEndTime = useRef(moment().format("YYYY-MM-DD"));
   const plotIndex = useRef(0);
 
   // const indicators = useSelector((state) => state.indicator.indicators);
@@ -509,7 +513,7 @@ function TheChart(props) {
 
   const addIndicator = useCallback(
     async (indicator) => {
-      console.log("does addIndicator get called?");
+      if (!chart.current) return;
       var charts = indicator.charts.map((item) => ({ ...item }));
       var annotations =
         "annotations" in indicator
@@ -1020,14 +1024,14 @@ function TheChart(props) {
   //     addInititalIndicators();
   // }, [addIndicator, indicators, initialPicked, dispatch]);
 
-  // const changeInterval = useCallback(
-  //   (interval) => {
-  //     // setInterval(interval.value);
-  //     console.log(interval.value);
-  //     dispatch(stockActions.setStartDateEndDate(interval.value));
-  //   },
-  //   [dispatch]
-  // );
+  const changeInterval = useCallback(
+    (interval) => {
+      // setInterval(interval.value);
+      console.log(interval.value);
+      dispatch(stockActions.setStartDateEndDate(interval.value));
+    },
+    [dispatch]
+  );
 
   const toggleRealTime = useCallback(() => {
     setRealTime((prev) => !prev);
@@ -1158,8 +1162,8 @@ function TheChart(props) {
         ticker,
         interval,
         adjustDividend,
-        startDate,
-        endDate,
+        startDate: realStartTime.current,
+        endDate: realEndTime.current,
         realTime,
       });
       var chartSeriesIndex;
@@ -1396,8 +1400,8 @@ function TheChart(props) {
                 ticker,
                 interval,
                 adjustDividend,
-                startDate,
-                endDate,
+                startDate: realStartTime.current,
+                endDate: realEndTime.current,
                 realTime,
               });
               let addResult = allResult.map((p) => {
@@ -1477,9 +1481,12 @@ function TheChart(props) {
             addIndicator={addIndicator}
             updateIndicator={updateIndicator}
             removeIndicator={removeIndicator}
+            changeInterval={changeInterval}
             toggleRealTime={toggleRealTime}
             changeTimeZone={changeTimeZone}
             adjustDividend={adjustDividend}
+            realStartTime={realStartTime}
+            realEndTime={realEndTime}
             realTime={realTime}
             timezone={timezone}
             plotIndex={plotIndex}
@@ -1510,7 +1517,6 @@ function TheChart(props) {
             adjustDividend={adjustDividend}
             realTime={realTime}
             ticker={ticker}
-            initialPicked={initialPicked}
           />
         </Col>
       </Row>

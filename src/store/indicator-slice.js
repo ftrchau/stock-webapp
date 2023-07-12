@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const indicatorSlice = createSlice({
   name: "indicator",
   initialState: {
+    needUpdate: false,
     indicators: {
       "Traditional Indicator": [
         {
@@ -212,6 +213,26 @@ const indicatorSlice = createSlice({
               seriesType: "line",
               stroke: "rgba(255, 106, 0, 1)",
             },
+
+            {
+              name: "MACD",
+              column: "macd",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              result: [],
+              index: -1,
+              stroke: [
+                {
+                  color: "rgba(83, 104, 120, 1)",
+                  conditions: ["decrease"],
+                },
+                {
+                  color: "rgba(0, 148, 255, 1)",
+                  conditions: ["increase"],
+                },
+              ],
+            },
             {
               name: "MACD Histogram",
               column: "macd_histogram",
@@ -237,25 +258,6 @@ const indicatorSlice = createSlice({
                 {
                   color: "rgb(239, 83, 80)",
                   conditions: ["negative", "decrease"],
-                },
-              ],
-            },
-            {
-              name: "MACD",
-              column: "macd",
-              seriesType: "line",
-              plotIndexOffset: 1,
-              plotIndex: 0,
-              result: [],
-              index: -1,
-              stroke: [
-                {
-                  color: "rgba(83, 104, 120, 1)",
-                  conditions: ["decrease"],
-                },
-                {
-                  color: "rgba(0, 148, 255, 1)",
-                  conditions: ["increase"],
                 },
               ],
             },
@@ -1476,13 +1478,13 @@ const indicatorSlice = createSlice({
           {
             name: "left",
             label: "Left",
-            value: "10",
+            value: "30",
             type: "text",
           },
           {
             name: "right",
             label: "Right",
-            value: "10",
+            value: "30",
             type: "text",
           },
           {
@@ -1623,7 +1625,7 @@ const indicatorSlice = createSlice({
           {
             name: "Display Pivot lines?",
             label: "Display Pivot lines?",
-            value: false,
+            value: true,
             type: "checkbox",
           },
           {
@@ -1787,6 +1789,13 @@ const indicatorSlice = createSlice({
           ...param,
         };
       });
+    },
+    resetCurrentIndicatorStockTools(state) {
+      state.currentIndicators = [];
+      state.currentStockTools = [];
+    },
+    setNeedUpdate(state, action) {
+      state.needUpdate = action.payload;
     },
   },
 });
