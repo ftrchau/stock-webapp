@@ -1571,6 +1571,7 @@ function IndicatorUpdate(props) {
     (state) => state.indicator.currentIndicators
   );
   const indicators = useSelector((state) => state.indicator.indicators);
+  const stockTools = useSelector((state) => state.indicator.stockTools);
   const currentStockTools = useSelector(
     (state) => state.indicator.currentStockTools
   );
@@ -1588,12 +1589,14 @@ function IndicatorUpdate(props) {
     ticker,
     initialPicked,
     addIndicator,
+    addStockTool,
   } = props;
 
   useEffect(() => {
     console.log("rerender IndicatorUpdate");
     if (chart.current) {
       const fetchCurrentIndicators = async () => {
+        let cur = 0;
         for await (let indicator of currentIndicators) {
           var charts = indicator.charts.map((item) => ({ ...item }));
           var annotations =
@@ -1854,6 +1857,65 @@ function IndicatorUpdate(props) {
                 }
               });
           }
+
+          if (annotations.length > 0) {
+            for (let index = 0; index < indicator.annotations.length; index++) {
+              let anno = indicator.annotations[index];
+              let annoMappings = allResult
+                .filter((p, idx) => {
+                  if ("func" in anno.condition) {
+                    return idx < 1
+                      ? true
+                      : anno.condition.func(p, allResult[idx - 1]);
+                  }
+                  return p[anno.condition.column] === anno.condition.value;
+                })
+                .map((p) => {
+                  return {
+                    xAnchor: moment(p.date).valueOf(),
+                    valueAnchor: p[anno.parameters.valueAnchor],
+                    text:
+                      "textParam" in anno.parameters
+                        ? p[anno.parameters.textParam]
+                        : anno.parameters.text,
+                    normal: {
+                      fontColor: anno.parameters.fontColor,
+                    },
+                    hovered: {
+                      fontColor: anno.parameters.fontColor,
+                    },
+                    selected: {
+                      fontColor: anno.parameters.fontColor,
+                    },
+                  };
+                });
+
+              for (let s = 0; s < annoMappings.length; s++) {
+                let annoMapping = annoMappings[s];
+                annotations[index].annotationIndex.push(
+                  chart.current
+                    .plot(anno.plotIndex)
+                    .annotations()
+                    [anno.type](annoMapping)
+                    .background({
+                      fill: anno.background.fill,
+                      stroke: anno.background.stroke,
+                    })
+                    .allowEdit(false)
+                );
+              }
+            }
+
+            console.log(cur);
+
+            dispatch(
+              indicatorActions.setIndicatorAnnotationIndex({
+                indicatorIndex: cur,
+                annotations,
+              })
+            );
+          }
+          cur++;
         }
       };
       const fetchCurrentStockTools = async () => {
@@ -2012,12 +2074,18 @@ function IndicatorUpdate(props) {
           }
         };
 
+        const addStockToolCallback = async () => {
+          for await (let stocktool of initialPicked.stockTools) {
+            await addStockTool(stockTools.find((st) => st.name === stocktool));
+          }
+        };
+
         // for (let stockTool of initialPicked.stockTools) {
         //   dispatch(indicatorActions.addStockTools(stockTool));
         // }
 
         addIndicatorCallback();
-        // fetchCurrentStockTools();
+        addStockToolCallback();
         dispatch(indicatorActions.setInitialLoad(false));
       }
     }
@@ -2039,6 +2107,8 @@ function IndicatorUpdate(props) {
     addIndicator,
     indicators,
     initialPicked,
+    addStockTool,
+    stockTools,
   ]);
 
   return <div></div>;

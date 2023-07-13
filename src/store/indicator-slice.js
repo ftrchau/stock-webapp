@@ -1063,6 +1063,26 @@ const indicatorSlice = createSlice({
               plotIndex: 0,
               stroke: "rgba(255, 106, 0, 1)",
             },
+
+            {
+              name: "MACD",
+              column: "macd",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              result: [],
+              index: -1,
+              stroke: [
+                {
+                  color: "rgba(83, 104, 120, 1)",
+                  conditions: ["decrease"],
+                },
+                {
+                  color: "rgba(0, 148, 255, 1)",
+                  conditions: ["increase"],
+                },
+              ],
+            },
             {
               name: "Histogram+",
               column: "hist",
@@ -1087,25 +1107,6 @@ const indicatorSlice = createSlice({
                 {
                   color: "rgb(239, 83, 80)",
                   conditions: ["negative", "decrease"],
-                },
-              ],
-            },
-            {
-              name: "MACD",
-              column: "macd",
-              seriesType: "line",
-              plotIndexOffset: 1,
-              plotIndex: 0,
-              result: [],
-              index: -1,
-              stroke: [
-                {
-                  color: "rgba(83, 104, 120, 1)",
-                  conditions: ["decrease"],
-                },
-                {
-                  color: "rgba(0, 148, 255, 1)",
-                  conditions: ["increase"],
                 },
               ],
             },
@@ -1479,13 +1480,13 @@ const indicatorSlice = createSlice({
           {
             name: "left",
             label: "Left",
-            value: "30",
+            value: "10",
             type: "text",
           },
           {
             name: "right",
             label: "Right",
-            value: "30",
+            value: "10",
             type: "text",
           },
           {
@@ -1764,6 +1765,13 @@ const indicatorSlice = createSlice({
         );
         paraFind.chartIndex = plotIndex;
       }
+    },
+    setIndicatorAnnotationIndex(state, action) {
+      const { indicatorIndex, annotations } = action.payload;
+
+      console.log(indicatorIndex);
+
+      state.currentIndicators[indicatorIndex].annotations = annotations;
     },
     setToolChartAnnotationIndex(state, action) {
       const { stockToolName, annotationIndex } = action.payload;

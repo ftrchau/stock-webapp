@@ -16,6 +16,13 @@ function LongTermTrade() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { state } = useLocation();
+  if (!state) {
+    navigate("/");
+  } else {
+    if (!("ticker" in state)) {
+      navigate("/");
+    }
+  }
   const { ticker, label } = state;
   const setTicker = useCallback(
     (opt) => {
