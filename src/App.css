@@ -46,3 +46,11 @@ body,
   margin: 0;
   padding: 0;
 }
+
+.react-datepicker__view-calendar-icon input {
+  padding: 0px 0px 0px 25px !important;
+}
+.react-datepicker-wrapper,
+.react-datetime-input {
+  cursor: pointer;
+}
