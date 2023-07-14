@@ -27,7 +27,7 @@ function IndicatorSetting(props) {
     let indicatorParam = [];
     Array.from(submitEvent.target.elements).forEach((elem) => {
       if (elem.name !== "") {
-        console.log(elem);
+        //console.log(elem);
         indicatorParam.push({
           name: elem.name,
           value: elem.type === "checkbox" ? elem.checked : elem.value,
@@ -36,7 +36,7 @@ function IndicatorSetting(props) {
       }
     });
 
-    console.log(indicatorParam);
+    //console.log(indicatorParam);
 
     dispatch(
       indicatorActions.setIndicatorParams({

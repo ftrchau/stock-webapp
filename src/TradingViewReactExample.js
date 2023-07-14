@@ -135,7 +135,7 @@ const Dashboard = () => {
                   time: new Date(datapoint.x).toLocaleDateString(),
                   price: datapoint.y,
                 });
-                console.log(addressData);
+                //console.log(addressData);
               }}
             />
 

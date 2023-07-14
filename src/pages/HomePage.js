@@ -41,7 +41,7 @@ function HomePage() {
           query: value,
         });
 
-        console.log(apiResult);
+        //console.log(apiResult);
         const searchedResult = apiResult.map((re) => {
           return {
             value: re.symbol,

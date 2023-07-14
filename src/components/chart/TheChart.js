@@ -28,7 +28,7 @@ import stockDataStore from "./stockDataStore";
 import "./TheChart.css";
 
 const getStockMax = (data, start, end) => {
-  console.log(data);
+  //console.log(data);
   return Math.max(
     ...data
       .filter((p) => p[0] > start && p[0] < end && p[2] != null)
@@ -140,7 +140,7 @@ const drawVolumeProfileFunction = async (
     realTime,
   });
 
-  console.log(apiResult);
+  //console.log(apiResult);
 
   let stockData = outputStockData(apiResult, adjustDividend);
 
@@ -151,8 +151,8 @@ const drawVolumeProfileFunction = async (
   let bbars = stockTool.bbars || visibleStockData.length;
   let drawPOCLabel = stockTool.drawPOCLabel || false;
 
-  console.log(startPoint);
-  console.log(endPoint);
+  //console.log(startPoint);
+  //console.log(endPoint);
 
   var high = visibleStockData.map((p) => p[2]);
   var low = visibleStockData.map((p) => p[3]);
@@ -187,7 +187,7 @@ const drawVolumeProfileFunction = async (
     let topwick = visibleStockData[bars][2] - body_top;
     let bottomwick = body_bot - visibleStockData[bars][3];
     let body = body_top - body_bot;
-    console.log(visibleStockData);
+    //console.log(visibleStockData);
 
     let bodyvol =
       (body * visibleStockData[bars][5]) /
@@ -198,10 +198,10 @@ const drawVolumeProfileFunction = async (
     let bottomwickvol =
       (2 * bottomwick * visibleStockData[bars][5]) /
       (2 * topwick + 2 * bottomwick + body);
-    console.log(body_bot);
-    console.log(body_top);
-    console.log(body);
-    console.log(bodyvol);
+    //console.log(body_bot);
+    //console.log(body_top);
+    //console.log(body);
+    //console.log(bodyvol);
 
     for (let j = 0; j < cnum; j++) {
       volumes[j] +=
@@ -281,10 +281,10 @@ const drawVolumeProfileFunction = async (
   }
   var controller = chart.current.plot(0).annotations();
 
-  console.log(cnum);
-  console.log(startPoint);
-  console.log(levels);
-  console.log(volumes);
+  //console.log(cnum);
+  //console.log(startPoint);
+  //console.log(levels);
+  //console.log(volumes);
 
   for (let j = 0; j < cnum; j++) {
     annotationIndex.VolumeProfileannotationIndex.push(
@@ -616,7 +616,7 @@ const addFline = async function (
     endDate: realEndTime,
   });
   if (PivotHiLoresult) {
-    console.log(PivotHiLoresult);
+    //console.log(PivotHiLoresult);
     let PivotHiLopvhData = PivotHiLoresult.map((p) => {
       return [moment(p.date).valueOf(), p.pvh];
     });
@@ -636,8 +636,8 @@ const addFline = async function (
     var PivotHiLopvlMapping = PivotHiLopvlTable.mapAs();
     PivotHiLopvlMapping.addField("value", 1);
 
-    console.log(PivotHiLopvhData);
-    console.log(PivotHiLopvlData);
+    //console.log(PivotHiLopvhData);
+    //console.log(PivotHiLopvlData);
     if (!update) {
       chart.current
         .plot(0)
@@ -791,7 +791,7 @@ const addWkHiLo = async function (
     startDate: realStartTime,
     endDate: realEndTime,
   });
-  console.log(WkHiLoRangeresult);
+  //console.log(WkHiLoRangeresult);
   if (WkHiLoRangeresult) {
     let WkHiLoRangeHHpctData = WkHiLoRangeresult.map((p) => {
       return [moment(p.date).valueOf(), p.HHpct];
@@ -923,7 +923,7 @@ const addWkHiLo = async function (
             .getSeries(i)
             .name();
           if (seriesNames.includes(seriesName)) {
-            console.log(seriesName);
+            //console.log(seriesName);
             chart.current
               .plot(wkHiLoChartIndex)
               .getSeries(i)
@@ -1082,7 +1082,7 @@ const addMRButton = async function (
         if (chart.current.plot(0).getSeries(i)) {
           let seriesName = chart.current.plot(0).getSeries(i).name();
           if (seriesNames.includes(seriesName)) {
-            console.log(seriesName);
+            //console.log(seriesName);
             chart.current.plot(0).getSeries(i).data(seriesMapping[seriesName]);
           }
         }
@@ -1290,7 +1290,7 @@ const addLinearRegression = async function (
         )
         .map((p) => p[3])
     );
-    // console.log(chart.current.plot(0).yScale().maximum());
+    // //console.log(chart.current.plot(0).yScale().maximum());
     chart.current
       .plot(0)
       .yScale()
@@ -1303,7 +1303,7 @@ const addLinearRegression = async function (
       .minimum(
         Math.min(min, chart.current.plot(0).yScale().minimum()).toFixed(2)
       );
-    // console.log(max);
+    // //console.log(max);
   }
 };
 
@@ -1706,7 +1706,7 @@ const addIntraFline = async function (
   });
 
   if (IntraHiLoFiboresult) {
-    console.log(IntraHiLoFiboresult);
+    //console.log(IntraHiLoFiboresult);
     let IntraHiLoFibopvhData = IntraHiLoFiboresult.map((p) => {
       return [moment(p.date).valueOf(), p.pvh];
     });
@@ -1889,7 +1889,7 @@ const addIntraFline = async function (
     if (mode == "Observation") {
       IntraHiLoFibohighData.forEach((p) => {
         if (p[1]) {
-          console.log(p);
+          //console.log(p);
           let labelHi = controller.label({
             xAnchor: moment(p[0]),
             valueAnchor: p[2],
@@ -1908,7 +1908,7 @@ const addIntraFline = async function (
       });
       IntraHiLoFibolowData.forEach((p) => {
         if (p[1]) {
-          console.log(p);
+          //console.log(p);
           let labelLo = controller.label({
             xAnchor: moment(p[0]),
             valueAnchor: p[2],
@@ -2509,7 +2509,7 @@ const addIntraFline = async function (
 let realTimeIntervalId = null;
 
 function TheChart(props) {
-  console.log("function rerender??");
+  //console.log("function rerender??");
   const dispatch = useDispatch();
 
   const { ticker, initialPicked } = props;
@@ -2548,7 +2548,7 @@ function TheChart(props) {
 
   const addIndicator = useCallback(
     async (indicator) => {
-      console.log("does addIndicator get called?");
+      //console.log("does addIndicator get called?");
       var charts = indicator.charts.map((item) => ({ ...item }));
       var annotations =
         "annotations" in indicator
@@ -2603,7 +2603,7 @@ function TheChart(props) {
         let addResult;
 
         if ("range" in ind) {
-          console.log(allResult);
+          //console.log(allResult);
           addResult = allResult
             .filter(
               (value, index) =>
@@ -2624,13 +2624,13 @@ function TheChart(props) {
           });
         }
 
-        // console.log(allResult);
+        // //console.log(allResult);
 
         // addResult.reverse();
-        console.log(addResult);
+        //console.log(addResult);
         var table = anychart.data.table();
         table.addData(addResult);
-        console.log(addResult);
+        //console.log(addResult);
         var mapping = table.mapAs();
         mapping.addField("value", 1);
         var chartTemp;
@@ -2658,16 +2658,16 @@ function TheChart(props) {
             [ind.seriesType === "column" ? "fill" : "stroke"](function () {
               if (!this.value) return this.sourceColor;
               if (!this.x) return this.sourceColor;
-              // console.log(this.x);
+              // //console.log(this.x);
               let resultIndex = addResult.findIndex(
                 // (p) => p[0] === moment(this.x).valueOf()
                 // (p) => moment(p[0]).valueOf() === moment.utc(this.x).valueOf()
                 (p) => this.value === p[1]
               );
               if (resultIndex < 0) {
-                // console.log(this.x);
-                // console.log(addResult);
-                console.log(this);
+                // //console.log(this.x);
+                // //console.log(addResult);
+                //console.log(this);
                 return this.sourceColor;
               }
               if (!addResult[resultIndex - 1]) return;
@@ -2675,7 +2675,7 @@ function TheChart(props) {
 
               let strokeColor = "";
               let conditions_temp = "";
-              // console.log("is this still affecting??");
+              // //console.log("is this still affecting??");
 
               for (let i = 0; i < ind.stroke.length; i++) {
                 conditions_temp = "";
@@ -2766,7 +2766,7 @@ function TheChart(props) {
         if (ind.seriesType === "column") {
           chartTemp.minWidth(100);
         }
-        // console.log(
+        // //console.log(
         //   moment(realEndTime.current)
         //     .subtract(9, scrollLeftTimeUnit(interval))
         //     .format("YYYY-MM-DD HH:mm:ss")
@@ -2841,7 +2841,7 @@ function TheChart(props) {
             });
 
           annoMappings.forEach((annoMapping) => {
-            console.log(annotations[index]);
+            //console.log(annotations[index]);
             annotations[index].annotationIndex.push(
               chart.current
                 .plot(anno.plotIndex)
@@ -2878,7 +2878,7 @@ function TheChart(props) {
   );
 
   useEffect(() => {
-    console.log("RUNNING");
+    //console.log("RUNNING");
     if (!data) return;
     let newStockData = data.quotes.map((p) => {
       return [
@@ -2891,7 +2891,7 @@ function TheChart(props) {
         p.volume,
       ];
     });
-    console.log(newStockData);
+    //console.log(newStockData);
     setStockData(newStockData);
     stockDataStore.stockData = newStockData;
 
@@ -2903,7 +2903,7 @@ function TheChart(props) {
 
     if (Object.keys(timezone).length === 0) {
       setTimezone(exchangeTimeZone.current);
-      console.log("triggered?");
+      //console.log("triggered?");
     }
 
     anychart.format.outputTimezone(timezone.value * 60 * -1);
@@ -2935,20 +2935,20 @@ function TheChart(props) {
     } else if (intervalChar === "m") {
       subtractValue = 4;
     }
-    console.log(intervalChar);
-    console.log(subtractValue);
-    console.log(subtractUnit);
+    //console.log(intervalChar);
+    //console.log(subtractValue);
+    //console.log(subtractUnit);
     let startRange = moment(newStockData[newStockData.length - 1][0]).subtract(
       subtractValue,
       subtractUnit
     );
     let endRange = moment(newStockData[newStockData.length - 1][0]);
 
-    console.log(subtractValue);
-    console.log(subtractUnit);
+    //console.log(subtractValue);
+    //console.log(subtractUnit);
     if (!moment().subtract(subtractValue, subtractUnit).isAfter(moment())) {
-      console.log(moment().subtract(subtractValue, subtractUnit).valueOf());
-      console.log(moment().valueOf());
+      //console.log(moment().subtract(subtractValue, subtractUnit).valueOf());
+      //console.log(moment().valueOf());
       chart.current.selectRange(
         moment().subtract(subtractValue, subtractUnit).valueOf(),
         moment().valueOf()
@@ -2957,8 +2957,8 @@ function TheChart(props) {
 
     var max = getStockMax(newStockData, startRange, endRange);
     var min = getStockMin(newStockData, startRange, endRange);
-    console.log(max);
-    console.log(min);
+    //console.log(max);
+    //console.log(min);
 
     chart.current.plot(0).yScale().maximum(max.toFixed(2));
     chart.current.plot(0).yScale().minimum(min.toFixed(2));
@@ -3035,7 +3035,7 @@ function TheChart(props) {
 
     if (realTime) {
       realTimeIntervalId = setInterval(async () => {
-        console.log("test realtime");
+        //console.log("test realtime");
         if (
           moment(tradingPeriod.regularStart, moment.ISO_8601).isBefore(moment())
         ) {
@@ -3048,13 +3048,13 @@ function TheChart(props) {
             interval,
           });
 
-          console.log(result);
+          //console.log(result);
           if (result) {
             let temp_output_realtime = outputStockData(result);
             stockDataStore.stockData.push(
               temp_output_realtime[temp_output_realtime.length - 1]
             );
-            console.log(stockDataStore.stockData);
+            //console.log(stockDataStore.stockData);
 
             chartTable.current.addData([
               temp_output_realtime[temp_output_realtime.length - 1],
@@ -3118,7 +3118,7 @@ function TheChart(props) {
 
   const addStockTool = useCallback(
     async (stockTool) => {
-      console.log(stockTool);
+      //console.log(stockTool);
 
       if (stockTool.name === "Volume Profile") {
         await drawVolumeProfileFunction(
@@ -3236,7 +3236,7 @@ function TheChart(props) {
   const updateStockTool = useCallback(
     async (stockTool, index) => {
       if (stockTool.name === "Volume Profile") {
-        console.log(annotationIndex.VolumeProfileannotationIndex);
+        //console.log(annotationIndex.VolumeProfileannotationIndex);
         annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
           chart.current.plot(0).annotations().removeAnnotation(elem);
         });
@@ -3514,7 +3514,7 @@ function TheChart(props) {
 
   const removeIndicator = useCallback(
     (ind, index_input) => {
-      console.log(ind);
+      //console.log(ind);
 
       var numOfCharts;
       var filterCharts;
@@ -3530,7 +3530,7 @@ function TheChart(props) {
       allPlots.sort(function (a, b) {
         return b - a;
       });
-      console.log(allPlots);
+      //console.log(allPlots);
 
       for (let m = 0; m < allPlots.length; m++) {
         chartSeriesIndex = [];
@@ -3589,7 +3589,7 @@ function TheChart(props) {
 
   const updateIndicator = useCallback(
     async (indicator, indicator_index) => {
-      console.log(indicator);
+      //console.log(indicator);
       var annotations =
         "annotations" in indicator
           ? indicator.annotations.map((item) => ({
@@ -3598,7 +3598,7 @@ function TheChart(props) {
             }))
           : [];
       let apiInputParam = {};
-      console.log(indicator.parameters);
+      //console.log(indicator.parameters);
       indicator.parameters.forEach((opt) => {
         apiInputParam[opt.name] =
           Number.isNaN(+opt.value) || typeof opt.value == "boolean"
@@ -3653,7 +3653,7 @@ function TheChart(props) {
           return ch.plotIndex === allPlots[m];
         });
         numOfCharts = filterCharts.length;
-        console.log(numOfCharts);
+        //console.log(numOfCharts);
 
         indicatorIndex = [];
 
@@ -3661,7 +3661,7 @@ function TheChart(props) {
           result_temp = [];
           for (let r = 0; r < allResult.length; r++) {
             if ("range" in filterCharts[index]) {
-              console.log(filterCharts[index]);
+              //console.log(filterCharts[index]);
               if (
                 !(
                   r >=
@@ -3679,7 +3679,7 @@ function TheChart(props) {
               +allResult[r][filterCharts[index].column],
             ]);
           }
-          console.log(result_temp);
+          //console.log(result_temp);
           indicatorIndex.push({
             index:
               filterCharts[index].index +
@@ -3693,7 +3693,7 @@ function TheChart(props) {
 
         for (let j = 0; j < indicatorIndex.length; j++) {
           var table = anychart.data.table();
-          console.log(indicatorIndex[j].result);
+          //console.log(indicatorIndex[j].result);
           table.addData(indicatorIndex[j].result);
           var mapping = table.mapAs();
           mapping.addField("value", 1);
@@ -3711,7 +3711,7 @@ function TheChart(props) {
               )
               .data(mapping);
 
-            console.log("data is mapping");
+            //console.log("data is mapping");
           }
         }
       }
@@ -3756,7 +3756,7 @@ function TheChart(props) {
               });
 
             annoMappings.forEach((annoMapping) => {
-              console.log(annotations[index]);
+              //console.log(annotations[index]);
               annotations[index].annotationIndex.push(
                 chart.current
                   .plot(anno.plotIndex)
@@ -3814,13 +3814,13 @@ function TheChart(props) {
               apiInputParam[indicator.charts[k].condition.parameter] !==
               indicator.charts[k].condition.value;
           }
-          console.log(apiInputParam);
-          console.log(condResult);
+          //console.log(apiInputParam);
+          //console.log(condResult);
           if (condResult) {
-            console.log(seriesIndex);
+            //console.log(seriesIndex);
             if (seriesIndex > -1) {
-              console.log(indicator.charts[k]);
-              console.log(seriesIndex);
+              //console.log(indicator.charts[k]);
+              //console.log(seriesIndex);
               chart.current
                 .plot(indicator.charts[k].plotIndex)
                 .removeSeries(seriesIndex);
@@ -3841,9 +3841,9 @@ function TheChart(props) {
               );
             }
           } else {
-            console.log(seriesIndex);
+            //console.log(seriesIndex);
             if (seriesIndex === -1) {
-              console.log(seriesIndex);
+              //console.log(seriesIndex);
               let allResult = await indicatorCallback(indicator.apiFunc, {
                 ...apiInputParam,
                 ticker,
@@ -3863,7 +3863,7 @@ function TheChart(props) {
               });
               table = anychart.data.table();
               table.addData(addResult);
-              console.log(addResult);
+              //console.log(addResult);
               mapping = table.mapAs();
               mapping.addField("value", 1);
               let chartTemp = chart.current

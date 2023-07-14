@@ -376,7 +376,7 @@ const indicatorSlice = createSlice({
                     function ($this, resultIndex, allResult) {
                       var condition = false;
 
-                      // console.log(allResult[resultIndex]);
+                      // //console.log(allResult[resultIndex]);
 
                       // allResult.reverse();
                       if (allResult[resultIndex]["ST_BUY_SELL"] === "BUY")
@@ -1754,7 +1754,7 @@ const indicatorSlice = createSlice({
     addIndicator(state, action) {
       //   var updatedPayload = deepClone(action.payload);
       var { indicator, charts, annotations } = action.payload;
-      console.log(charts);
+      //console.log(charts);
       var updatedPayload = indicator;
       var addedIndicatorCount = state.currentIndicators.filter(
         (ind) => ind.name === indicator.name
@@ -1821,7 +1821,7 @@ const indicatorSlice = createSlice({
     setIndicatorAnnotationIndex(state, action) {
       const { indicatorIndex, annotations } = action.payload;
 
-      console.log(indicatorIndex);
+      //console.log(indicatorIndex);
 
       state.currentIndicators[indicatorIndex].annotations = annotations;
     },
@@ -1840,7 +1840,7 @@ const indicatorSlice = createSlice({
       }
     },
     removeSelectedStockTool(state, action) {
-      console.log(action.payload);
+      //console.log(action.payload);
       state.currentStockTools.splice(action.payload, 1);
     },
     setStockToolParams(state, action) {

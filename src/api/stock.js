@@ -14,21 +14,21 @@ const methods = {
     try {
       return api.post("/stockprice", params);
     } catch (e) {
-      console.log(e);
+      //console.log(e);
     }
   },
   async getStockList(params) {
     try {
       return api.post("/getStockList", params);
     } catch (e) {
-      console.log(e);
+      //console.log(e);
     }
   },
   async getStockPriceRealTime(params) {
     try {
       return api.post("/getStockRealTime", params);
     } catch (e) {
-      console.log(e);
+      //console.log(e);
     }
   },
 };
