@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/stock-webapp/static/css/main.cf1e21e4.css",
-    "main.js": "/stock-webapp/static/js/main.cf8cbd81.js",
+    "main.js": "/stock-webapp/static/js/main.afcbabba.js",
     "index.html": "/stock-webapp/index.html",
     "main.cf1e21e4.css.map": "/stock-webapp/static/css/main.cf1e21e4.css.map",
-    "main.cf8cbd81.js.map": "/stock-webapp/static/js/main.cf8cbd81.js.map"
+    "main.afcbabba.js.map": "/stock-webapp/static/js/main.afcbabba.js.map"
   },
   "entrypoints": [
     "static/css/main.cf1e21e4.css",
-    "static/js/main.cf8cbd81.js"
+    "static/js/main.afcbabba.js"
   ]
 }
