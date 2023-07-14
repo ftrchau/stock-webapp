@@ -9,6 +9,8 @@ import { indicatorActions } from "../../store/indicator-slice";
 
 import annotationIndex from "../chart/annotationIndex";
 
+import stockDataStore from "./stockDataStore";
+
 const indicatorCallback = async (api_func, params) => {
   return await indicatorApi[api_func](params);
 };
@@ -1562,10 +1564,16 @@ const addZigZag = async function (
   }
 };
 
+let indicatorUpdateInterval;
+
 function IndicatorUpdate(props) {
   const dispatch = useDispatch();
   const startDate = useSelector((state) => state.stock.startDate);
   const endDate = useSelector((state) => state.stock.endDate);
+  const realTime = useSelector((state) => state.stock.realTime);
+  const tradingPeriod = useSelector((state) => state.stock.tradingPeriod);
+  const rangeStartDate = useSelector((state) => state.stock.rangeStartDate);
+  const rangeEndDate = useSelector((state) => state.stock.rangeEndDate);
 
   const currentIndicators = useSelector(
     (state) => state.indicator.currentIndicators
@@ -1581,15 +1589,14 @@ function IndicatorUpdate(props) {
 
   const {
     chart,
-    newStockData,
     plotIndex,
     interval,
     adjustDividend,
-    realTime,
     ticker,
     initialPicked,
     addIndicator,
     addStockTool,
+    newStockData,
   } = props;
 
   useEffect(() => {
@@ -1613,7 +1620,9 @@ function IndicatorUpdate(props) {
               : +opt.value;
           });
           var foundCharts = [];
-          for (let ch = 0; ch < indicator.charts.length - 1; ch++) {
+          console.log(indicator.charts);
+          for (let ch = 0; ch < indicator.charts.length; ch++) {
+            console.log(indicator.charts[ch]);
             var plotAddedBy = 0;
             var seriesLength = chart.current
               .plot(indicator.charts[ch].plotIndex)
@@ -1635,21 +1644,53 @@ function IndicatorUpdate(props) {
             }
           }
 
-          if (foundCharts.length > 0) continue;
+          console.log(foundCharts);
 
-          let allResult = await indicatorCallback(indicator.apiFunc, {
+          // if (foundCharts.length > 0) continue;
+
+          let apiInput = {
             ...apiInputParam,
             ticker,
             interval,
             adjustDividend,
             startDate: startDate,
-            endDate: endDate,
             realTime,
-          });
+          };
+
+          if (!realTime) {
+            apiInput.endDate = endDate;
+          } else {
+            apiInput.startDate =
+              moment(tradingPeriod.regularStart, moment.ISO_8601).valueOf() /
+              Math.pow(10, 3);
+          }
+
+          let allResult = await indicatorCallback(indicator.apiFunc, apiInput);
 
           let addResult;
 
           for (let p = 0; p < indicator.charts.length; p++) {
+            var findChart = false;
+            var seriesLength = chart.current
+              .plot(indicator.charts[p].plotIndex)
+              .getSeriesCount();
+            var foundSeries;
+            for (let s = seriesLength; s > -1; s--) {
+              if (
+                chart.current.plot(indicator.charts[p].plotIndex).getSeries(s)
+              ) {
+                let seriesName = chart.current
+                  .plot(indicator.charts[p].plotIndex)
+                  .getSeries(s)
+                  .name();
+                if (seriesName === indicator.charts[p].name) {
+                  findChart = true;
+                  foundSeries = s;
+                  break;
+                }
+              }
+            }
+
             if ("condition" in indicator.charts[p]) {
               if (Array.isArray(indicator.charts[p].condition)) {
                 if (
@@ -1706,109 +1747,121 @@ function IndicatorUpdate(props) {
             var chartTemp;
             if (Array.isArray(indicator.charts[p].stroke)) {
               charts[p].result = allResult;
-              chartTemp = chart.current
-                .plot(indicator.charts[p].plotIndex)
-                [indicator.charts[p].seriesType](mapping)
-                [
-                  // eslint-disable-next-line no-loop-func
-                  indicator.charts[p].seriesType === "column"
-                    ? "fill"
-                    : "stroke"
-                  // eslint-disable-next-line no-loop-func
-                ](function () {
-                  if (!this.value) return this.sourceColor;
-                  // console.log(this.x);
-                  let resultIndex = addResult.findIndex(
-                    // (p) => p[0] === moment(this.x).valueOf()
-                    (p) => p[1] === this.value
-                  );
-                  if (!addResult[resultIndex - 1]) return;
-                  let prevValue = addResult[resultIndex - 1][1];
 
-                  let strokeColor = "";
-                  let conditions_temp = "";
-                  // console.log("is this still affecting??");
+              if (findChart) {
+                chart.current
+                  .plot(indicator.charts[p].plotIndex)
+                  .getSeries(foundSeries)
+                  .data(mapping);
+              } else {
+                chartTemp = chart.current
+                  .plot(indicator.charts[p].plotIndex)
+                  [indicator.charts[p].seriesType](mapping)
+                  [
+                    // eslint-disable-next-line no-loop-func
+                    indicator.charts[p].seriesType === "column"
+                      ? "fill"
+                      : "stroke"
+                    // eslint-disable-next-line no-loop-func
+                  ](function () {
+                    if (!this.value) return this.sourceColor;
+                    // console.log(this.x);
+                    let resultIndex = addResult.findIndex(
+                      // (p) => p[0] === moment(this.x).valueOf()
+                      (p) => p[1] === this.value
+                    );
+                    if (!addResult[resultIndex - 1]) return;
+                    let prevValue = addResult[resultIndex - 1][1];
 
-                  for (let i = 0; i < indicator.charts[p].stroke.length; i++) {
-                    conditions_temp = "";
+                    let strokeColor = "";
+                    let conditions_temp = "";
+                    // console.log("is this still affecting??");
+
                     for (
-                      let j = 0;
-                      j < indicator.charts[p].stroke[i].conditions.length;
-                      j++
+                      let i = 0;
+                      i < indicator.charts[p].stroke.length;
+                      i++
                     ) {
-                      // conditions_temp = "";
-                      if (
-                        typeof indicator.charts[p].stroke[i].conditions[j] ===
-                        "string"
+                      conditions_temp = "";
+                      for (
+                        let j = 0;
+                        j < indicator.charts[p].stroke[i].conditions.length;
+                        j++
                       ) {
+                        // conditions_temp = "";
                         if (
-                          indicator.charts[p].stroke[i].conditions[j] ===
-                          "positive"
+                          typeof indicator.charts[p].stroke[i].conditions[j] ===
+                          "string"
                         ) {
+                          if (
+                            indicator.charts[p].stroke[i].conditions[j] ===
+                            "positive"
+                          ) {
+                            conditions_temp =
+                              conditions_temp === ""
+                                ? this.value >= 0
+                                : conditions_temp && this.value >= 0;
+                          }
+                          if (
+                            indicator.charts[p].stroke[i].conditions[j] ===
+                            "negative"
+                          ) {
+                            conditions_temp =
+                              conditions_temp === ""
+                                ? this.value < 0
+                                : conditions_temp && this.value < 0;
+                          }
+                          if (
+                            indicator.charts[p].stroke[i].conditions[j] ===
+                            "increase"
+                          ) {
+                            conditions_temp =
+                              conditions_temp === ""
+                                ? this.value > prevValue
+                                : conditions_temp && this.value > prevValue;
+                          }
+                          if (
+                            indicator.charts[p].stroke[i].conditions[j] ===
+                            "decrease"
+                          ) {
+                            conditions_temp =
+                              conditions_temp === ""
+                                ? this.value < prevValue
+                                : conditions_temp && this.value < prevValue;
+                          }
+                        } else {
                           conditions_temp =
                             conditions_temp === ""
-                              ? this.value >= 0
-                              : conditions_temp && this.value >= 0;
+                              ? indicator.charts[p].stroke[i].conditions[j](
+                                  this,
+                                  resultIndex,
+                                  allResult
+                                )
+                              : indicator.charts[p].stroke[i].conditions[j](
+                                  this,
+                                  resultIndex,
+                                  allResult
+                                );
                         }
-                        if (
-                          indicator.charts[p].stroke[i].conditions[j] ===
-                          "negative"
-                        ) {
-                          conditions_temp =
-                            conditions_temp === ""
-                              ? this.value < 0
-                              : conditions_temp && this.value < 0;
-                        }
-                        if (
-                          indicator.charts[p].stroke[i].conditions[j] ===
-                          "increase"
-                        ) {
-                          conditions_temp =
-                            conditions_temp === ""
-                              ? this.value > prevValue
-                              : conditions_temp && this.value > prevValue;
-                        }
-                        if (
-                          indicator.charts[p].stroke[i].conditions[j] ===
-                          "decrease"
-                        ) {
-                          conditions_temp =
-                            conditions_temp === ""
-                              ? this.value < prevValue
-                              : conditions_temp && this.value < prevValue;
-                        }
-                      } else {
-                        conditions_temp =
-                          conditions_temp === ""
-                            ? indicator.charts[p].stroke[i].conditions[j](
-                                this,
-                                resultIndex,
-                                allResult
-                              )
-                            : indicator.charts[p].stroke[i].conditions[j](
-                                this,
-                                resultIndex,
-                                allResult
-                              );
+                      }
+                      if (conditions_temp) {
+                        strokeColor = indicator.charts[p].stroke[i].color;
+                        break;
                       }
                     }
+
                     if (conditions_temp) {
-                      strokeColor = indicator.charts[p].stroke[i].color;
-                      break;
+                      return strokeColor;
+                    } else {
+                      if ("defaultStroke" in indicator.charts[p]) {
+                        return indicator.charts[p].defaultStroke;
+                      }
                     }
-                  }
 
-                  if (conditions_temp) {
-                    return strokeColor;
-                  } else {
-                    if ("defaultStroke" in indicator.charts[p]) {
-                      return indicator.charts[p].defaultStroke;
-                    }
-                  }
-
-                  return this.sourceColor;
-                })
-                .name(indicator.charts[p].name);
+                    return this.sourceColor;
+                  })
+                  .name(indicator.charts[p].name);
+              }
             } else {
               chartTemp = chart.current
                 .plot(indicator.charts[p].plotIndex)
@@ -2058,6 +2111,9 @@ function IndicatorUpdate(props) {
       if (needUpdate) {
         fetchCurrentIndicators();
         fetchCurrentStockTools();
+        console.log(rangeStartDate);
+        console.log(rangeEndDate);
+        chart.current.selectRange(rangeStartDate, rangeEndDate);
 
         dispatch(indicatorActions.setNeedUpdate(false));
       }
@@ -2087,6 +2143,13 @@ function IndicatorUpdate(props) {
         addIndicatorCallback();
         addStockToolCallback();
         dispatch(indicatorActions.setInitialLoad(false));
+      }
+
+      if (realTime) {
+        indicatorUpdateInterval = setInterval(() => {
+          fetchCurrentIndicators();
+          // fetchCurrentStockTools();
+        }, 60000);
       }
     }
   }, [

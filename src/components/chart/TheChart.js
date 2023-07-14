@@ -23,6 +23,7 @@ import indicatorApi from "../../api/indicator";
 import stockApi from "../../api/stock";
 
 import annotationIndex from "../chart/annotationIndex";
+import stockDataStore from "./stockDataStore";
 
 import "./TheChart.css";
 
@@ -1675,6 +1676,837 @@ const addZigZag = async function (
     }
   }
 };
+const addIntraFline = async function (
+  chart,
+  interval,
+  stockData,
+  stockTool,
+  ticker,
+  adjustDividend,
+  realStartTime,
+  realEndTime,
+  currentTradingPeriod,
+  update = false
+) {
+  let apiInputParam = {};
+  stockTool.parameters.forEach((opt) => {
+    apiInputParam[opt.name] =
+      Number.isNaN(+opt.value) || typeof opt.value == "boolean"
+        ? opt.value
+        : +opt.value;
+  });
+  const IntraHiLoFiboresult = await indicatorApi.calculateIntraFiboPivotHiLo({
+    ...apiInputParam,
+    ticker,
+    interval,
+    adjustDividend,
+    startDate: realStartTime,
+    endDate: realEndTime,
+    currentTradingPeriod,
+  });
+
+  if (IntraHiLoFiboresult) {
+    console.log(IntraHiLoFiboresult);
+    let IntraHiLoFibopvhData = IntraHiLoFiboresult.map((p) => {
+      return [moment(p.date).valueOf(), p.pvh];
+    });
+    let IntraHiLoFibopvlData = IntraHiLoFiboresult.map((p) => {
+      return [moment(p.date).valueOf(), p.pvl];
+    });
+    let IntraHiLoFibohighData = IntraHiLoFiboresult.map((p) => {
+      return [moment(p.date).valueOf(), p.high, p.pvh];
+    });
+    let IntraHiLoFibolowData = IntraHiLoFiboresult.map((p) => {
+      return [moment(p.date).valueOf(), p.low, p.pvl];
+    });
+    let mode = stockTool.parameters.find((p) => p.name === "mode");
+
+    let sup = +stockTool.parameters.find(
+      (p) => p.name === "Extend upward fibo?"
+    );
+
+    let sdn = +stockTool.parameters.find(
+      (p) => p.name === "Extend upward fibo?"
+    );
+
+    let dd = IntraHiLoFibopvhData[0][1] - IntraHiLoFibopvlData[0][1];
+    let b0 = IntraHiLoFibopvlData[0][1];
+    let startTime = IntraHiLoFibopvhData[0][0];
+    let endTime = IntraHiLoFibopvhData[IntraHiLoFibopvhData.length - 1][0];
+
+    var controller = chart.plot(0).annotations();
+
+    var line = controller.line({
+      xAnchor: moment(startTime).valueOf(),
+      valueAnchor: b0,
+      secondXAnchor: moment(endTime).valueOf(),
+      secondValueAnchor: b0,
+      normal: { stroke: "rgb(0,230,118)" },
+    });
+
+    var label = controller.label({
+      xAnchor: moment(endTime).valueOf(),
+      valueAnchor: b0,
+      text: "0" + " ( " + b0.toFixed(2) + " ) ",
+      normal: { fontColor: "rgb(41, 98, 255)" },
+    });
+    label
+      .background({
+        fill: "rgb(255, 255, 255)",
+        stroke: "rgb(255, 255, 255)",
+      })
+      .offsetY(-15)
+      .fontSize(10);
+
+    // chart
+    //   .plot(0)
+    //   .yScale()
+    //   .minimum(Math.min(...[b0 * 0.99, this.globalMin]).toFixed(2));
+    var line2 = controller.line({
+      xAnchor: startTime,
+      valueAnchor: b0 + dd * 0.236,
+      secondXAnchor: endTime,
+      secondValueAnchor: b0 + dd * 0.236,
+      normal: { stroke: "rgb(120,123,134)" },
+    });
+    var label2 = controller.label({
+      xAnchor: moment(endTime).valueOf(),
+      valueAnchor: b0 + dd * 0.236,
+      text: "0.236" + " ( " + (b0 + dd * 0.236).toFixed(2) + " ) ",
+      normal: { fontColor: "rgb(41, 98, 255)" },
+    });
+    label2
+      .background({
+        fill: "rgb(255, 255, 255)",
+        stroke: "rgb(255, 255, 255)",
+      })
+      .offsetY(-15)
+      .fontSize(10);
+    var line3 = controller.line({
+      xAnchor: startTime,
+      valueAnchor: b0 + dd * 0.382,
+      secondXAnchor: endTime,
+      secondValueAnchor: b0 + dd * 0.382,
+      normal: { stroke: "rgb(128,128,0)" },
+    });
+    var label3 = controller.label({
+      xAnchor: moment(endTime).valueOf(),
+      valueAnchor: b0 + dd * 0.382,
+      text: "0.382" + " ( " + (b0 + dd * 0.382).toFixed(2) + " ) ",
+      normal: { fontColor: "rgb(41, 98, 255)" },
+    });
+    label3
+      .background({
+        fill: "rgb(255, 255, 255)",
+        stroke: "rgb(255, 255, 255)",
+      })
+      .offsetY(-15)
+      .fontSize(10);
+    var line5 = controller.line({
+      xAnchor: startTime,
+      valueAnchor: b0 + dd * 0.5,
+      secondXAnchor: endTime,
+      secondValueAnchor: b0 + dd * 0.5,
+      normal: { stroke: "rgb(224,64,251)" },
+    });
+    var label5 = controller.label({
+      xAnchor: moment(endTime).valueOf(),
+      valueAnchor: b0 + dd * 0.5,
+      text: "0.5" + " ( " + (b0 + dd * 0.5).toFixed(2) + " ) ",
+      normal: { fontColor: "rgb(41, 98, 255)" },
+    });
+    label5
+      .background({
+        fill: "rgb(255, 255, 255)",
+        stroke: "rgb(255, 255, 255)",
+      })
+      .offsetY(-15)
+      .fontSize(10);
+    var line6 = controller.line({
+      xAnchor: startTime,
+      valueAnchor: b0 + dd * 0.618,
+      secondXAnchor: endTime,
+      secondValueAnchor: b0 + dd * 0.618,
+      normal: { stroke: "rgb(128,128,0)" },
+    });
+    var label6 = controller.label({
+      xAnchor: moment(endTime).valueOf(),
+      valueAnchor: b0 + dd * 0.618,
+      text: "0.618" + " ( " + (b0 + dd * 0.618).toFixed(2) + " ) ",
+      normal: { fontColor: "rgb(41, 98, 255)" },
+    });
+    label6
+      .background({
+        fill: "rgb(255, 255, 255)",
+        stroke: "rgb(255, 255, 255)",
+      })
+      .offsetY(-15)
+      .fontSize(10);
+    var line7 = controller.line({
+      xAnchor: startTime,
+      valueAnchor: b0 + dd * 0.786,
+      secondXAnchor: endTime,
+      secondValueAnchor: b0 + dd * 0.786,
+      normal: { stroke: "rgb(120,123,134)" },
+    });
+    var label7 = controller.label({
+      xAnchor: moment(endTime).valueOf(),
+      valueAnchor: b0 + dd * 0.786,
+      text: "0.786" + " ( " + (b0 + dd * 0.786).toFixed(2) + " ) ",
+      normal: { fontColor: "rgb(41, 98, 255)" },
+    });
+    label7
+      .background({
+        fill: "rgb(255, 255, 255)",
+        stroke: "rgb(255, 255, 255)",
+      })
+      .offsetY(-15)
+      .fontSize(10);
+    var line1 = controller.line({
+      xAnchor: startTime,
+      valueAnchor: b0 + dd,
+      secondXAnchor: endTime,
+      secondValueAnchor: b0 + dd,
+      normal: { stroke: "rgb(255,82,82)" },
+    });
+    // this.chart
+    //     .plot(0)
+    //     .yScale()
+    //     .maximum(Math.max(...[(b0 + dd) * 1.005, this.globalMax]).toFixed(2));
+    var label1 = controller.label({
+      xAnchor: moment(endTime).valueOf(),
+      valueAnchor: b0 + dd,
+      text: "1" + " ( " + (b0 + dd).toFixed(2) + " ) ",
+      normal: { fontColor: "rgb(41, 98, 255)" },
+    });
+    label1
+      .background({
+        fill: "rgb(255, 255, 255)",
+        stroke: "rgb(255, 255, 255)",
+      })
+      .offsetY(-15)
+      .fontSize(10);
+    if (mode == "Observation") {
+      IntraHiLoFibohighData.forEach((p) => {
+        if (p[1]) {
+          console.log(p);
+          let labelHi = controller.label({
+            xAnchor: moment(p[0]),
+            valueAnchor: p[2],
+            text: "Hi",
+            normal: { fontColor: "rgb(255,82,82)" },
+          });
+
+          labelHi
+            .background({
+              fill: "rgb(255, 255, 255)",
+              stroke: "rgb(255, 255, 255)",
+            })
+            .offsetY(-25);
+          annotationIndex.push(labelHi);
+        }
+      });
+      IntraHiLoFibolowData.forEach((p) => {
+        if (p[1]) {
+          console.log(p);
+          let labelLo = controller.label({
+            xAnchor: moment(p[0]),
+            valueAnchor: p[2],
+            text: "Lo",
+            normal: { fontColor: "rgb(33,150,243)" },
+          });
+
+          labelLo
+            .background({
+              fill: "rgb(255, 255, 255)",
+              stroke: "rgb(255, 255, 255)",
+            })
+            .offsetY(5);
+          annotationIndex.push(labelLo);
+        }
+      });
+    }
+
+    annotationIndex.IntraFlineannotationIndex.push(line);
+    annotationIndex.IntraFlineannotationIndex.push(line2);
+    annotationIndex.IntraFlineannotationIndex.push(line3);
+    annotationIndex.IntraFlineannotationIndex.push(line5);
+    annotationIndex.IntraFlineannotationIndex.push(line6);
+    annotationIndex.IntraFlineannotationIndex.push(line7);
+    annotationIndex.IntraFlineannotationIndex.push(line1);
+    annotationIndex.IntraFlineannotationIndex.push(label);
+    annotationIndex.IntraFlineannotationIndex.push(label2);
+    annotationIndex.IntraFlineannotationIndex.push(label3);
+    annotationIndex.IntraFlineannotationIndex.push(label5);
+    annotationIndex.IntraFlineannotationIndex.push(label6);
+    annotationIndex.IntraFlineannotationIndex.push(label7);
+    annotationIndex.IntraFlineannotationIndex.push(label1);
+
+    if (sup === 1 || sup === 2) {
+      var line12 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 1.236,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 1.236,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var label12 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 1.236,
+        text: "0.236" + " ( " + (b0 + dd * 1.236).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label12
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line13 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 1.382,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 1.382,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var label13 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 1.382,
+        text: "0.382" + " ( " + (b0 + dd * 1.382).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label13
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line15 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 1.5,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 1.5,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var label15 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 1.5,
+        text: "0.5" + " ( " + (b0 + dd * 1.5).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label15
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line16 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 1.618,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 1.618,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var label16 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 1.618,
+        text: "0.618" + " ( " + (b0 + dd * 1.618).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label16
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line17 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 1.786,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 1.786,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+
+      var label17 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 1.786,
+        text: "0.786" + " ( " + (b0 + dd * 1.786).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label17
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line11 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 2,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 2,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      // this.chart
+      //   .plot(0)
+      //   .yScale()
+      //   .maximum(
+      //     Math.max(...[(b0 + dd * 2) * 1.005, this.globalMax]).toFixed(2)
+      //   );
+      var label11 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 2,
+        text: "1" + " ( " + (b0 + dd * 2).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label11
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      annotationIndex.IntraFlineannotationIndex.push(line12);
+      annotationIndex.IntraFlineannotationIndex.push(line13);
+      annotationIndex.IntraFlineannotationIndex.push(line15);
+      annotationIndex.IntraFlineannotationIndex.push(line16);
+      annotationIndex.IntraFlineannotationIndex.push(line17);
+      annotationIndex.IntraFlineannotationIndex.push(line11);
+      annotationIndex.IntraFlineannotationIndex.push(label12);
+      annotationIndex.IntraFlineannotationIndex.push(label13);
+      annotationIndex.IntraFlineannotationIndex.push(label15);
+      annotationIndex.IntraFlineannotationIndex.push(label16);
+      annotationIndex.IntraFlineannotationIndex.push(label17);
+      annotationIndex.IntraFlineannotationIndex.push(label11);
+    }
+    if (sup == 2) {
+      var line22 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 2.236,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 2.236,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var label22 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 2.236,
+        text: "0.236" + " ( " + (b0 + dd * 2.236).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label22
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line23 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 2.382,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 2.382,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var label23 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 2.382,
+        text: "0.3832" + " ( " + (b0 + dd * 2.382).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label23
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line25 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 2.5,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 2.5,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var label25 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 2.5,
+        text: "0.5" + " ( " + (b0 + dd * 2.5).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label25
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line26 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 2.618,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 2.618,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var label26 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 2.618,
+        text: "0.618" + " ( " + (b0 + dd * 2.618).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label26
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line27 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 2.786,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 2.786,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var label27 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 2.786,
+        text: "0.786" + " ( " + (b0 + dd * 2.786).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label27
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var line21 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 + dd * 3,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 + dd * 3,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      // this.chart
+      //   .plot(0)
+      //   .yScale()
+      //   .maximum(
+      //     Math.max(...[(b0 + dd * 3) * 1.005, this.globalMax]).toFixed(2)
+      //   );
+      var label21 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 + dd * 3,
+        text: "1" + " ( " + (b0 + dd * 3).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      label21
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      annotationIndex.IntraFlineannotationIndex.push(line22);
+      annotationIndex.IntraFlineannotationIndex.push(line23);
+      annotationIndex.IntraFlineannotationIndex.push(line25);
+      annotationIndex.IntraFlineannotationIndex.push(line26);
+      annotationIndex.IntraFlineannotationIndex.push(line27);
+      annotationIndex.IntraFlineannotationIndex.push(line21);
+      annotationIndex.IntraFlineannotationIndex.push(label22);
+      annotationIndex.IntraFlineannotationIndex.push(label23);
+      annotationIndex.IntraFlineannotationIndex.push(label25);
+      annotationIndex.IntraFlineannotationIndex.push(label26);
+      annotationIndex.IntraFlineannotationIndex.push(label27);
+      annotationIndex.IntraFlineannotationIndex.push(label21);
+    }
+    if (sdn == 1 || sdn == 2) {
+      var linea2 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 0.236,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 0.236,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labela2 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 0.236,
+        text: "0.236" + " ( " + (b0 - dd * 0.236).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labela2
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var linea3 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 0.382,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 0.382,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labela3 = controller
+        .label({
+          xAnchor: moment(endTime).valueOf(),
+          valueAnchor: b0 - dd * 0.382,
+          text: "0.382" + " ( " + (b0 - dd * 0.382).toFixed(2) + " ) ",
+          normal: { fontColor: "rgb(41, 98, 255)" },
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      labela3.background({
+        fill: "rgb(255, 255, 255)",
+        stroke: "rgb(255, 255, 255)",
+      });
+      var linea5 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 0.5,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 0.5,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labela5 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 0.5,
+        text: "0.5" + " ( " + (b0 - dd * 0.5).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labela5
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var linea6 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 0.618,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 0.618,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labela6 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 0.618,
+        text: "0.618" + " ( " + (b0 - dd * 0.618).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labela6
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var linea7 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 0.786,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 0.786,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labela7 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 0.786,
+        text: "0.786" + " ( " + (b0 - dd * 0.786).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labela7
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var linea1 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      // this.chart
+      //   .plot(0)
+      //   .yScale()
+      //   .minimum(
+      //     Math.min(...[(b0 - dd) * 0.99, this.globalMin]).toFixed(2)
+      //   );
+      var labela1 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd,
+        text: "1" + " ( " + (b0 - dd).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labela1
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      annotationIndex.IntraFlineannotationIndex.push(linea2);
+      annotationIndex.IntraFlineannotationIndex.push(linea3);
+      annotationIndex.IntraFlineannotationIndex.push(linea5);
+      annotationIndex.IntraFlineannotationIndex.push(linea6);
+      annotationIndex.IntraFlineannotationIndex.push(linea7);
+      annotationIndex.IntraFlineannotationIndex.push(linea1);
+      annotationIndex.IntraFlineannotationIndex.push(labela2);
+      annotationIndex.IntraFlineannotationIndex.push(labela3);
+      annotationIndex.IntraFlineannotationIndex.push(labela5);
+      annotationIndex.IntraFlineannotationIndex.push(labela6);
+      annotationIndex.IntraFlineannotationIndex.push(labela7);
+      annotationIndex.IntraFlineannotationIndex.push(labela1);
+    }
+    if (sdn == 2) {
+      var lineb2 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 1.236,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 1.236,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labelb2 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 1.236,
+        text: "1.236" + " ( " + (b0 - dd * 1.236).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labelb2
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var lineb3 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 1.382,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 1.382,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labelb3 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 1.382,
+        text: "1.382" + " ( " + (b0 - dd * 1.382).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labelb3
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var lineb5 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 1.5,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 1.5,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labelb5 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 1.5,
+        text: "1.5" + " ( " + (b0 - dd * 1.5).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labelb5
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var lineb6 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 1.618,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 1.618,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labelb6 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 1.618,
+        text: "1.618" + " ( " + (b0 - dd * 1.618).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labelb6
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var lineb7 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 1.786,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 1.786,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      var labelb7 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 1.786,
+        text: "1.786" + " ( " + (b0 - dd * 1.786).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labelb7
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      var lineb1 = controller.line({
+        xAnchor: startTime,
+        valueAnchor: b0 - dd * 2,
+        secondXAnchor: endTime,
+        secondValueAnchor: b0 - dd * 2,
+        normal: { stroke: "rgb(120,123,134)" },
+      });
+      // this.chart
+      //   .plot(0)
+      //   .yScale()
+      //   .minimum(
+      //     Math.min(...[(b0 - dd * 2) * 0.99, this.globalMin]).toFixed(2)
+      //   );
+      var labelb1 = controller.label({
+        xAnchor: moment(endTime).valueOf(),
+        valueAnchor: b0 - dd * 2,
+        text: "2" + " ( " + (b0 - dd * 2).toFixed(2) + " ) ",
+        normal: { fontColor: "rgb(41, 98, 255)" },
+      });
+      labelb1
+        .background({
+          fill: "rgb(255, 255, 255)",
+          stroke: "rgb(255, 255, 255)",
+        })
+        .offsetY(-15)
+        .fontSize(10);
+      annotationIndex.IntraFlineannotationIndex.push(lineb2);
+      annotationIndex.IntraFlineannotationIndex.push(lineb3);
+      annotationIndex.IntraFlineannotationIndex.push(lineb5);
+      annotationIndex.IntraFlineannotationIndex.push(lineb6);
+      annotationIndex.IntraFlineannotationIndex.push(lineb7);
+      annotationIndex.IntraFlineannotationIndex.push(lineb1);
+      annotationIndex.IntraFlineannotationIndex.push(labelb2);
+      annotationIndex.IntraFlineannotationIndex.push(labelb3);
+      annotationIndex.IntraFlineannotationIndex.push(labelb5);
+      annotationIndex.IntraFlineannotationIndex.push(labelb6);
+      annotationIndex.IntraFlineannotationIndex.push(labelb7);
+      annotationIndex.IntraFlineannotationIndex.push(labelb1);
+    }
+  }
+};
+
+let realTimeIntervalId = null;
 
 function TheChart(props) {
   console.log("function rerender??");
@@ -1684,9 +2516,10 @@ function TheChart(props) {
   const startDate = useSelector((state) => state.stock.startDate);
   const endDate = useSelector((state) => state.stock.endDate);
   const interval = useSelector((state) => state.stock.interval);
+  const realTime = useSelector((state) => state.stock.realTime);
+  const tradingPeriod = useSelector((state) => state.stock.tradingPeriod);
 
   const [adjustDividend, setAdjustDividend] = useState(false);
-  const [realTime, setRealTime] = useState(false);
   const [stockData, setStockData] = useState([]);
   const [timezone, setTimezone] = useState({});
 
@@ -1739,7 +2572,11 @@ function TheChart(props) {
         interval,
         adjustDividend,
         startDate,
-        endDate,
+        endDate: ["1h", "1m", "2m", "5m", "15m", "30m", "60m", "90m"].includes(
+          interval
+        )
+          ? moment().valueOf()
+          : endDate,
         realTime,
       });
 
@@ -2056,6 +2893,8 @@ function TheChart(props) {
     });
     console.log(newStockData);
     setStockData(newStockData);
+    stockDataStore.stockData = newStockData;
+
     // dispatch(stockActions.setStockData(newStockData)) // not working
     exchangeTimeZone.current = {
       name: "Exchange",
@@ -2104,12 +2943,18 @@ function TheChart(props) {
       subtractUnit
     );
     let endRange = moment(newStockData[newStockData.length - 1][0]);
-    console.log(startRange.valueOf());
-    console.log(endRange.valueOf());
-    chart.current.selectRange(
-      moment().subtract(subtractValue, subtractUnit).valueOf(),
-      moment().valueOf()
-    );
+
+    console.log(subtractValue);
+    console.log(subtractUnit);
+    if (!moment().subtract(subtractValue, subtractUnit).isAfter(moment())) {
+      console.log(moment().subtract(subtractValue, subtractUnit).valueOf());
+      console.log(moment().valueOf());
+      chart.current.selectRange(
+        moment().subtract(subtractValue, subtractUnit).valueOf(),
+        moment().valueOf()
+      );
+    }
+
     var max = getStockMax(newStockData, startRange, endRange);
     var min = getStockMin(newStockData, startRange, endRange);
     console.log(max);
@@ -2126,21 +2971,21 @@ function TheChart(props) {
 
     // anychart.format.inputDateTimeFormat("yyyy-MM-dd hh:mm:ss");
 
-    chart.current
-      .xScale()
-      .maximumGap({ intervalsCount: 10, unitType: "weeks", unitCount: 1 });
+    // chart.current
+    //   .xScale()
+    //   .maximumGap({ intervalsCount: 10, unitType: "weeks", unitCount: 1 });
 
-    if (["m", "h"].includes(interval.charAt(interval.length - 1))) {
-      chart.current
-        .crosshair()
-        .xLabel()
-        .format("{%rawValue}{dateTimeFormat:yyyy MMM dd HH:mm:ss }");
-    } else {
-      chart.current
-        .crosshair()
-        .xLabel()
-        .format("{%rawValue}{dateTimeFormat:yyyy MMM dd }");
-    }
+    // if (["m", "h"].includes(interval.charAt(interval.length - 1))) {
+    //   chart.current
+    //     .crosshair()
+    //     .xLabel()
+    //     .format("{%rawValue}{dateTimeFormat:yyyy MMM dd HH:mm:ss }");
+    // } else {
+    //   chart.current
+    //     .crosshair()
+    //     .xLabel()
+    //     .format("{%rawValue}{dateTimeFormat:yyyy MMM dd }");
+    // }
 
     chart.current
       .plot(0)
@@ -2188,8 +3033,75 @@ function TheChart(props) {
     });
     priceTextMarker.fontColor("#FFFFFF");
 
+    if (realTime) {
+      realTimeIntervalId = setInterval(async () => {
+        console.log("test realtime");
+        if (
+          moment(tradingPeriod.regularStart, moment.ISO_8601).isBefore(moment())
+        ) {
+          let result = await stockApi.getStockPriceRealTime({
+            ticker,
+            startDate: moment(
+              tradingPeriod.regularStart,
+              moment.ISO_8601
+            ).valueOf(),
+            interval,
+          });
+
+          console.log(result);
+          if (result) {
+            let temp_output_realtime = outputStockData(result);
+            stockDataStore.stockData.push(
+              temp_output_realtime[temp_output_realtime.length - 1]
+            );
+            console.log(stockDataStore.stockData);
+
+            chartTable.current.addData([
+              temp_output_realtime[temp_output_realtime.length - 1],
+            ]);
+
+            chart.current
+              .plot(0)
+              .legend()
+              .itemsFormat(function () {
+                var series = this.series;
+                if (
+                  series.name() === ticker &&
+                  series.getType() === "candlestick"
+                ) {
+                  return (
+                    ticker +
+                    " " +
+                    (this.open ? "O" + this.open.toFixed(2) : "") +
+                    (this.high ? "H" + this.high.toFixed(2) : "") +
+                    (this.low ? "L" + this.low.toFixed(2) : "") +
+                    (this.close ? "C" + this.close.toFixed(2) : "")
+                  );
+                } else {
+                  return (
+                    series.name() +
+                    " " +
+                    (this.value ? this.value.toFixed(2) : "")
+                  );
+                }
+              });
+
+            // chart.current.plot(0).getSeries(0).data(stockDataStore.stockData);
+            // startDate: moment(
+            //   this.stockMeta.currentTradingPeriod.regular.start,
+            //   moment.ISO_8601
+            // ).valueOf()
+          }
+        }
+      }, 60000);
+    }
+
     return () => {
       if (chart.current) chart.current = null;
+      if (realTimeIntervalId) {
+        clearInterval(realTimeIntervalId);
+        realTimeIntervalId = null;
+      }
     };
   }, [
     data,
@@ -2201,6 +3113,7 @@ function TheChart(props) {
     endDate,
     realTime,
     initialPicked,
+    tradingPeriod,
   ]);
 
   const addStockTool = useCallback(
@@ -2290,6 +3203,19 @@ function TheChart(props) {
           endDate
         );
       }
+      if (stockTool.name === "10AM Hi Lo fibo") {
+        await addIntraFline(
+          chart.current,
+          interval,
+          stockData,
+          stockTool,
+          ticker,
+          adjustDividend,
+          startDate,
+          endDate,
+          tradingPeriod
+        );
+      }
       dispatch(indicatorActions.addStockTools(stockTool));
     },
     [
@@ -2303,6 +3229,7 @@ function TheChart(props) {
       realTime,
       startDate,
       endDate,
+      tradingPeriod,
     ]
   );
 
@@ -2401,6 +3328,24 @@ function TheChart(props) {
           true
         );
       }
+      if (stockTool.name === "10AM Hi Lo fibo") {
+        annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
+          chart.current.plot(0).annotations().removeAnnotation(elem);
+        });
+        annotationIndex.IntraFlineannotationIndex = [];
+        await addIntraFline(
+          chart.current,
+          interval,
+          stockData,
+          stockTool,
+          ticker,
+          adjustDividend,
+          startDate,
+          endDate,
+          tradingPeriod,
+          true
+        );
+      }
     },
     [
       chart,
@@ -2412,6 +3357,7 @@ function TheChart(props) {
       endDate,
       plotIndex,
       realTime,
+      tradingPeriod,
     ]
   );
   const removeStockTool = useCallback(
@@ -2541,13 +3487,23 @@ function TheChart(props) {
           }
         }
       }
+      if (ind.name === "10AM Hi Lo fibo") {
+        annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
+          chart.current.plot(0).annotations().removeAnnotation(elem);
+        });
+        annotationIndex.IntraFlineannotationIndex = [];
+        dispatch(indicatorActions.removeSelectedStockTool(index));
+      }
     },
     [chart, stockData, dispatch, plotIndex]
   );
 
   const toggleRealTime = useCallback(() => {
-    setRealTime((prev) => !prev);
-  }, []);
+    dispatch(stockActions.setRealTime(!realTime));
+    // if (!realTime) {
+    dispatch(indicatorActions.setNeedUpdate(true));
+    // }
+  }, [dispatch, realTime]);
 
   const changeTimeZone = useCallback((opt) => {
     if (opt.name === "Exchange") opt.value = exchangeTimeZone.current.value;
@@ -2555,25 +3511,6 @@ function TheChart(props) {
     anychart.format.outputTimezone(opt.value * 60 * -1);
     setTimezone(opt);
   }, []);
-
-  // const addStockTool = useCallback(
-  //   async (stockTool) => {
-  //     if (stockTool.name === "Pivot Hi Lo") {
-  //       await addFline(
-  //         chart,
-  //         interval,
-  //         stockData,
-  //         stockTool,
-  //         ticker,
-  //         adjustDividend,
-  //         startDate,
-  //         endDate
-  //       );
-  //       dispatch(indicatorActions.addStockTools(stockTool));
-  //     }
-  //   },
-  //   [adjustDividend, dispatch, endDate, interval, startDate, stockData, ticker]
-  // );
 
   const removeIndicator = useCallback(
     (ind, index_input) => {
@@ -2999,7 +3936,6 @@ function TheChart(props) {
             toggleRealTime={toggleRealTime}
             changeTimeZone={changeTimeZone}
             adjustDividend={adjustDividend}
-            realTime={realTime}
             timezone={timezone}
             plotIndex={plotIndex}
             initialPicked={initialPicked}
@@ -3015,10 +3951,7 @@ function TheChart(props) {
             chart={chart}
             interval={interval}
             adjustDividend={adjustDividend}
-            realTime={realTime}
-            newStockData={stockData}
             ticker={ticker}
-            initialPicked={initialPicked}
             addIndicator={addIndicator}
           />
           <IndicatorUpdate
@@ -3027,7 +3960,6 @@ function TheChart(props) {
             plotIndex={plotIndex}
             interval={interval}
             adjustDividend={adjustDividend}
-            realTime={realTime}
             ticker={ticker}
             initialPicked={initialPicked}
             addIndicator={addIndicator}

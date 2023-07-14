@@ -1,6 +1,5 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import Select from "react-select";
+import { useEffect, useCallback, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
 
 import TheChart from "../components/chart/TheChart";

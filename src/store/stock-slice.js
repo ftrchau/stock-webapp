@@ -33,8 +33,15 @@ const stockSlice = createSlice({
       regularStart: 0,
       regularEnd: 0,
     },
+    realTime: false,
   },
   reducers: {
+    setInterval(state, action) {
+      state.interval = action.payload;
+    },
+    setRealTime(state, action) {
+      state.realTime = action.payload;
+    },
     setStockData(state, action) {
       state.stockData = action.payload;
     },
@@ -82,11 +89,21 @@ const stockSlice = createSlice({
       state.startDate = moment(state.tradingPeriod.regularEnd)
         .subtract(subtractValue, subtractUnit)
         .toDate();
-      state.rangeStartDate = moment(state.tradingPeriod.regularEnd)
-        .subtract(subtractRangeValue, subtractUnit)
-        .toDate();
+      state.rangeStartDate = moment().isBefore(
+        moment(state.tradingPeriod.regularEnd)
+      )
+        ? moment(state.tradingPeriod.regularStart)
+            .subtract(subtractRangeValue, subtractUnit)
+            .toDate()
+        : moment(state.tradingPeriod.regularEnd)
+            .subtract(subtractRangeValue, subtractUnit)
+            .toDate();
 
-      state.rangeEndDate = moment(state.tradingPeriod.regularEnd).toDate();
+      state.rangeEndDate = moment().isBefore(
+        moment(state.tradingPeriod.regularEnd)
+      )
+        ? moment()
+        : moment(state.tradingPeriod.regularEnd).toDate();
       state.interval = interval;
     },
     setTradingPeriod(state, action) {

@@ -24,6 +24,13 @@ const methods = {
       console.log(e);
     }
   },
+  async getStockPriceRealTime(params) {
+    try {
+      return api.post("/getStockRealTime", params);
+    } catch (e) {
+      console.log(e);
+    }
+  },
 };
 
 export default methods;

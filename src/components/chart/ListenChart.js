@@ -371,20 +371,14 @@ function ListenChart(props) {
   );
   const indicators = useSelector((state) => state.indicator.indicators);
 
-  const {
-    newStockData,
-    interval,
-    adjustDividend,
-    realTime,
-    ticker,
-    plotIndex,
-    initialPicked,
-    addIndicator,
-  } = props;
+  const newStockData = useSelector((state) => state.stock.stockData);
+
+  const { interval, adjustDividend, ticker, plotIndex } = props;
 
   const rangeStartDate = useSelector((state) => state.stock.rangeStartDate);
 
   const rangeEndDate = useSelector((state) => state.stock.rangeEndDate);
+  const realTime = useSelector((state) => state.stock.realTime);
 
   useEffect(() => {
     console.log("ListenChart render");
@@ -490,7 +484,7 @@ function ListenChart(props) {
         dispatch(drawingActions.toogleDrawToolBar(true));
       });
 
-      props.chart.current.selectRange(rangeStartDate, rangeEndDate);
+      // props.chart.current.selectRange(rangeStartDate, rangeEndDate);
       const max = Math.max(
         ...newStockData
           .filter(
@@ -512,8 +506,8 @@ function ListenChart(props) {
           .map((p) => p[3])
       );
 
-      props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
-      props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+      // props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
+      // props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
 
       var seriesLength = props.chart.current.plot(0).getSeriesCount();
 
@@ -522,25 +516,6 @@ function ListenChart(props) {
           console.log(props.chart.current.plot(0).getSeries(s));
         }
       }
-
-      // const addInititalIndicators = async () => {
-      //   for await (let indicator of initialPicked.indicators) {
-      //     console.log(
-      //       [
-      //         ...indicators["Traditional Indicator"],
-      //         ...indicators["Innovative Indicators"],
-      //       ].find((ind) => ind.name === indicator)
-      //     );
-      //     await addIndicator(
-      //       [
-      //         ...indicators["Traditional Indicator"],
-      //         ...indicators["Innovative Indicators"],
-      //       ].find((ind) => ind.name === indicator)
-      //     );
-      //   }
-      // };
-
-      // addInititalIndicators();
     }
 
     return () => {
@@ -559,9 +534,7 @@ function ListenChart(props) {
     plotIndex,
     rangeStartDate,
     rangeEndDate,
-    initialPicked.indicators,
     indicators,
-    addIndicator,
   ]);
 
   return <div></div>;

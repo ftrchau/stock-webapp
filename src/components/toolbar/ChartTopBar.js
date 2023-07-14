@@ -64,6 +64,7 @@ function ChartTopBar(props) {
 
   const rangeEndDate = useSelector((state) => state.stock.rangeEndDate);
   const interval = useSelector((state) => state.stock.interval);
+  const realTime = useSelector((state) => state.stock.realTime);
   // const stockData = useSelector((state) => state.stock.stockData);
   console.log(rangeStartDate);
   console.log(rangeEndDate);
@@ -303,7 +304,7 @@ function ChartTopBar(props) {
               variant="light"
               size="sm"
               onClick={props.toggleRealTime}
-              active={props.realTime}
+              active={realTime}
               style={{ whiteSpace: "nowrap" }}
             >
               Toggle realtime
