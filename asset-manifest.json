@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/stock-webapp/static/css/main.cb1181df.css",
+    "main.js": "/stock-webapp/static/js/main.7846da4e.js",
+    "index.html": "/stock-webapp/index.html",
+    "main.cb1181df.css.map": "/stock-webapp/static/css/main.cb1181df.css.map",
+    "main.7846da4e.js.map": "/stock-webapp/static/js/main.7846da4e.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cb1181df.css",
+    "static/js/main.7846da4e.js"
+  ]
+}
