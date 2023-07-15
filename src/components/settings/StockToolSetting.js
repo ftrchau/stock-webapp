@@ -16,6 +16,8 @@ import { BsQuestionCircle } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 import { indicatorActions } from "../../store/indicator-slice";
 
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+
 function StockToolSetting(props) {
   const [show, setShow] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -66,6 +68,23 @@ function StockToolSetting(props) {
     <div>
       {props.ind.name}
       <ButtonGroup>
+        {props.ind.hide ? (
+          <Button
+            variant="light"
+            size="sm"
+            onClick={() => props.showStockTool(props.index, props.ind)}
+          >
+            <AiOutlineEyeInvisible />
+          </Button>
+        ) : (
+          <Button
+            variant="light"
+            size="sm"
+            onClick={() => props.hideStockTool(props.index, props.ind)}
+          >
+            <AiOutlineEye />
+          </Button>
+        )}
         {props.ind.description && (
           <Button variant="light" size="sm">
             <BsQuestionCircle onClick={() => setShowInfo(true)} />

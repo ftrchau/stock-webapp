@@ -13,7 +13,7 @@ const indicatorSlice = createSlice({
           description:
             "Arnaud Legoux Moving Average (ALMA) is one of the least lagging moving average by nature. <br /><br /> This script builds two ALMA line, Fast and Slow, and to check their crossing over to generate Buy / Sell Signals. <br /><br /> The drawback of Moving average crossing strategy is the too many crossing during a range trading, therefore, a third ALMA is used to show the trend of the ticker's price as a reference. <br /><br /> The default value for the Trend ALMA is 70 bars, it is due to the quick response of the Arnaud Legoux MA. <br /><br />The Trend ALMA is plotted in dotted line for reference only, it does not affect the Buy/Sell signal generate from the crossing of the Fast and Slow ALMA lines.",
           groupIndex: 0,
-          draw: false,
+          hide: false,
           apiFunc: "calculateStockALMA",
           parameters: [
             {
@@ -123,7 +123,7 @@ const indicatorSlice = createSlice({
           description:
             "Bollinger Bands (BB) are a widely popular technical analysis instrument created by John Bollinger in the early 1980’s. Bollinger Bands consist of a band of three lines which are plotted in relation to security prices. <br /><br /> The line in the middle is usually a Simple Moving Average (SMA) set to a period of 20 days (The type of trend line and period can be changed by the trader; however a 20 day moving average is by far the most popular). <br /><br /> The SMA then serves as a base for the Upper and Lower Bands. <br /><br /> The Upper and Lower Bands are used as a way to measure volatility by observing the relationship between the Bands and price. <br /><br /> Typically the Upper and Lower Bands are set to two standard deviations away from the SMA (The Middle Line); <br /><br /> however the number of standard deviations can also be adjusted by the trader.",
           groupIndex: 0,
-          draw: false,
+          hide: false,
           apiFunc: "calculateBB",
           parameters: [
             {
@@ -175,7 +175,7 @@ const indicatorSlice = createSlice({
           description:
             "MACD is an extremely popular indicator used in technical analysis. <br /><br /> MACD can be used to identify aspects of a security's overall trend. Most notably these aspects are momentum, as well as trend direction and duration. <br /><br /> What makes MACD so informative is that it is actually the combination of two different types of indicators. <br /><br /> First, MACD employs two Moving Averages of varying lengths (which are lagging indicators) to identify trend direction and duration. Then, MACD takes the difference in values between those two Moving Averages (MACD Line) and an EMA of those Moving Averages (Signal Line) and plots that difference between the two lines as a histogram which oscillates above and below a center Zero Line. <br /><br /> The histogram is used as a good indication of a security's momentum.",
           groupIndex: 0,
-          draw: false,
+          hide: false,
           apiFunc: "calculateMACD",
           parameters: [
             {
@@ -270,7 +270,7 @@ const indicatorSlice = createSlice({
           description:
             "The On Balance Volume indicator (OBV) is used in technical analysis to measure buying and selling pressure. <br /><br /> It is a cumulative indicator meaning that on days where price went up, that day's volume is added to the cumulative OBV total. <br /><br /> If price went down, then that day's volume is subtracted from the OBV total. <br /><br /> The OBV value is then plotted as a line for easy interpretation. On Balance volume is primarily used to confirm or identify overall price trends or to anticipate price movements after divergences.",
           groupIndex: 0,
-          draw: false,
+          hide: false,
           parameters: [],
           apiFunc: "calculateOBV",
           charts: [
@@ -309,7 +309,7 @@ const indicatorSlice = createSlice({
           description:
             "The Relative Strength Index (RSI) is a well versed momentum based oscillator which is used to measure the speed (velocity) as well as the change (magnitude) of directional price movements. <br /><br /> Essentially RSI, when graphed, provides a visual mean to monitor both the current, as well as historical, strength and weakness of a particular market. The strength or weakness is based on closing prices over the duration of a specified trading period creating a reliable metric of price and momentum changes. <br /><br /> Given the popularity of cash settled instruments (stock indexes) and leveraged financial products (the entire field of derivatives); <br /><br /> RSI has proven to be a viable indicator of price movements.",
           groupIndex: 0,
-          draw: false,
+          hide: false,
           apiFunc: "calculateRSI",
           parameters: [
             {
@@ -344,7 +344,7 @@ const indicatorSlice = createSlice({
           description:
             "Supertrend is a trend-following indicator based on Average True Range (ATR). <br /><br /> The calculation of its single line combines trend detection and volatility. <br /><br /> It can be used to detect changes in trend direction and to position stops.",
           groupIndex: 0,
-          draw: false,
+          hide: false,
           apiFunc: "calculateStockSuperTrend",
           parameters: [
             {
@@ -450,7 +450,7 @@ const indicatorSlice = createSlice({
           description:
             "This script applies ARIMA(P,D,Q) to forecast security price one step ahead. <br /><br /> ARIMA(1,1,2) model is based on :  people.duke.edu/~rnau/411arim.htm <br /><br /> Both AR and MA factor is 0.1 for all terms for simplification, age of data = 1/(1-0.1)=1.1, it has a one bar lag. ",
           groupIndex: 1,
-          draw: false,
+          hide: false,
           apiFunc: "calculateARIMA",
           parameters: [
             {
@@ -656,7 +656,7 @@ const indicatorSlice = createSlice({
           name: "Heikin Ashi Modified",
           value: "Heikin Ashi Modified",
           groupIndex: 1,
-          draw: false,
+          hide: false,
           apiFunc: "calculateHeikinAshiModified",
           parameters: [
             {
@@ -701,7 +701,7 @@ const indicatorSlice = createSlice({
           description:
             "This script applies ARIMA(P,D,Q) to forecast security price one step ahead. <br /><br /> ARIMA(1,1,2) model is based on :  people.duke.edu/~rnau/411arim.htm <br /><br /> Both AR and MA factor is 0.1 for all terms for simplification, <br /><br /> age of data = 1/(1-0.1)=1.1, it has a one bar lag.  ",
           groupIndex: 1,
-          draw: false,
+          hide: false,
           apiFunc: "calculateKalmanFilter",
           parameters: [
             {
@@ -746,7 +746,7 @@ const indicatorSlice = createSlice({
           description:
             "Use a MA, then apply the same MA with a time lag, signal Buy/Sell when the two lines crossover. <br /><br /> The MA line drew has colored for up and down, therefore, it provides the signal too for a single MA line. <br /><br /> The script assumes the 2nd MA line is the slower one to label the Buy/Sell signals.  <br /><br /> There are two kind of strategy that can be applied: <br /> 1. Cross over of the two MA lines for buy/sell <br /> 2. Focus on Line 1 color change, and use Line 2 trend to indentify noise on Line 1. <br /><br /> The crossing of two MA lines is better use with other indicators <br /><br /> There is no single setting to fit all ",
           groupIndex: 1,
-          draw: false,
+          hide: false,
           apiFunc: "calculateMACrossing",
           parameters: [
             {
@@ -948,7 +948,7 @@ const indicatorSlice = createSlice({
           name: "MA Drift",
           value: "MA Drift",
           groupIndex: 1,
-          draw: false,
+          hide: false,
           apiFunc: "calculateMidDrift",
           parameters: [
             {
@@ -1024,7 +1024,7 @@ const indicatorSlice = createSlice({
           description:
             "Price percentage Oscillator allows different security to compare their strength. <br /><br /> This study put it into a complete MACD, by adding the signal line.  ",
           groupIndex: 1,
-          draw: false,
+          hide: false,
           apiFunc: "calculateMACDModified",
           parameters: [
             {
@@ -1118,7 +1118,7 @@ const indicatorSlice = createSlice({
           description:
             "RSI over 50 is long, RSI below 50 is short. It is ok for most of the security. <br /><br /> eg. Set upper and lower bar to [53 & 47] or [52 & 85] etc if the security has more trendless period. <br /><br /> Line plot by scale the RSI value (%) on the Lo-Hi of each candle. <br /><br /> Line color signaling:  Green=UP, Orange=Down, Gray= sideway or in-transit",
           groupIndex: 1,
-          draw: false,
+          hide: false,
           apiFunc: "calculateRSIModified",
           parameters: [
             {
@@ -1238,7 +1238,7 @@ const indicatorSlice = createSlice({
           description:
             "Basic Turtle trade is : <br /> Buy when close is higher than m-day high, exit Buy when close is lower than n-day low. <br /><br /> Sell when close is lower than m-day low, exit Sell when close is higher than n-day high. <br /><br /> ATR cut Turtle trade is: <br /> Exit Buy when close is lower than ATR*factor line, and exit Sell when close is higher than ATR*factor line. <br /><br /> Since Buy and Sell line runs independently, there is chance that both Buy and Sell are triggered ! <br /><br /> There are also cases that both Buy and Sell are exited.  <br /><br /> This script eliminates the overlap and blanks by compare close to close[2] for a decision of a buy or sell, its called signal train. ",
           groupIndex: 1,
-          draw: false,
+          hide: false,
           apiFunc: "calculateTurtleTrade",
           parameters: [
             {
@@ -1470,7 +1470,7 @@ const indicatorSlice = createSlice({
         positiveVolumeFill: "rgb(38, 166, 154)",
         negativeVolumeFill: "rgb(239, 83, 80)",
         VolumeStroke: "1 rgb(255, 255, 255)",
-        draw: false,
+        hide: false,
       },
       {
         name: "Pivot Hi Lo",
@@ -1511,7 +1511,7 @@ const indicatorSlice = createSlice({
         pivotHighStroke: "rgb(136, 14, 79)",
         pivotLowStroke: "rgb(33, 150, 243)",
         chartIndex: -1,
-        draw: false,
+        hide: false,
       },
       {
         name: "52 Wk Hi Lo Range - Buy Sell",
@@ -1544,7 +1544,7 @@ const indicatorSlice = createSlice({
           },
         ],
         chartIndex: -1,
-        draw: false,
+        hide: false,
       },
       {
         name: "MR Bottom Detector",
@@ -1598,7 +1598,7 @@ const indicatorSlice = createSlice({
           },
         ],
         chartIndex: -1,
-        draw: false,
+        hide: false,
       },
       {
         name: "Linear Regression Channel on Pivot",
@@ -1645,7 +1645,7 @@ const indicatorSlice = createSlice({
           },
         ],
         chartIndex: -1,
-        draw: false,
+        hide: false,
         pivotHighStroke: "rgb(136, 14, 79)",
         pivotLowStroke: "rgb(33, 150, 243)",
       },
@@ -1683,7 +1683,7 @@ const indicatorSlice = createSlice({
         ],
         chartIndex: -1,
         annotationIndex: [],
-        draw: false,
+        hide: false,
         zigzagFontColor: "rgb(54,58,69)",
         lastlowUpdateFontColor: "rgb(242, 46, 173, 90)",
         lastHighUpdateFontColor: "rgb(46, 242, 59, 72)",
@@ -1745,12 +1745,27 @@ const indicatorSlice = createSlice({
           },
         ],
         chartIndex: -1,
-        draw: false,
+        hide: false,
       },
     ],
     currentStockTools: [],
   },
   reducers: {
+    toggleShowIndicator(state, action) {
+      const { index, hide } = action.payload;
+
+      state.currentIndicators[index]["hide"] = hide;
+    },
+    toggleShowStockTool(state, action) {
+      const { index, hide } = action.payload;
+
+      console.log(index);
+      console.log(hide);
+
+      console.log(state.currentStockTools[index]);
+
+      state.currentStockTools[index]["hide"] = hide;
+    },
     addIndicator(state, action) {
       //   var updatedPayload = deepClone(action.payload);
       var { indicator, charts, annotations } = action.payload;

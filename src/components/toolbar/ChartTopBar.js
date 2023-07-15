@@ -414,6 +414,8 @@ function ChartTopBar(props) {
           <IndicatorSettings
             updateIndicator={props.updateIndicator}
             removeIndicator={props.removeIndicator}
+            showIndicator={props.showIndicator}
+            hideIndicator={props.hideIndicator}
           />
         </Col>
       </Row>
@@ -422,6 +424,8 @@ function ChartTopBar(props) {
           <StockToolSettings
             updateStockTool={updateStockTool}
             removeStockTool={removeStockTool}
+            showStockTool={props.showStockTool}
+            hideStockTool={props.hideStockTool}
           />
         </Col>
       </Row>

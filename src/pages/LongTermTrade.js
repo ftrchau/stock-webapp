@@ -7,38 +7,21 @@ import SelectSearch from "../components/chart/SelectSearch";
 import { indicatorActions } from "../store/indicator-slice";
 import stockApi from "../api/stock";
 import moment from "moment";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { stockActions } from "../store/stock-slice";
 import { BiArrowBack } from "react-icons/bi";
 
 function LongTermTrade() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { state } = useLocation();
-  if (!state) {
-    navigate("/stock-webapp/");
-  } else {
-    if (!("ticker" in state)) {
-      navigate("/stock-webapp/");
-    }
-  }
-  const { ticker, label } = state;
-  const setTicker = useCallback(
-    (opt) => {
-      navigate("/stock-webapp/long-term-trade", {
-        state: {
-          ticker: opt.value,
-          label: opt.label,
-        },
-      });
-    },
-    [navigate]
-  );
+  const ticker = useSelector((state) => state.stock.ticker.value);
 
   const initialPicked = useMemo(() => {
     return {
       indicators: ["RSI Modified", "MACD Modified", "supertrend"],
       stockTools: ["Zig Zag + LR", "Pivot Hi Lo"],
+      // indicators: [],
+      // stockTools: ["Zig Zag + LR", "Pivot Hi Lo"],
     };
   }, []);
 
@@ -83,7 +66,7 @@ function LongTermTrade() {
             <h3>Mid to Long Term Trade</h3>
           </Col>
           <Col>
-            <SelectSearch ticker={ticker} label={label} setTicker={setTicker} />
+            <SelectSearch />
           </Col>
         </Row>
       </Container>

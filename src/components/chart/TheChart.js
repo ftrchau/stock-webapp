@@ -3925,6 +3925,332 @@ function TheChart(props) {
     [adjustDividend, dispatch, interval, realTime, ticker, startDate, endDate]
   );
 
+  const showIndicator = useCallback(
+    (indIndex, indicator) => {
+      console.log(indIndex);
+      for (let k = 0; k < indicator.charts.length; k++) {
+        let seriesLength = chart.current
+          .plot(indicator.charts[k].plotIndex)
+          .getSeriesCount();
+        for (let i = seriesLength - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(indicator.charts[k].plotIndex).getSeries(i)) {
+            let seriesName = chart.current
+              .plot(indicator.charts[k].plotIndex)
+              .getSeries(i)
+              .name();
+            if (seriesName === indicator.charts[k].name) {
+              chart.current
+                .plot(indicator.charts[k].plotIndex)
+                .getSeries(i)
+                .enabled(true);
+            }
+          }
+        }
+      }
+      if ("annotations" in indicator) {
+        for (let j = 0; j < indicator.annotations.length; j++) {
+          if ("annotationIndex" in indicator.annotations[j]) {
+            for (
+              let k = 0;
+              k < indicator.annotations[j].annotationIndex.length;
+              k++
+            ) {
+              indicator.annotations[j].annotationIndex[k].enabled(true);
+            }
+          }
+        }
+      }
+      dispatch(
+        indicatorActions.toggleShowIndicator({
+          index: indIndex,
+          hide: false,
+        })
+      );
+    },
+    [dispatch]
+  );
+  const hideIndicator = useCallback(
+    (indIndex, indicator) => {
+      console.log(indIndex);
+      for (let k = 0; k < indicator.charts.length; k++) {
+        let seriesLength = chart.current
+          .plot(indicator.charts[k].plotIndex)
+          .getSeriesCount();
+        for (let i = seriesLength - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(indicator.charts[k].plotIndex).getSeries(i)) {
+            let seriesName = chart.current
+              .plot(indicator.charts[k].plotIndex)
+              .getSeries(i)
+              .name();
+            if (seriesName === indicator.charts[k].name) {
+              chart.current
+                .plot(indicator.charts[k].plotIndex)
+                .getSeries(i)
+                .enabled(false);
+            }
+          }
+        }
+      }
+      if ("annotations" in indicator) {
+        for (let j = 0; j < indicator.annotations.length; j++) {
+          if ("annotationIndex" in indicator.annotations[j]) {
+            for (
+              let k = 0;
+              k < indicator.annotations[j].annotationIndex.length;
+              k++
+            ) {
+              indicator.annotations[j].annotationIndex[k].enabled(false);
+            }
+          }
+        }
+      }
+      dispatch(
+        indicatorActions.toggleShowIndicator({
+          index: indIndex,
+          hide: true,
+        })
+      );
+    },
+    [dispatch]
+  );
+
+  const showStockTool = useCallback(
+    (toolIndex, stockTool) => {
+      console.log(toolIndex);
+      var seriesLength;
+      if (stockTool.name === "Volume Profile") {
+        annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
+          elem.enabled(true);
+        });
+      }
+      if (stockTool.name === "Pivot Hi Lo") {
+        annotationIndex.FLineannotationIndex.forEach((elem) => {
+          elem.enabled(true);
+        });
+        annotationIndex.FLineannotationIndex = [];
+        seriesLength = chart.current.plot(0).getSeriesCount();
+        for (let i = seriesLength - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(0).getSeries(i)) {
+            let seriesName = chart.current.plot(0).getSeries(i).name();
+            if (seriesName === "Pivot High" || seriesName === "Pivot Low") {
+              chart.current.plot(0).getSeries(i).enabled(true);
+            }
+          }
+        }
+      }
+      if (stockTool.name === "52 Wk Hi Lo Range - Buy Sell") {
+        var seriesLengthWkHi = chart.current
+          .plot(wkHiLoChartIndex)
+          .getSeriesCount();
+        for (let i = seriesLengthWkHi - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(wkHiLoChartIndex).getSeries(i)) {
+            let seriesNameWkHi = chart.current
+              .plot(wkHiLoChartIndex)
+              .getSeries(i)
+              .name();
+            if (
+              seriesNameWkHi === "on High" ||
+              seriesNameWkHi === "on Low" ||
+              seriesNameWkHi === "UB" ||
+              seriesNameWkHi === "LB" ||
+              seriesNameWkHi === "Mid" ||
+              seriesNameWkHi === "bline" ||
+              seriesNameWkHi === "sline"
+            ) {
+              chart.current.plot(wkHiLoChartIndex).getSeries(i).enabled(true);
+            }
+          }
+        }
+      }
+      if (stockTool.name === "MR Bottom Detector") {
+        var seriesLengthMRButtom = chart.current.plot(0).getSeriesCount();
+        for (let i = seriesLengthMRButtom - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(0).getSeries(i)) {
+            let seriesNameMRButtom = chart.current.plot(0).getSeries(i).name();
+            if (
+              seriesNameMRButtom === "f1" ||
+              seriesNameMRButtom === "f2" ||
+              seriesNameMRButtom === "f3" ||
+              seriesNameMRButtom === "f4" ||
+              seriesNameMRButtom === "f5" ||
+              seriesNameMRButtom === "f6"
+            ) {
+              chart.current.plot(0).getSeries(i).enabled(true);
+            }
+          }
+        }
+      }
+      if (stockTool.name === "Linear Regression Channel on Pivot") {
+        var seriesLengthLinearRegression = chart.current
+          .plot(0)
+          .getSeriesCount();
+        for (let i = seriesLengthLinearRegression - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(0).getSeries(i)) {
+            let seriesNameLinearRegression = chart.current
+              .plot(0)
+              .getSeries(i)
+              .name();
+            if (
+              seriesNameLinearRegression === "Upper Channel Line" ||
+              seriesNameLinearRegression === "Middle Channel Line" ||
+              seriesNameLinearRegression === "Lower Channel Line" ||
+              seriesNameLinearRegression === "Pivot High" ||
+              seriesNameLinearRegression === "Pivot Low"
+            ) {
+              chart.current.plot(0).getSeries(i).enabled(true);
+            }
+          }
+        }
+      }
+      if (stockTool.name === "Zig Zag + LR") {
+        annotationIndex.ZigZagannotationIndex.forEach((elem) => {
+          elem.enabled(true);
+        });
+
+        var zigZagSeriesLength = chart.current.plot(0).getSeriesCount();
+        for (let i = zigZagSeriesLength - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(0).getSeries(i)) {
+            let seriesName = chart.current.plot(0).getSeries(i).name();
+            if (
+              seriesName === "Upper Linear Regression Line" ||
+              seriesName === "Median Linear Regression Line" ||
+              seriesName === "Lower Linear Regression Line"
+            ) {
+              chart.current.plot(0).getSeries(i).enabled(true);
+            }
+          }
+        }
+      }
+      if (stockTool.name === "10AM Hi Lo fibo") {
+        annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
+          elem.enabled(true);
+        });
+      }
+      dispatch(
+        indicatorActions.toggleShowStockTool({
+          index: toolIndex,
+          hide: false,
+        })
+      );
+    },
+    [dispatch]
+  );
+  const hideStockTool = useCallback((toolIndex, stockTool) => {
+    console.log(toolIndex);
+    var seriesLength;
+    if (stockTool.name === "Volume Profile") {
+      annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
+        elem.enabled(false);
+      });
+    }
+    if (stockTool.name === "Pivot Hi Lo") {
+      annotationIndex.FLineannotationIndex.forEach((elem) => {
+        elem.enabled(false);
+      });
+      seriesLength = chart.current.plot(0).getSeriesCount();
+      for (let i = seriesLength - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(0).getSeries(i)) {
+          let seriesName = chart.current.plot(0).getSeries(i).name();
+          if (seriesName === "Pivot High" || seriesName === "Pivot Low") {
+            chart.current.plot(0).getSeries(i).enabled(false);
+          }
+        }
+      }
+    }
+    if (stockTool.name === "52 Wk Hi Lo Range - Buy Sell") {
+      var seriesLengthWkHi = chart.current
+        .plot(wkHiLoChartIndex)
+        .getSeriesCount();
+      for (let i = seriesLengthWkHi - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(wkHiLoChartIndex).getSeries(i)) {
+          let seriesNameWkHi = chart.current
+            .plot(wkHiLoChartIndex)
+            .getSeries(i)
+            .name();
+          if (
+            seriesNameWkHi === "on High" ||
+            seriesNameWkHi === "on Low" ||
+            seriesNameWkHi === "UB" ||
+            seriesNameWkHi === "LB" ||
+            seriesNameWkHi === "Mid" ||
+            seriesNameWkHi === "bline" ||
+            seriesNameWkHi === "sline"
+          ) {
+            chart.current.plot(wkHiLoChartIndex).getSeries(i).enabled(false);
+          }
+        }
+      }
+    }
+    if (stockTool.name === "MR Bottom Detector") {
+      var seriesLengthMRButtom = chart.current.plot(0).getSeriesCount();
+      for (let i = seriesLengthMRButtom - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(0).getSeries(i)) {
+          let seriesNameMRButtom = chart.current.plot(0).getSeries(i).name();
+          if (
+            seriesNameMRButtom === "f1" ||
+            seriesNameMRButtom === "f2" ||
+            seriesNameMRButtom === "f3" ||
+            seriesNameMRButtom === "f4" ||
+            seriesNameMRButtom === "f5" ||
+            seriesNameMRButtom === "f6"
+          ) {
+            chart.current.plot(0).getSeries(i).enabled(false);
+          }
+        }
+      }
+    }
+    if (stockTool.name === "Linear Regression Channel on Pivot") {
+      var seriesLengthLinearRegression = chart.current.plot(0).getSeriesCount();
+      for (let i = seriesLengthLinearRegression - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(0).getSeries(i)) {
+          let seriesNameLinearRegression = chart.current
+            .plot(0)
+            .getSeries(i)
+            .name();
+          if (
+            seriesNameLinearRegression === "Upper Channel Line" ||
+            seriesNameLinearRegression === "Middle Channel Line" ||
+            seriesNameLinearRegression === "Lower Channel Line" ||
+            seriesNameLinearRegression === "Pivot High" ||
+            seriesNameLinearRegression === "Pivot Low"
+          ) {
+            chart.current.plot(0).getSeries(i).enabled(false);
+          }
+        }
+      }
+    }
+    if (stockTool.name === "Zig Zag + LR") {
+      annotationIndex.ZigZagannotationIndex.forEach((elem) => {
+        elem.enabled(false);
+      });
+
+      var zigZagSeriesLength = chart.current.plot(0).getSeriesCount();
+      for (let i = zigZagSeriesLength - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(0).getSeries(i)) {
+          let seriesName = chart.current.plot(0).getSeries(i).name();
+          if (
+            seriesName === "Upper Linear Regression Line" ||
+            seriesName === "Median Linear Regression Line" ||
+            seriesName === "Lower Linear Regression Line"
+          ) {
+            chart.current.plot(0).getSeries(i).enabled(false);
+          }
+        }
+      }
+    }
+    if (stockTool.name === "10AM Hi Lo fibo") {
+      annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
+        elem.enabled(false);
+      });
+    }
+    dispatch(
+      indicatorActions.toggleShowStockTool({
+        index: toolIndex,
+        hide: true,
+      })
+    );
+  }, []);
+
   if (isFetching) return "Loading...";
 
   if (error) return "An error has occured:" + error.message;
@@ -3952,6 +4278,10 @@ function TheChart(props) {
             timezone={timezone}
             plotIndex={plotIndex}
             initialPicked={initialPicked}
+            showIndicator={showIndicator}
+            hideIndicator={hideIndicator}
+            showStockTool={showStockTool}
+            hideStockTool={hideStockTool}
           />
           <AnyChart
             id="stock-chart"

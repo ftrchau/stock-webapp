@@ -23,6 +23,10 @@ const SubtractTimeUnit = (interval) => {
 const stockSlice = createSlice({
   name: "stock",
   initialState: {
+    ticker: {
+      label: "",
+      value: "",
+    },
     stockData: [],
     interval: "1d", // possible values: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
     startDate: moment().subtract(60, "month").toDate(),
@@ -36,6 +40,9 @@ const stockSlice = createSlice({
     realTime: false,
   },
   reducers: {
+    setTicker(state, action) {
+      state.ticker = action.payload;
+    },
     setInterval(state, action) {
       state.interval = action.payload;
     },

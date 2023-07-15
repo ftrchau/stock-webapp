@@ -12,6 +12,7 @@ import {
 import { BsGear } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
 import { BsQuestionCircle } from "react-icons/bs";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 import { useDispatch } from "react-redux";
 import { indicatorActions } from "../../store/indicator-slice";
@@ -66,6 +67,23 @@ function IndicatorSetting(props) {
     <div>
       {props.ind.name}
       <ButtonGroup>
+        {props.ind.hide ? (
+          <Button
+            variant="light"
+            size="sm"
+            onClick={() => props.showIndicator(props.index, props.ind)}
+          >
+            <AiOutlineEyeInvisible />
+          </Button>
+        ) : (
+          <Button
+            variant="light"
+            size="sm"
+            onClick={() => props.hideIndicator(props.index, props.ind)}
+          >
+            <AiOutlineEye />
+          </Button>
+        )}
         {props.ind.description && (
           <Button variant="light" size="sm">
             <BsQuestionCircle onClick={() => setShowInfo(true)} />

@@ -6,6 +6,8 @@ function IndicatorSettings({
   changeIndicatorSetting,
   removeIndicator,
   updateIndicator,
+  hideIndicator,
+  showIndicator,
 }) {
   const currentIndicators = useSelector(
     (state) => state.indicator.currentIndicators
@@ -30,6 +32,8 @@ function IndicatorSettings({
                 changeIndicatorSetting={changeIndicatorSetting}
                 updateIndicator={updateIndicator}
                 removeIndicator={removeIndicator}
+                showIndicator={showIndicator}
+                hideIndicator={hideIndicator}
               />
             </Col>
           </Row>

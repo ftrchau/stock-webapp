@@ -6,6 +6,8 @@ function StockToolSettings({
   changeStockToolSetting,
   removeStockTool,
   updateStockTool,
+  showStockTool,
+  hideStockTool,
 }) {
   const currentStockTools = useSelector(
     (state) => state.indicator.currentStockTools
@@ -26,6 +28,8 @@ function StockToolSettings({
                 changeStockToolSetting={changeStockToolSetting}
                 updateStockTool={updateStockTool}
                 removeStockTool={removeStockTool}
+                showStockTool={showStockTool}
+                hideStockTool={hideStockTool}
               />
             </Col>
           </Row>

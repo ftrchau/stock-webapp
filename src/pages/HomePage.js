@@ -6,8 +6,9 @@ import Select from "react-select";
 import stockApi from "../api/stock";
 
 import classes from "./HomePage.module.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { indicatorActions } from "../store/indicator-slice";
+import { stockActions } from "../store/stock-slice";
 
 function HomePage() {
   const dispatch = useDispatch();
@@ -17,18 +18,23 @@ function HomePage() {
       handleAlertOpen();
       return;
     }
-    navigate(path, {
-      state: {
-        ticker: selectedTicker.value,
-        label: selectedTicker.label,
-      },
-    });
+    // navigate(path, {
+    //   state: {
+    //     ticker: selectedTicker.value,
+    //     label: selectedTicker.label,
+    //   },
+    // });
+    navigate(path);
   };
+  const selectedTicker = useSelector((state) => state.stock.ticker);
+  const setSelectedTicker = useCallback((inputTicker) => {
+    dispatch(stockActions.setTicker(inputTicker));
+  }, []);
   const [searchedData, setSearchedData] = useState([]);
-  const [selectedTicker, setSelectedTicker] = useState({
-    value: "",
-    label: "",
-  });
+  // const [selectedTicker, setSelectedTicker] = useState({
+  //   value: "",
+  //   label: "",
+  // });
   const [alertShow, setAlertShow] = useState(false);
   const handleAlertOpen = () => setAlertShow(true);
   const handleAlertClose = () => setAlertShow(false);
@@ -62,6 +68,28 @@ function HomePage() {
 
   return (
     <section className={classes.section}>
+      <h3 className="ma-5">Search symbol</h3>
+      <Select
+        defaultValue={selectedTicker}
+        onInputChange={(value) => searchStock(value)}
+        onChange={(opt) => setSelectedTicker(opt)}
+        options={searchedData}
+        placeholder="Type to search, e.g. AAPL, 0700.HK"
+        isSearchable
+      />
+      <Modal show={alertShow} onHide={handleAlertClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Please type to search for symbol, e.g. AAPL, 0700.HK
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={handleAlertClose}>
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <h2 className={classes.h2}>Select a Trading Timeframe</h2>
       <ul className={classes.ul}>
         <li className={classes.li}>
@@ -83,27 +111,6 @@ function HomePage() {
           </button>
         </li>
       </ul>
-      <h3 className="ma-5">Search symbol</h3>
-      <Select
-        onInputChange={(value) => searchStock(value)}
-        onChange={(opt) => setSelectedTicker(opt)}
-        options={searchedData}
-        placeholder="Type to search, e.g. AAPL, 0700.HK"
-        isSearchable
-      />
-      <Modal show={alertShow} onHide={handleAlertClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Error</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Please type to search for symbol, e.g. AAPL, 0700.HK
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleAlertClose}>
-            OK
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </section>
   );
 }
