@@ -321,9 +321,9 @@ const indicatorSlice = createSlice({
             {
               name: "source",
               label: "Source",
-              value: "adjclose",
+              value: "close",
               type: "select-one",
-              items: ["open", "high", "low", "close", "adjclose"],
+              items: ["open", "high", "low", "close"],
             },
           ],
           charts: [

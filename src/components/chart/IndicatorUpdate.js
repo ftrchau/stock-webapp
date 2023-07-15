@@ -1615,9 +1615,10 @@ function IndicatorUpdate(props) {
               : [];
           let apiInputParam = {};
           indicator.parameters.forEach((opt) => {
-            apiInputParam[opt.name] = Number.isNaN(+opt.value)
-              ? opt.value
-              : +opt.value;
+            apiInputParam[opt.name] =
+              Number.isNaN(+opt.value) || typeof opt.value == "boolean"
+                ? opt.value
+                : +opt.value;
           });
           var foundCharts = [];
           ////console.log(indicator.charts);
@@ -1654,26 +1655,30 @@ function IndicatorUpdate(props) {
             interval,
             adjustDividend,
             startDate: startDate,
+            endDate: endDate,
             realTime,
           };
 
-          if (!realTime) {
-            apiInput.endDate = endDate;
-          } else {
-            apiInput.startDate =
-              moment(tradingPeriod.regularStart, moment.ISO_8601).valueOf() /
-              Math.pow(10, 3);
-          }
+          // if (!realTime) {
+          //   apiInput.endDate = endDate;
+          // } else {
+          //   apiInput.startDate =
+          //     moment(tradingPeriod.regularStart, moment.ISO_8601).valueOf() /
+          //     Math.pow(10, 3);
+          // }
 
           let allResult = await indicatorCallback(indicator.apiFunc, apiInput);
+
+          if (!allResult) continue;
 
           let addResult;
 
           for (let p = 0; p < indicator.charts.length; p++) {
             var findChart = false;
-            var seriesLength = chart.current
+            seriesLength = chart.current
               .plot(indicator.charts[p].plotIndex)
               .getSeriesCount();
+
             var foundSeries;
             for (let s = seriesLength; s > -1; s--) {
               if (
@@ -1728,7 +1733,7 @@ function IndicatorUpdate(props) {
                 .map((r, index) => {
                   return [
                     moment(r.date).valueOf(),
-                    +r[indicator.charts[r].column],
+                    +r[indicator.charts[p].column],
                   ];
                 });
             } else {
@@ -1863,6 +1868,7 @@ function IndicatorUpdate(props) {
                   .name(indicator.charts[p].name);
               }
             } else {
+              console.log(indicator.charts[p].plotIndex);
               chartTemp = chart.current
                 .plot(indicator.charts[p].plotIndex)
                 [indicator.charts[p].seriesType](mapping)
@@ -1925,6 +1931,7 @@ function IndicatorUpdate(props) {
                 })
                 .map((p) => {
                   return {
+                    fontSize: 10,
                     xAnchor: moment(p.date).valueOf(),
                     valueAnchor: p[anno.parameters.valueAnchor],
                     text:
@@ -2140,15 +2147,22 @@ function IndicatorUpdate(props) {
         //   dispatch(indicatorActions.addStockTools(stockTool));
         // }
 
-        addIndicatorCallback();
-        addStockToolCallback();
+        // addIndicatorCallback();
+        // addStockToolCallback();
         dispatch(indicatorActions.setInitialLoad(false));
       }
 
       if (realTime) {
         indicatorUpdateInterval = setInterval(() => {
-          fetchCurrentIndicators();
-          // fetchCurrentStockTools();
+          if (
+            moment(tradingPeriod.regularStart, moment.ISO_8601).isBefore(
+              moment()
+            ) &&
+            moment(tradingPeriod.regularEnd, moment.ISO_8601).isAfter(moment())
+          ) {
+            fetchCurrentIndicators();
+            fetchCurrentStockTools();
+          }
         }, 60000);
       }
     }

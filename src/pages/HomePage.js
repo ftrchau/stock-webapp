@@ -27,10 +27,18 @@ function HomePage() {
     navigate(path);
   };
   const selectedTicker = useSelector((state) => state.stock.ticker);
-  const setSelectedTicker = useCallback((inputTicker) => {
-    dispatch(stockActions.setTicker(inputTicker));
-  }, []);
-  const [searchedData, setSearchedData] = useState([]);
+  const setSelectedTicker = useCallback(
+    (inputTicker) => {
+      dispatch(stockActions.setTicker(inputTicker));
+    },
+    [dispatch]
+  );
+  const [searchedData, setSearchedData] = useState([
+    {
+      label: selectedTicker.label,
+      value: selectedTicker.value,
+    },
+  ]);
   // const [selectedTicker, setSelectedTicker] = useState({
   //   value: "",
   //   label: "",

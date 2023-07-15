@@ -2822,6 +2822,7 @@ function TheChart(props) {
             })
             .map((p) => {
               return {
+                fontSize: 10,
                 xAnchor: moment(p.date).valueOf(),
                 valueAnchor: p[anno.parameters.valueAnchor],
                 text:
@@ -2856,6 +2857,8 @@ function TheChart(props) {
           });
         });
       }
+
+      console.log(indicator.parameters);
 
       dispatch(
         indicatorActions.addIndicator({
@@ -3021,36 +3024,41 @@ function TheChart(props) {
         }
       });
 
-    let priceLineMarker = chart.current.plot(0).lineMarker();
-    let priceMarkerColor =
-      newStockData[newStockData.length - 1][4] >
-      newStockData[newStockData.length - 2][4]
-        ? "rgb(76, 175, 80)"
-        : "rgb(255, 82, 82)";
+    if (newStockData[newStockData.length - 1][4]) {
+      let priceLineMarker = chart.current.plot(0).lineMarker();
+      let priceMarkerColor =
+        newStockData[newStockData.length - 1][4] >
+        newStockData[newStockData.length - 2][4]
+          ? "rgb(76, 175, 80)"
+          : "rgb(255, 82, 82)";
 
-    priceLineMarker.value(newStockData[newStockData.length - 1][4]);
-    priceLineMarker.stroke({
-      thickness: 2,
-      color: priceMarkerColor,
-      dash: "2 7",
-    });
+      priceLineMarker.value(newStockData[newStockData.length - 1][4]);
+      priceLineMarker.stroke({
+        thickness: 2,
+        color: priceMarkerColor,
+        dash: "2 7",
+      });
+      var priceTextMarker = chart.current.plot(0).textMarker();
+      priceTextMarker.axis(chart.current.plot(0).yAxis());
+      priceTextMarker.value(newStockData[newStockData.length - 1][4]);
 
-    var priceTextMarker = chart.current.plot(0).textMarker();
-    priceTextMarker.axis(chart.current.plot(0).yAxis());
-    priceTextMarker.value(newStockData[newStockData.length - 1][4]);
-    priceTextMarker.text(newStockData[newStockData.length - 1][4].toFixed(2));
-    priceTextMarker.align("left");
-    priceTextMarker.anchor("right-center");
-    priceTextMarker.background({
-      fill: priceMarkerColor,
-    });
-    priceTextMarker.fontColor("#FFFFFF");
+      priceTextMarker.text(newStockData[newStockData.length - 1][4].toFixed(2));
+      priceTextMarker.align("left");
+      priceTextMarker.anchor("right-center");
+      priceTextMarker.background({
+        fill: priceMarkerColor,
+      });
+      priceTextMarker.fontColor("#FFFFFF");
+    }
 
     if (realTime) {
       realTimeIntervalId = setInterval(async () => {
         ////console.log("test realtime");
         if (
-          moment(tradingPeriod.regularStart, moment.ISO_8601).isBefore(moment())
+          moment(tradingPeriod.regularStart, moment.ISO_8601).isBefore(
+            moment()
+          ) &&
+          moment(tradingPeriod.regularEnd, moment.ISO_8601).isAfter(moment())
         ) {
           let result = await stockApi.getStockPriceRealTime({
             ticker,
@@ -3375,6 +3383,7 @@ function TheChart(props) {
   );
   const removeStockTool = useCallback(
     (ind, index) => {
+      console.log(ind);
       if (ind.name === "Volume Profile") {
         annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
           chart.current.plot(0).annotations().removeAnnotation(elem);
@@ -3409,6 +3418,8 @@ function TheChart(props) {
 
         chart.current.plot(0).yScale().maximum(FLineMax.toFixed(2));
         chart.current.plot(0).yScale().minimum(FLineMin.toFixed(2));
+
+        dispatch(indicatorActions.removeSelectedStockTool(index));
       }
       if (ind.name === "52 Wk Hi Lo Range - Buy Sell") {
         var seriesLengthWkHi = chart.current
@@ -3514,9 +3525,16 @@ function TheChart(props) {
   const toggleRealTime = useCallback(() => {
     dispatch(stockActions.setRealTime(!realTime));
     // if (!realTime) {
+    // if (
+    //   moment(tradingPeriod.regularStart, moment.ISO_8601).isBefore(moment()) &&
+    //   moment(tradingPeriod.regularEnd, moment.ISO_8601).isAfter(moment())
+    // ) {
+    console.log(moment(tradingPeriod.regularStart, moment.ISO_8601));
+    console.log(moment());
     dispatch(indicatorActions.setNeedUpdate(true));
     // }
-  }, [dispatch, realTime]);
+    // }
+  }, [dispatch, realTime, tradingPeriod]);
 
   const changeTimeZone = useCallback((opt) => {
     if (opt.name === "Exchange") opt.value = exchangeTimeZone.current.value;
@@ -3750,11 +3768,12 @@ function TheChart(props) {
               })
               .map((p) => {
                 return {
+                  fontSize: 10,
                   xAnchor: moment(p.date).valueOf(),
                   valueAnchor: p[anno.parameters.valueAnchor],
                   text:
                     "textParam" in anno.parameters
-                      ? p[anno.parameters.text]
+                      ? p[anno.parameters.textParam]
                       : anno.parameters.text,
                   normal: {
                     fontColor: anno.parameters.fontColor,

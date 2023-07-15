@@ -59,9 +59,9 @@ function StockToolSetting(props) {
   };
 
   const removeSelectedStockTool = () => {
-    // props.removeStockTool(props.ind, props.index);
-    props.removeStockTool(props.ind, props.stockToolIndex);
-    dispatch(indicatorActions.removeSelectedStockTool(props.stockToolIndex));
+    props.removeStockTool(props.ind, props.index);
+    // props.removeStockTool(props.ind, props.stockToolIndex);
+    // dispatch(indicatorActions.removeSelectedStockTool(props.stockToolIndex));
   };
 
   return (

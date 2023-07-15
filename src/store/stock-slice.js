@@ -24,7 +24,7 @@ const stockSlice = createSlice({
   name: "stock",
   initialState: {
     ticker: {
-      label: "",
+      label: "Type to search, e.g. AAPL, 0700.HK",
       value: "",
     },
     stockData: [],
