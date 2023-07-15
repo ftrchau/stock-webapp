@@ -95,7 +95,9 @@ function HomePage() {
         <Modal.Header closeButton>
           <Modal.Title>Error</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Please type to search for symbol, e.g. AAPL</Modal.Body>
+        <Modal.Body>
+          Please type to search for symbol, e.g. AAPL, 0700.HK
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={handleAlertClose}>
             OK
