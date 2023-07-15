@@ -2147,8 +2147,8 @@ function IndicatorUpdate(props) {
         //   dispatch(indicatorActions.addStockTools(stockTool));
         // }
 
-        // addIndicatorCallback();
-        // addStockToolCallback();
+        addIndicatorCallback();
+        addStockToolCallback();
         dispatch(indicatorActions.setInitialLoad(false));
       }
 

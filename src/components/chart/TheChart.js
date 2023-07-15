@@ -4046,7 +4046,6 @@ function TheChart(props) {
         annotationIndex.FLineannotationIndex.forEach((elem) => {
           elem.enabled(true);
         });
-        annotationIndex.FLineannotationIndex = [];
         seriesLength = chart.current.plot(0).getSeriesCount();
         for (let i = seriesLength - 1 + 100; i > -1; i--) {
           if (chart.current.plot(0).getSeries(i)) {
