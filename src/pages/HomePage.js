@@ -41,7 +41,7 @@ function HomePage() {
           query: value,
         });
 
-        //console.log(apiResult);
+        ////console.log(apiResult);
         const searchedResult = apiResult.map((re) => {
           return {
             value: re.symbol,
@@ -68,7 +68,7 @@ function HomePage() {
           <h3>Day Trade</h3>
           <button
             className={classes.button}
-            onClick={() => navigateHandler("/day-trade")}
+            onClick={() => navigateHandler("/stock-webapp/day-trade")}
           >
             Show Chart
           </button>
@@ -77,7 +77,7 @@ function HomePage() {
           <h3>Mid to Long Term Trade</h3>
           <button
             className={classes.button}
-            onClick={() => navigateHandler("/long-term-trade")}
+            onClick={() => navigateHandler("/stock-webapp/long-term-trade")}
           >
             Show Chart
           </button>
@@ -88,7 +88,7 @@ function HomePage() {
         onInputChange={(value) => searchStock(value)}
         onChange={(opt) => setSelectedTicker(opt)}
         options={searchedData}
-        placeholder="Type to search, e.g. APPL"
+        placeholder="Type to search, e.g. AAPL, 0700.HK"
         isSearchable
       />
       <Modal show={alertShow} onHide={handleAlertClose}>

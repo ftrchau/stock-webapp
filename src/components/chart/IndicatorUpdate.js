@@ -60,7 +60,7 @@ const addWkHiLo = async function (
     startDate: startDate,
     endDate: endDate,
   });
-  //console.log(WkHiLoRangeresult);
+  ////console.log(WkHiLoRangeresult);
   if (WkHiLoRangeresult) {
     let WkHiLoRangeHHpctData = WkHiLoRangeresult.map((p) => {
       return [moment(p.date).valueOf(), p.HHpct];
@@ -194,7 +194,7 @@ const addWkHiLo = async function (
             .getSeries(i)
             .name();
           if (seriesNames.includes(seriesName)) {
-            //console.log(seriesName);
+            ////console.log(seriesName);
             chart.current
               .plot(stockTool.chartIndex)
               .getSeries(i)
@@ -630,7 +630,7 @@ const addFline = async function (
     endDate: endDate,
   });
   if (PivotHiLoresult) {
-    //console.log(PivotHiLoresult);
+    ////console.log(PivotHiLoresult);
     let PivotHiLopvhData = PivotHiLoresult.map((p) => {
       return [moment(p.date).valueOf(), p.pvh];
     });
@@ -650,8 +650,8 @@ const addFline = async function (
     var PivotHiLopvlMapping = PivotHiLopvlTable.mapAs();
     PivotHiLopvlMapping.addField("value", 1);
 
-    //console.log(PivotHiLopvhData);
-    //console.log(PivotHiLopvlData);
+    ////console.log(PivotHiLopvhData);
+    ////console.log(PivotHiLopvlData);
     if (!update) {
       chart.current
         .plot(0)
@@ -816,8 +816,8 @@ const drawVolumeProfileFunction = async (
   let bbars = stockTool.bbars || visibleStockData.length;
   let drawPOCLabel = stockTool.drawPOCLabel || false;
 
-  //console.log(startPoint);
-  //console.log(endPoint);
+  ////console.log(startPoint);
+  ////console.log(endPoint);
 
   var high = visibleStockData.map((p) => p[2]);
   var low = visibleStockData.map((p) => p[3]);
@@ -852,7 +852,7 @@ const drawVolumeProfileFunction = async (
     let topwick = visibleStockData[bars][2] - body_top;
     let bottomwick = body_bot - visibleStockData[bars][3];
     let body = body_top - body_bot;
-    //console.log(visibleStockData);
+    ////console.log(visibleStockData);
 
     let bodyvol =
       (body * visibleStockData[bars][5]) /
@@ -863,10 +863,10 @@ const drawVolumeProfileFunction = async (
     let bottomwickvol =
       (2 * bottomwick * visibleStockData[bars][5]) /
       (2 * topwick + 2 * bottomwick + body);
-    //console.log(body_bot);
-    //console.log(body_top);
-    //console.log(body);
-    //console.log(bodyvol);
+    ////console.log(body_bot);
+    ////console.log(body_top);
+    ////console.log(body);
+    ////console.log(bodyvol);
 
     for (let j = 0; j < cnum; j++) {
       volumes[j] +=
@@ -946,10 +946,10 @@ const drawVolumeProfileFunction = async (
   }
   var controller = chart.current.plot(0).annotations();
 
-  //console.log(cnum);
-  //console.log(startPoint);
-  //console.log(levels);
-  //console.log(volumes);
+  ////console.log(cnum);
+  ////console.log(startPoint);
+  ////console.log(levels);
+  ////console.log(volumes);
 
   for (let j = 0; j < cnum; j++) {
     annotationIndex.VolumeProfileannotationIndex.push(
@@ -1184,7 +1184,7 @@ const addMRButton = async function (
         if (chart.current.plot(0).getSeries(i)) {
           let seriesName = chart.current.plot(0).getSeries(i).name();
           if (seriesNames.includes(seriesName)) {
-            //console.log(seriesName);
+            ////console.log(seriesName);
             chart.current.plot(0).getSeries(i).data(seriesMapping[seriesName]);
           }
         }
@@ -1600,7 +1600,7 @@ function IndicatorUpdate(props) {
   } = props;
 
   useEffect(() => {
-    //console.log("rerender IndicatorUpdate");
+    ////console.log("rerender IndicatorUpdate");
     if (chart.current) {
       const fetchCurrentIndicators = async () => {
         let cur = 0;
@@ -1620,9 +1620,9 @@ function IndicatorUpdate(props) {
               : +opt.value;
           });
           var foundCharts = [];
-          //console.log(indicator.charts);
+          ////console.log(indicator.charts);
           for (let ch = 0; ch < indicator.charts.length; ch++) {
-            //console.log(indicator.charts[ch]);
+            ////console.log(indicator.charts[ch]);
             var plotAddedBy = 0;
             var seriesLength = chart.current
               .plot(indicator.charts[ch].plotIndex)
@@ -1644,7 +1644,7 @@ function IndicatorUpdate(props) {
             }
           }
 
-          //console.log(foundCharts);
+          ////console.log(foundCharts);
 
           // if (foundCharts.length > 0) continue;
 
@@ -1714,7 +1714,7 @@ function IndicatorUpdate(props) {
             }
 
             if ("range" in indicator.charts[p]) {
-              //console.log(allResult);
+              ////console.log(allResult);
               addResult = allResult
                 .filter(
                   (value, index) =>
@@ -1765,7 +1765,7 @@ function IndicatorUpdate(props) {
                     // eslint-disable-next-line no-loop-func
                   ](function () {
                     if (!this.value) return this.sourceColor;
-                    // //console.log(this.x);
+                    // ////console.log(this.x);
                     let resultIndex = addResult.findIndex(
                       // (p) => p[0] === moment(this.x).valueOf()
                       (p) => p[1] === this.value
@@ -1775,7 +1775,7 @@ function IndicatorUpdate(props) {
 
                     let strokeColor = "";
                     let conditions_temp = "";
-                    // //console.log("is this still affecting??");
+                    // ////console.log("is this still affecting??");
 
                     for (
                       let i = 0;
@@ -1959,7 +1959,7 @@ function IndicatorUpdate(props) {
               }
             }
 
-            //console.log(cur);
+            ////console.log(cur);
 
             dispatch(
               indicatorActions.setIndicatorAnnotationIndex({
@@ -2111,8 +2111,8 @@ function IndicatorUpdate(props) {
       if (needUpdate) {
         fetchCurrentIndicators();
         fetchCurrentStockTools();
-        //console.log(rangeStartDate);
-        //console.log(rangeEndDate);
+        ////console.log(rangeStartDate);
+        ////console.log(rangeEndDate);
         chart.current.selectRange(rangeStartDate, rangeEndDate);
 
         dispatch(indicatorActions.setNeedUpdate(false));

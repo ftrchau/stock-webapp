@@ -38,7 +38,7 @@ function SelectSearch(props) {
       onInputChange={(value) => searchStock(value)}
       onChange={(opt) => setTicker(opt)}
       options={searchedData}
-      placeholder="Type to search, e.g. APPL"
+      placeholder="Type to search, e.g. AAPL, 0700.HK"
       isSearchable
     />
   );

@@ -36,7 +36,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    //console.log("run first setting");
+    ////console.log("run first setting");
     setTicker("NVDA");
     setChart(new anychart.stock());
     setChartTable(anychart.data.table());
@@ -61,7 +61,7 @@ function App() {
   }, [currentIndicators]);
 
   useEffect(() => {
-    //console.log("run chart table ass data");
+    ////console.log("run chart table ass data");
     if (chartTable) {
       chartTable.addData(stockData);
       // setTableMapping(chartTable.mapAs());
@@ -69,8 +69,8 @@ function App() {
   }, [chartTable, stockData, currentIndicators]);
 
   useEffect(() => {
-    //console.log("running chart plot");
-    //console.log(currentIndicators);
+    ////console.log("running chart plot");
+    ////console.log(currentIndicators);
     if (!chart) return;
     chart
       .plot(0)
@@ -114,21 +114,21 @@ function App() {
   }, [chart, chartTable, ticker, currentIndicators]);
 
   // useEffect(() => {
-  //   //console.log(currentIndicators);
+  //   ////console.log(currentIndicators);
   //   if (currentIndicators.length > 0) {
   //     // currentIndicators[0].charts.forEach(ind => {
 
   //     // })
-  //     //console.log(currentIndicators);
+  //     ////console.log(currentIndicators);
   //   }
   // }, [currentIndicators]);
 
   const addIndicator = () => {
-    //console.log("testing");
+    ////console.log("testing");
     dispatch(
       indicatorActions.addIndicator(indicators["Traditional Indicator"][0])
     );
-    //console.log(currentIndicators);
+    ////console.log(currentIndicators);
   };
   // }, []);
 

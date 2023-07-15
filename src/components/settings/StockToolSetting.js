@@ -27,7 +27,7 @@ function StockToolSetting(props) {
     let StockToolParam = [];
     Array.from(submitEvent.target.elements).forEach((elem) => {
       if (elem.name !== "") {
-        //console.log(elem);
+        ////console.log(elem);
         StockToolParam.push({
           name: elem.name,
           value: elem.type === "checkbox" ? elem.checked : elem.value,
@@ -36,7 +36,7 @@ function StockToolSetting(props) {
       }
     });
 
-    //console.log(StockToolParam);
+    ////console.log(StockToolParam);
 
     dispatch(
       indicatorActions.setStockToolParams({

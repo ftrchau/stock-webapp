@@ -102,7 +102,7 @@ const stockSlice = createSlice({
       state.rangeEndDate = moment().isBefore(
         moment(state.tradingPeriod.regularEnd)
       )
-        ? moment()
+        ? moment().toDate()
         : moment(state.tradingPeriod.regularEnd).toDate();
       state.interval = interval;
     },

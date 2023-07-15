@@ -3,7 +3,7 @@ import axios from "axios";
 const baseURL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3000/stockapi/"
-    : "https://stockapp-backend.vercel.app/stockapi/";
+    : "https://stockapp-backend-production.up.railway.app/stockapi/";
 
 const api = axios.create({
   baseURL: baseURL,

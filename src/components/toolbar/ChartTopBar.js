@@ -79,14 +79,14 @@ function ChartTopBar(props) {
 
   const setRangeStartDate = useCallback(
     (inputDate) => {
-      //console.log(inputDate);
+      ////console.log(inputDate);
       dispatch(stockActions.setRangeStartDate(inputDate));
     },
     [dispatch]
   );
   const setRangeEndDate = useCallback(
     (inputDate) => {
-      //console.log(inputDate);
+      ////console.log(inputDate);
       dispatch(stockActions.setRangeEndDate(inputDate));
     },
     [dispatch]
@@ -94,7 +94,7 @@ function ChartTopBar(props) {
 
   const setLongestRange = useCallback(() => {
     dispatch(stockActions.setLongestRange());
-    //console.log(stockData);
+    ////console.log(stockData);
     const max = Math.max(
       ...stockData.filter((p) => p[2] != null).map((p) => p[2])
     );
@@ -109,7 +109,7 @@ function ChartTopBar(props) {
   const changeInterval = useCallback(
     (interval) => {
       // setInterval(interval.value);
-      //console.log(interval.value);
+      ////console.log(interval.value);
       dispatch(stockActions.setStartDateEndDate(interval.value));
       dispatch(indicatorActions.setNeedUpdate(true));
     },
@@ -129,7 +129,7 @@ function ChartTopBar(props) {
   // useEffect(() => {
   //   const addInititalIndicators = async () => {
   //     for await (let indicator of initialPicked.indicators) {
-  //       //console.log(
+  //       ////console.log(
   //         [
   //           ...indicators["Traditional Indicator"],
   //           ...indicators["Innovative Indicators"],

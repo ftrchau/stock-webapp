@@ -89,13 +89,13 @@ function ListenChart(props) {
   );
 
   // const textAreaListen = useCallback((e, selectedAnnos, textArea) => {
-  //   //console.log("listening called");
+  //   ////console.log("listening called");
   //   if (selectedAnnos) {
   //     if (selectedAnnos.type === "label" && textArea) {
   //       try {
   //         selectedAnnos.text(textArea.value.trim());
   //       } catch (error) {
-  //         //console.log(error);
+  //         ////console.log(error);
   //       }
   //     }
   //   }
@@ -114,7 +114,7 @@ function ListenChart(props) {
   } = props;
 
   useEffect(() => {
-    //console.log("ListenChart render");
+    ////console.log("ListenChart render");
     var selectedAnno;
     var annotationLabel;
 
@@ -163,7 +163,7 @@ function ListenChart(props) {
             if (!apiResult) return;
             tempStockData = outputStockData(apiResult, adjustDividend);
             props.chart.current.grouping().enabled(false);
-            //console.log(tempStockData);
+            ////console.log(tempStockData);
             chartTable.current.addData(tempStockData);
             chartMapping.current = chartTable.current.mapAs({
               open: 1,
@@ -171,13 +171,13 @@ function ListenChart(props) {
               low: 3,
               close: 4,
             });
-            props.chart.current.selectRange(
-              tempPrevStartDate
-                .clone()
-                .subtract(6, scrollLeftTimeUnit(interval))
-                .valueOf(),
-              tempPrevStartDate.valueOf()
-            );
+            // props.chart.current.selectRange(
+            //   tempPrevStartDate
+            //     .clone()
+            //     .subtract(6, scrollLeftTimeUnit(interval))
+            //     .valueOf(),
+            //   tempPrevStartDate.valueOf()
+            // );
             max = getStockMax(
               tempStockData,
               tempPrevStartDate
@@ -197,8 +197,8 @@ function ListenChart(props) {
 
             props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
             props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
-            //console.log("this listen running?");
-            //console.log(currentIndicators);
+            ////console.log("this listen running?");
+            ////console.log(currentIndicators);
             for await (let indicator of currentIndicators) {
               let apiInputParam = {};
               indicator.parameters.forEach((opt) => {
@@ -219,7 +219,7 @@ function ListenChart(props) {
               let addResultTemp = [];
 
               indicator.charts.forEach((ind) => {
-                //console.log(ind);
+                ////console.log(ind);
                 var addResult = allResult.map((p) => {
                   return [p.date, +p[ind.column]];
                 });
@@ -229,7 +229,7 @@ function ListenChart(props) {
                   addResultTemp = addResult;
                 }
 
-                //console.log(addResultTemp);
+                ////console.log(addResultTemp);
 
                 var table = anychart.data.table();
                 table.addData(addResult);
@@ -244,7 +244,7 @@ function ListenChart(props) {
                       .getSeries(i)
                       .name();
                     if (seriesName === ind.name) {
-                      //console.log(oldStartDate);
+                      ////console.log(oldStartDate);
                       if (Array.isArray(ind.stroke)) {
                         props.chart.current.plot(0).getSeries(i).dispose();
                         // props.chart.current
@@ -259,7 +259,7 @@ function ListenChart(props) {
                             // eslint-disable-next-line no-loop-func
                             function () {
                               if (!this.value) return this.sourceColor;
-                              // //console.log(this.x);
+                              // ////console.log(this.x);
                               let resultIndex = addResultTemp.findIndex(
                                 // (p) => p[0] === moment(this.x).valueOf()
                                 (p) => p[0] === this.x
@@ -415,7 +415,7 @@ function ListenChart(props) {
       );
 
       props.chart.current.listen("annotationChangeFinish", function (e) {
-        //console.log("annotationChangeFinish");
+        ////console.log("annotationChangeFinish");
         dispatch(drawingActions.toogleDrawToolBar(true));
       });
       props.chart.current.listen("annotationDrawingFinish", function (e) {
@@ -425,7 +425,7 @@ function ListenChart(props) {
         }
       });
       props.chart.current.listen("annotationUnselect", function (e) {
-        //console.log("annotationUnselect");
+        ////console.log("annotationUnselect");
         dispatch(drawingActions.setDrawingToolSelected({}));
         dispatch(drawingActions.setMarkerTypeSelected({}));
         dispatch(drawingActions.toogleDrawToolBar(false));

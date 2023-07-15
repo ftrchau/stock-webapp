@@ -127,7 +127,7 @@ const drawVolumeProfileFunction = async (
     realTime,
   });
 
-  //console.log(apiResult);
+  ////console.log(apiResult);
 
   let stockData = outputStockData(apiResult, adjustDividend);
 
@@ -135,13 +135,13 @@ const drawVolumeProfileFunction = async (
     return startPoint <= p[0] && endPoint >= p[0];
   });
 
-  //console.log(visibleStockData);
+  ////console.log(visibleStockData);
 
   let bbars = stockTool.bbars || visibleStockData.length;
   let drawPOCLabel = stockTool.drawPOCLabel || false;
 
-  //console.log(startPoint);
-  //console.log(endPoint);
+  ////console.log(startPoint);
+  ////console.log(endPoint);
 
   var high = visibleStockData.map((p) => p[2]);
   var low = visibleStockData.map((p) => p[3]);
@@ -162,7 +162,7 @@ const drawVolumeProfileFunction = async (
     volumes.push(0);
   }
 
-  //console.log(bbars);
+  ////console.log(bbars);
 
   for (let bars = 0; bars < bbars; bars++) {
     let body_top = Math.max(
@@ -252,7 +252,7 @@ const drawVolumeProfileFunction = async (
       //   2;
     }
   }
-  //console.log(volumes);
+  ////console.log(volumes);
   for (let j = 0; j < cnum; j++) {
     totalvols[j] = volumes[j] + volumes[j + cnum];
   }
@@ -371,9 +371,9 @@ function ListenChart(props) {
   );
   const indicators = useSelector((state) => state.indicator.indicators);
 
-  const newStockData = useSelector((state) => state.stock.stockData);
+  // const newStockData = useSelector((state) => state.stock.stockData);
 
-  const { interval, adjustDividend, ticker, plotIndex } = props;
+  const { interval, adjustDividend, ticker, plotIndex, newStockData } = props;
 
   const rangeStartDate = useSelector((state) => state.stock.rangeStartDate);
 
@@ -390,6 +390,8 @@ function ListenChart(props) {
       var chartListenKey = props.chart.current.listen(
         "selectedrangechangefinish",
         async function (e) {
+          //console.log(e.firstVisible);
+          //console.log(e.lastSelected);
           dispatch(
             stockActions.setRangeDate({
               rangeStartDate: moment
@@ -403,11 +405,14 @@ function ListenChart(props) {
           var max = getStockMax(tempStockData, e.firstVisible, e.lastSelected);
           var min = getStockMin(tempStockData, e.firstVisible, e.lastSelected);
 
-          // props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
-          // props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+          //console.log(max);
+          //console.log(min);
+
+          props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
+          props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
           // for volume profile only
           for (let stockTool of currentStockTools) {
-            //console.log(stockTool);
+            ////console.log(stockTool);
             if (stockTool.name === "Volume Profile") {
               annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
                 props.chart.current
@@ -430,7 +435,7 @@ function ListenChart(props) {
       );
 
       props.chart.current.listen("annotationChangeFinish", function (e) {
-        //console.log("annotationChangeFinish");
+        ////console.log("annotationChangeFinish");
         dispatch(drawingActions.toogleDrawToolBar(true));
       });
       props.chart.current.listen("annotationDrawingFinish", function (e) {
@@ -440,7 +445,7 @@ function ListenChart(props) {
         }
       });
       props.chart.current.listen("annotationUnselect", function (e) {
-        //console.log("annotationUnselect");
+        ////console.log("annotationUnselect");
         dispatch(drawingActions.setDrawingToolSelected({}));
         dispatch(drawingActions.setMarkerTypeSelected({}));
         dispatch(drawingActions.toogleDrawToolBar(false));
@@ -484,7 +489,7 @@ function ListenChart(props) {
         dispatch(drawingActions.toogleDrawToolBar(true));
       });
 
-      // props.chart.current.selectRange(rangeStartDate, rangeEndDate);
+      props.chart.current.selectRange(rangeStartDate, rangeEndDate);
       const max = Math.max(
         ...newStockData
           .filter(
@@ -506,14 +511,17 @@ function ListenChart(props) {
           .map((p) => p[3])
       );
 
-      // props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
-      // props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+      // //console.log(max);
+      // //console.log(min);
+
+      props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
+      props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
 
       var seriesLength = props.chart.current.plot(0).getSeriesCount();
 
       for (let s = seriesLength; s > -1; s--) {
         if (props.chart.current.plot(0).getSeries(s)) {
-          //console.log(props.chart.current.plot(0).getSeries(s));
+          ////console.log(props.chart.current.plot(0).getSeries(s));
         }
       }
     }

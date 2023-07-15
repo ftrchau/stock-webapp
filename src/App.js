@@ -25,18 +25,14 @@ const queryClient = new QueryClient({
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/stock-webapp/",
     element: <RootLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "day-trade", element: <DayTrade /> },
+      { path: "/stock-webapp/day-trade", element: <DayTrade /> }, // Update the path here
       {
-        path: "/long-term-trade",
+        path: "/stock-webapp/long-term-trade",
         element: <LongTermTrade />,
-      },
-      {
-        path: "/test",
-        element: <Test />,
       },
     ],
   },

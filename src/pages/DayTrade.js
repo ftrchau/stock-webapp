@@ -16,16 +16,16 @@ function DayTrade() {
   const dispatch = useDispatch();
   const { state } = useLocation();
   if (!state) {
-    navigate("/");
+    navigate("/stock-webapp/");
   } else {
     if (!("ticker" in state)) {
-      navigate("/");
+      navigate("/stock-webapp/");
     }
   }
   const { ticker, label } = state;
   const setTicker = useCallback(
     (opt) => {
-      navigate("/long-term-trade", {
+      navigate("/stock-webapp/long-term-trade", {
         state: {
           ticker: opt.value,
           label: opt.label,
@@ -75,7 +75,7 @@ function DayTrade() {
       <Container>
         <Row>
           <Col md={2} sm={3}>
-            <Button variant="light" onClick={() => navigate("/")}>
+            <Button variant="light" onClick={() => navigate("/stock-webapp/")}>
               <BiArrowBack />
               Back
             </Button>
