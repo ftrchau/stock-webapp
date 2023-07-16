@@ -24,31 +24,35 @@ function DayTrade() {
   }, []);
 
   useEffect(() => {
-    dispatch(indicatorActions.resetCurrentIndicatorStockTools());
-    dispatch(indicatorActions.setInitialLoad(true));
-    const fetchData = async () => {
-      const apiResult = await stockApi.getStockPrice({
-        ticker,
-        startDate: moment().subtract(3, "days").toDate(),
-        endDate: moment().valueOf(),
-        interval: "1m",
-        adjustDividend: false,
-        realTime: true,
-      });
+    if (ticker === "" || !ticker) {
+      navigate("/stock-webapp");
+    } else {
+      dispatch(indicatorActions.resetCurrentIndicatorStockTools());
+      dispatch(indicatorActions.setInitialLoad(true));
+      const fetchData = async () => {
+        const apiResult = await stockApi.getStockPrice({
+          ticker,
+          startDate: moment().subtract(3, "days").toDate(),
+          endDate: moment().valueOf(),
+          interval: "1m",
+          adjustDividend: false,
+          realTime: true,
+        });
 
-      dispatch(
-        stockActions.setTradingPeriod({
-          regularStart: apiResult.meta.currentTradingPeriod.regular.start,
-          regularEnd: apiResult.meta.currentTradingPeriod.regular.end,
-        })
-      );
+        dispatch(
+          stockActions.setTradingPeriod({
+            regularStart: apiResult.meta.currentTradingPeriod.regular.start,
+            regularEnd: apiResult.meta.currentTradingPeriod.regular.end,
+          })
+        );
 
-      dispatch(stockActions.setInterval("1m"));
-      dispatch(stockActions.setStartDateEndDate("1m"));
-      dispatch(stockActions.setRealTime(true));
-    };
+        dispatch(stockActions.setInterval("1m"));
+        dispatch(stockActions.setStartDateEndDate("1m"));
+        dispatch(stockActions.setRealTime(true));
+      };
 
-    fetchData();
+      fetchData();
+    }
   });
 
   return (

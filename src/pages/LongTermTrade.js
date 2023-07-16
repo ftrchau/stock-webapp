@@ -26,30 +26,34 @@ function LongTermTrade() {
   }, []);
 
   useEffect(() => {
-    dispatch(indicatorActions.resetCurrentIndicatorStockTools());
-    dispatch(stockActions.setInterval("1d"));
-    dispatch(stockActions.setStartDateEndDate("1d"));
-    dispatch(stockActions.setRealTime(false));
-    dispatch(indicatorActions.setInitialLoad(true));
-    const fetchData = async () => {
-      const apiResult = await stockApi.getStockPrice({
-        ticker,
-        startDate: moment().subtract(60, "month").toDate(),
-        endDate: moment().valueOf(),
-        interval: "1d",
-        adjustDividend: false,
-        realTime: false,
-      });
+    if (ticker === "" || !ticker) {
+      navigate("/stock-webapp");
+    } else {
+      dispatch(indicatorActions.resetCurrentIndicatorStockTools());
+      dispatch(stockActions.setInterval("1d"));
+      dispatch(stockActions.setStartDateEndDate("1d"));
+      dispatch(stockActions.setRealTime(false));
+      dispatch(indicatorActions.setInitialLoad(true));
+      const fetchData = async () => {
+        const apiResult = await stockApi.getStockPrice({
+          ticker,
+          startDate: moment().subtract(60, "month").toDate(),
+          endDate: moment().valueOf(),
+          interval: "1d",
+          adjustDividend: false,
+          realTime: false,
+        });
 
-      dispatch(
-        stockActions.setTradingPeriod({
-          regularStart: apiResult.meta.currentTradingPeriod.regular.start,
-          regularEnd: apiResult.meta.currentTradingPeriod.regular.end,
-        })
-      );
-    };
+        dispatch(
+          stockActions.setTradingPeriod({
+            regularStart: apiResult.meta.currentTradingPeriod.regular.start,
+            regularEnd: apiResult.meta.currentTradingPeriod.regular.end,
+          })
+        );
+      };
 
-    fetchData();
+      fetchData();
+    }
   });
 
   return (

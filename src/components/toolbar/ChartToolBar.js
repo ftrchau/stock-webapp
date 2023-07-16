@@ -12,7 +12,7 @@ import classes from "./ChartToolBar.module.css";
 import drawingTool from "./DRAWINGTOOL";
 import markerType from "./MARKERTYPE";
 
-function ChartToolBar({ chart }) {
+function ChartToolBar({ chart, horizontal }) {
   const dispatch = useDispatch();
   const colorFill = useSelector((state) => state.drawing.colorFill);
   const colorStroke = useSelector((state) => state.drawing.colorStroke);
@@ -80,8 +80,17 @@ function ChartToolBar({ chart }) {
     ]
   );
 
+  const style = horizontal
+    ? { display: "flex", width: "60px" }
+    : {
+        backgroundColor: "white",
+        boxShadow: "1px 1px 7px rgba(0, 0, 0, 0.15)",
+        height: "100vh",
+        width: "60px",
+      };
+
   return (
-    <nav className={classes["navbar-menu"]} style={{ width: 60 }}>
+    <div style={style}>
       <Dropdown drop="end">
         <Dropdown.Toggle variant="light" size="sm" id="dropdown-line">
           <Icon icon="ph:line-segment-thin" />
@@ -138,7 +147,7 @@ function ChartToolBar({ chart }) {
           })}
         </Dropdown.Menu>
       </Dropdown>
-    </nav>
+    </div>
   );
 }
 

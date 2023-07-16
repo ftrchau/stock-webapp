@@ -466,10 +466,10 @@ function ListenChart(props) {
               });
             } else {
               var textArea = document.createElement("textarea");
-              textArea.id = "annotation-label-test";
+              textArea.id = "annotation-label";
               document.body.appendChild(textArea);
               annotationLabel = document.getElementById(
-                "annotation-label-test"
+                "annotation-label"
               );
               annotationLabel.focus();
               annotationLabel.addEventListener("input", function (e) {

@@ -407,7 +407,6 @@ function ChartTopBar(props) {
             </Button>
           </main>
         </Col>
-        <Col></Col>
       </Row>
       <Row>
         <Col>

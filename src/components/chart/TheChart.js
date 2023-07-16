@@ -4274,12 +4274,12 @@ function TheChart(props) {
   if (error) return "An error has occured:" + error.message;
 
   return (
-    <Container fluid>
+    <Container fluid="md">
       <Row>
-        <Col md={1}>
-          <ChartToolBar chart={chart} />
+        <Col xl={1} md={1} className="chartToolBar">
+          <ChartToolBar chart={chart} horizontal={false} />
         </Col>
-        <Col>
+        <Col md={11} xl={11}>
           <ChartTopBar
             chart={chart}
             ticker={ticker}
@@ -4327,6 +4327,9 @@ function TheChart(props) {
             addIndicator={addIndicator}
             addStockTool={addStockTool}
           />
+          <div className="chartToolBarBottom">
+            <ChartToolBar chart={chart} horizontal={true} />
+          </div>
         </Col>
       </Row>
     </Container>
