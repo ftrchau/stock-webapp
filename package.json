@@ -29,7 +29,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "predeploy": "npm run build",
+    "predeploy": "npm run build  && cd build && copy index.html 404.html",
     "deploy": "gh-pages -d build",
     "start": "cross-env PORT=8080 react-scripts start",
     "build": "react-scripts build",

@@ -2,7 +2,14 @@ import { useState, useCallback, forwardRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { drawingActions } from "../../store/drawing-slice";
 
-import { Container, Dropdown, Row, Col } from "react-bootstrap";
+import {
+  Container,
+  Dropdown,
+  OverlayTrigger,
+  Tooltip,
+  Row,
+  Col,
+} from "react-bootstrap";
 
 import { Icon } from "@iconify/react";
 import { TfiText } from "react-icons/tfi";
@@ -93,7 +100,17 @@ function ChartToolBar({ chart, horizontal }) {
     <div style={style}>
       <Dropdown drop="end">
         <Dropdown.Toggle variant="light" size="sm" id="dropdown-line">
-          <Icon icon="ph:line-segment-thin" />
+          <OverlayTrigger
+            key="right"
+            placement="right"
+            overlay={
+              <Tooltip className="tooltip" id="tooltip-drawing-tools">
+                Drawing Tools
+              </Tooltip>
+            }
+          >
+            <Icon icon="ph:line-segment-thin" />
+          </OverlayTrigger>
         </Dropdown.Toggle>
 
         <Dropdown.Menu>
@@ -114,7 +131,7 @@ function ChartToolBar({ chart, horizontal }) {
         </Dropdown.Menu>
       </Dropdown>
       <Dropdown drop="end">
-        <Dropdown.Toggle variant="light" size="sm" id="dropdown-label">
+        <Dropdown.Toggle variant="light" size="sm" id="dropdown-tool-label">
           <TfiText />
         </Dropdown.Toggle>
 

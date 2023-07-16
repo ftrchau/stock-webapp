@@ -89,7 +89,7 @@ const stockSlice = createSlice({
         subtractValue = 30;
         subtractRangeValue = 10;
       } else if (intervalChar === "m") {
-        subtractValue = 48;
+        subtractValue = 96;
         subtractRangeValue = 4;
       }
 
