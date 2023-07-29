@@ -61,11 +61,17 @@ const methods = {
   calculatePivotHiLo(params) {
     return api.post("/calculatePivotHiLo", params);
   },
+  calculateFibo(params) {
+    return api.post("/calculateFibo", params);
+  },
   calculateTurtleTrade(params) {
     return api.post("/calculateTurtleTrade", params);
   },
   calculateMRBottom(params) {
     return api.post("/calculateMRBottom", params);
+  },
+  calculateKO(params) {
+    return api.post("/calculateKO", params);
   },
   calculateLinearRegression(params) {
     return api.post("/calculateLinearRegression", params);

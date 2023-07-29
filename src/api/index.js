@@ -17,7 +17,8 @@ const api = axios.create({
 });
 
 api.interceptors.response.use(
-  (response) => response.data.result,
+  (response) =>
+    "drawParameters" in response.data ? response.data : response.data.result,
   (error) => error.response.data
 );
 

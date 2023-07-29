@@ -1461,6 +1461,19 @@ const indicatorSlice = createSlice({
         name: "Volume Profile",
         parameters: [
           {
+            name: "Period for VP",
+            label: "Period for VP",
+            value: "Auto",
+            type: "select-one",
+            items: ["Auto", "My input"],
+          },
+          {
+            name: "vpLength",
+            label: "My length for VP",
+            value: "30",
+            type: "text",
+          },
+          {
             name: "Row Size",
             label: "Row Size",
             value: "24",
@@ -1489,11 +1502,34 @@ const indicatorSlice = createSlice({
             value: "10",
             type: "text",
           },
+        ],
+        pivotHighStroke: "rgb(136, 14, 79)",
+        pivotLowStroke: "rgb(33, 150, 243)",
+        chartIndex: -1,
+        hide: false,
+      },
+      {
+        name: "Fibo Lines",
+        description: "",
+        parameters: [
           {
-            name: "Draw Fibo line?",
-            label: "Draw Fibo line?",
-            value: true,
-            type: "checkbox",
+            name: "pivotLength",
+            label: "High/low length",
+            value: "30",
+            type: "text",
+          },
+          {
+            name: "fiboPeriod",
+            label: "Period for Fibo",
+            value: "Auto",
+            type: "select-one",
+            items: ["Auto", "My input"],
+          },
+          {
+            name: "fiboLength",
+            label: "My length for Fibo",
+            value: "30",
+            type: "text",
           },
           {
             name: "Extend upward fibo?",
@@ -1508,8 +1544,6 @@ const indicatorSlice = createSlice({
             type: "checkbox",
           },
         ],
-        pivotHighStroke: "rgb(136, 14, 79)",
-        pivotLowStroke: "rgb(33, 150, 243)",
         chartIndex: -1,
         hide: false,
       },
@@ -1601,6 +1635,44 @@ const indicatorSlice = createSlice({
         hide: false,
       },
       {
+        name: "Cyclical KO",
+        description: "",
+        parameters: [
+          {
+            name: "len1",
+            label: "Oscillator 1 period",
+            value: "9",
+            type: "text",
+          },
+          {
+            name: "len2",
+            label: "Oscillator 2 period",
+            value: "20",
+            type: "text",
+          },
+          {
+            name: "len3",
+            label: "Oscillator 3 period",
+            value: "50",
+            type: "text",
+          },
+          {
+            name: "p1",
+            label: "Up counts",
+            value: "20",
+            type: "text",
+          },
+          {
+            name: "p2",
+            label: "Down counts",
+            value: "20",
+            type: "text",
+          },
+        ],
+        chartIndex: -1,
+        hide: false,
+      },
+      {
         name: "Linear Regression Channel on Pivot",
         description:
           "This auto linear regression channel is draw by input the starting point (as period of regression)  <br /><br /> Pearsons correlation coefficient  (R-sq) is provided, it is very important because a high value means the regression channel is valid. ",
@@ -1659,13 +1731,6 @@ const indicatorSlice = createSlice({
             label: "High/Low length",
             value: "20",
             type: "text",
-          },
-          {
-            name: "Period for VP & Fibo",
-            label: "Period for VP & Fibo",
-            value: "Auto",
-            type: "select-one",
-            items: ["Auto", "My input"],
           },
           {
             name: "Display Linear Regression?",

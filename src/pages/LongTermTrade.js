@@ -18,8 +18,8 @@ function LongTermTrade() {
 
   const initialPicked = useMemo(() => {
     return {
-      indicators: ["RSI Modified", "MACD Modified", "supertrend"],
-      stockTools: ["Zig Zag + LR", "Pivot Hi Lo"],
+      indicators: ["MACD Modified", "supertrend"],
+      stockTools: ["Pivot Hi Lo"],
       // indicators: [],
       // stockTools: ["Zig Zag + LR", "Pivot Hi Lo"],
     };
