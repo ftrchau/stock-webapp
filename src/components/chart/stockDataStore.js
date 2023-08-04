@@ -1825,6 +1825,12 @@ let stockDataStore = {
       let IntraATRf90Data = IntraATRresult.map((p) => {
         return [moment(p.date).valueOf(), p.f90];
       });
+      let IntraATRData = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.atr];
+      });
+      let IntraTRData = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.tr];
+      });
 
       var IntraATRftopTable = anychart.data.table();
       IntraATRftopTable.addData(IntraATRftopData);
@@ -2120,6 +2126,37 @@ let stockDataStore = {
       bb11.allowEdit(false);
       annotationIndex.IntraATRannotationIndex.push(bb11);
 
+      console.log(IntraTRData);
+
+      let trpct =
+        (100 * IntraTRData[IntraTRData.length - 1][1]) /
+        IntraATRData[IntraATRData.length - 1][1];
+      trpct = trpct.toFixed(2);
+
+      var trstr = controller.label({
+        xAnchor: moment(IntraTRData[IntraTRData.length - 1][0])
+          .subtract(20, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRftopData[IntraATRftopData.length - 1][1],
+        text:
+          trpct + "% TR" + IntraTRData[IntraTRData.length - 1][1].toFixed(2),
+        normal: { fontColor: textC },
+      });
+      trstr.background(false);
+      trstr.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(trstr);
+      var atrstr = controller.label({
+        xAnchor: moment(IntraATRData[IntraATRData.length - 1][0])
+          .subtract(20, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRfbotData[IntraATRfbotData.length - 1][1],
+        text: "ATR " + IntraATRData[IntraATRData.length - 1][1].toFixed(2),
+        normal: { fontColor: textC },
+      });
+      atrstr.background(false);
+      atrstr.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(atrstr);
+
       let range = chart.current.getSelectedRange();
       let visibleftopData = IntraATRftopData.filter((p) => {
         return range.firstSelected <= p[0] && range.lastSelected >= p[0];
@@ -2130,8 +2167,6 @@ let stockDataStore = {
 
       stockDataStore.IntraATRMax = Math.max(...visibleftopData);
       stockDataStore.IntraATRMin = Math.min(...visiblefbotData);
-
-      console.log(stockDataStore.IntraATRMax);
 
       chart.current
         .plot(0)
