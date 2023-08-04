@@ -2126,8 +2126,6 @@ let stockDataStore = {
       bb11.allowEdit(false);
       annotationIndex.IntraATRannotationIndex.push(bb11);
 
-      console.log(IntraTRData);
-
       let trpct =
         (100 * IntraTRData[IntraTRData.length - 1][1]) /
         IntraATRData[IntraATRData.length - 1][1];
@@ -2166,7 +2164,7 @@ let stockDataStore = {
       }).map((r) => r[1]);
 
       stockDataStore.IntraATRMax = Math.max(...visibleftopData);
-      stockDataStore.IntraATRMin = Math.min(...visiblefbotData);
+      stockDataStore.IntraATRMin = Math.min(...visiblefbotData) * 0.98;
 
       chart.current
         .plot(0)
