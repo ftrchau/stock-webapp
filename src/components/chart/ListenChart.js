@@ -45,6 +45,13 @@ const getStockMin = (data, start, end) => {
   );
 };
 
+var allMax = Math.max(stockDataStore.FLineMax, stockDataStore.IntraATRMax);
+var compareMin = [];
+if (stockDataStore.FLineMin !== 0) compareMin.push(stockDataStore.FLineMin);
+if (stockDataStore.IntraATRMin !== 0)
+  compareMin.push(stockDataStore.IntraATRMin);
+var allMin = Math.min(...compareMin);
+
 function ListenChart(props) {
   const dispatch = useDispatch();
 
@@ -84,8 +91,24 @@ function ListenChart(props) {
                 .toDate(),
             })
           );
-          var max = getStockMax(tempStockData, e.firstVisible, e.lastSelected);
-          var min = getStockMin(tempStockData, e.firstVisible, e.lastSelected);
+          allMax = Math.max(
+            stockDataStore.FLineMax,
+            stockDataStore.IntraATRMax
+          );
+          compareMin = [];
+          if (stockDataStore.FLineMin !== 0)
+            compareMin.push(stockDataStore.FLineMin);
+          if (stockDataStore.IntraATRMin !== 0)
+            compareMin.push(stockDataStore.IntraATRMin);
+          allMin = Math.min(...compareMin);
+          var max = Math.max(
+            allMax,
+            getStockMax(tempStockData, e.firstVisible, e.lastSelected)
+          );
+          var min = Math.min(
+            getStockMin(tempStockData, e.firstVisible, e.lastSelected)
+          );
+          if (allMin) min = Math.min(min, allMin);
 
           //console.log(max);
           //console.log(min);
@@ -170,7 +193,7 @@ function ListenChart(props) {
       });
 
       props.chart.current.selectRange(rangeStartDate, rangeEndDate);
-      const max = Math.max(
+      let max = Math.max(
         ...newStockData
           .filter(
             (p) =>
@@ -180,7 +203,7 @@ function ListenChart(props) {
           )
           .map((p) => p[2])
       );
-      const min = Math.min(
+      let min = Math.min(
         ...newStockData
           .filter(
             (p) =>
@@ -191,11 +214,15 @@ function ListenChart(props) {
           .map((p) => p[3])
       );
 
-      // //console.log(max);
+      if (allMin) min = Math.min(min, allMin);
+      max = Math.max(max, allMax);
+
+      console.log(max);
+      console.log(allMax);
       // //console.log(min);
 
-      props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
-      props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+      // props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
+      // props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
 
       var seriesLength = props.chart.current.plot(0).getSeriesCount();
 

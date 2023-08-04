@@ -1761,6 +1761,32 @@ const indicatorSlice = createSlice({
         zigzagSecondPredictiveStrokeColor: "rgb(255, 82, 82)",
       },
       {
+        name: "ATR lines on lower timeframe",
+        parameters: [
+          {
+            name: "n",
+            label: "ATR period",
+            value: "20",
+            type: "text",
+          },
+          {
+            name: "p",
+            label: "Align to",
+            value: "Mid of today TR",
+            type: "select",
+            items: ["day Hi", "day Lo", "TR Hi", "TR Lo", "Mid of today TR"],
+          },
+          {
+            name: "s0",
+            label: "Fill today true range",
+            value: true,
+            type: "checkbox",
+          },
+        ],
+        chartIndex: -1,
+        hide: false,
+      },
+      {
         name: "10AM Hi Lo fibo",
         parameters: [
           {

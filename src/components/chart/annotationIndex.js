@@ -3,6 +3,7 @@ let annotationIndex = {
   FLineannotationIndex: [],
   ZigZagannotationIndex: [],
   IntraFlineannotationIndex: [],
+  IntraATRannotationIndex: [],
 };
 
 export default annotationIndex;

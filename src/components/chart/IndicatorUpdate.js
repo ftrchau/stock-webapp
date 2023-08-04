@@ -570,6 +570,18 @@ function IndicatorUpdate(props) {
               false
             );
           }
+          if (stockTool.name === "Cyclical KO") {
+            await stockDataStore.addKO(
+              chart,
+              interval,
+              stockTool,
+              ticker,
+              adjustDividend,
+              startDate,
+              endDate,
+              plotIndex
+            );
+          }
           if (stockTool.name === "Linear Regression Channel on Pivot") {
             await stockDataStore.addLinearRegression(
               chart,
@@ -592,6 +604,18 @@ function IndicatorUpdate(props) {
               startDate,
               endDate,
               false
+            );
+          }
+          if (stockTool.name === "ATR lines on lower timeframe") {
+            await stockDataStore.addIntraATR(
+              chart,
+              interval,
+              stockTool,
+              ticker,
+              adjustDividend,
+              startDate,
+              endDate,
+              plotIndex
             );
           }
         }

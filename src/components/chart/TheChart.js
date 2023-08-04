@@ -27,6 +27,13 @@ import stockDataStore from "./stockDataStore";
 
 import "./TheChart.css";
 
+var allMax = Math.max(stockDataStore.FLineMax, stockDataStore.IntraATRMax);
+var compareMin = [];
+if (stockDataStore.FLineMin !== 0) compareMin.push(stockDataStore.FLineMin);
+if (stockDataStore.IntraATRMin !== 0)
+  compareMin.push(stockDataStore.IntraATRMin);
+var allMin = Math.min(...compareMin);
+
 const getStockMax = (data, start, end) => {
   ////console.log(data);
   return Math.max(
@@ -550,8 +557,10 @@ function TheChart(props) {
       );
     }
 
-    var max = getStockMax(newStockData, startRange, endRange);
+    var max = Math.max(allMax, getStockMax(newStockData, startRange, endRange));
     var min = getStockMin(newStockData, startRange, endRange);
+
+    if (allMin) min = Math.min(min, allMin);
     ////console.log(max);
     ////console.log(min);
 
@@ -811,7 +820,6 @@ function TheChart(props) {
         await stockDataStore.addKO(
           chart,
           interval,
-          stockData,
           stockTool,
           ticker,
           adjustDividend,
@@ -842,6 +850,18 @@ function TheChart(props) {
           adjustDividend,
           startDate,
           endDate
+        );
+      }
+      if (stockTool.name === "ATR lines on lower timeframe") {
+        await stockDataStore.addIntraATR(
+          chart,
+          interval,
+          stockTool,
+          ticker,
+          adjustDividend,
+          startDate,
+          endDate,
+          plotIndex
         );
       }
       if (stockTool.name === "10AM Hi Lo fibo") {
@@ -996,6 +1016,24 @@ function TheChart(props) {
           true
         );
       }
+      if (stockTool.name === "ATR lines on lower timeframe") {
+        annotationIndex.IntraATRannotationIndex.forEach((elem) => {
+          chart.current.plot(0).annotations().removeAnnotation(elem);
+        });
+        annotationIndex.IntraATRannotationIndex = [];
+
+        await stockDataStore.addIntraATR(
+          chart,
+          interval,
+          stockTool,
+          ticker,
+          adjustDividend,
+          startDate,
+          endDate,
+          plotIndex,
+          true
+        );
+      }
       if (stockTool.name === "10AM Hi Lo fibo") {
         annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
           chart.current.plot(0).annotations().removeAnnotation(elem);
@@ -1112,6 +1150,8 @@ function TheChart(props) {
           chart.current.plot(stockDataStore.wkHiLoChartIndex).dispose();
           plotIndex.current -= 1;
         }
+
+        dispatch(indicatorActions.removeSelectedStockTool(index));
       }
       if (ind.name === "MR Bottom Detector") {
         var seriesLengthMRButtom = chart.current.plot(0).getSeriesCount();
@@ -1201,6 +1241,38 @@ function TheChart(props) {
             }
           }
         }
+      }
+      if (ind.name === "ATR lines on lower timeframe") {
+        annotationIndex.IntraATRannotationIndex.forEach((elem) => {
+          chart.current.plot(0).annotations().removeAnnotation(elem);
+        });
+        annotationIndex.IntraATRannotationIndex = [];
+        dispatch(indicatorActions.removeSelectedStockTool(index));
+      }
+      if (ind.name === "ATR lines on lower timeframe") {
+        var intraATRseriesLength = chart.current.plot(0).getSeriesCount();
+        for (let i = intraATRseriesLength - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(0).getSeries(i)) {
+            let seriesNameIntraATR = chart.current.plot(0).getSeries(i).name();
+            if (
+              seriesNameIntraATR === "ftop" ||
+              seriesNameIntraATR === "fbot" ||
+              seriesNameIntraATR === "fmid" ||
+              seriesNameIntraATR === "f10" ||
+              seriesNameIntraATR === "f20" ||
+              seriesNameIntraATR === "f30" ||
+              seriesNameIntraATR === "f40" ||
+              seriesNameIntraATR === "f60" ||
+              seriesNameIntraATR === "f70" ||
+              seriesNameIntraATR === "f80" ||
+              seriesNameIntraATR === "f90"
+            ) {
+              chart.current.plot(0).removeSeries(i);
+            }
+          }
+        }
+
+        dispatch(indicatorActions.removeSelectedStockTool(index));
       }
       if (ind.name === "10AM Hi Lo fibo") {
         annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
@@ -1860,6 +1932,33 @@ function TheChart(props) {
           }
         }
       }
+      if (stockTool.name === "ATR lines on lower timeframe") {
+        annotationIndex.IntraATRannotationIndex.forEach((elem) => {
+          elem.enabled(true);
+        });
+
+        var intraATRseriesLength = chart.current.plot(0).getSeriesCount();
+        for (let i = intraATRseriesLength - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(0).getSeries(i)) {
+            let seriesNameIntraATR = chart.current.plot(0).getSeries(i).name();
+            if (
+              seriesNameIntraATR === "ftop" ||
+              seriesNameIntraATR === "fbot" ||
+              seriesNameIntraATR === "fmid" ||
+              seriesNameIntraATR === "f10" ||
+              seriesNameIntraATR === "f20" ||
+              seriesNameIntraATR === "f30" ||
+              seriesNameIntraATR === "f40" ||
+              seriesNameIntraATR === "f60" ||
+              seriesNameIntraATR === "f70" ||
+              seriesNameIntraATR === "f80" ||
+              seriesNameIntraATR === "f90"
+            ) {
+              chart.current.plot(0).getSeries(i).enabled(true);
+            }
+          }
+        }
+      }
       if (stockTool.name === "10AM Hi Lo fibo") {
         annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
           elem.enabled(true);
@@ -1875,7 +1974,6 @@ function TheChart(props) {
     [dispatch]
   );
   const hideStockTool = useCallback((toolIndex, stockTool) => {
-    console.log(toolIndex);
     var seriesLength;
     if (stockTool.name === "Volume Profile") {
       annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
@@ -1999,6 +2097,33 @@ function TheChart(props) {
             seriesName === "Upper Linear Regression Line" ||
             seriesName === "Median Linear Regression Line" ||
             seriesName === "Lower Linear Regression Line"
+          ) {
+            chart.current.plot(0).getSeries(i).enabled(false);
+          }
+        }
+      }
+    }
+    if (stockTool.name === "ATR lines on lower timeframe") {
+      annotationIndex.IntraATRannotationIndex.forEach((elem) => {
+        elem.enabled(false);
+      });
+
+      var intraATRseriesLength = chart.current.plot(0).getSeriesCount();
+      for (let i = intraATRseriesLength - 1 + 100; i > -1; i--) {
+        if (chart.current.plot(0).getSeries(i)) {
+          let seriesNameIntraATR = chart.current.plot(0).getSeries(i).name();
+          if (
+            seriesNameIntraATR === "ftop" ||
+            seriesNameIntraATR === "fbot" ||
+            seriesNameIntraATR === "fmid" ||
+            seriesNameIntraATR === "f10" ||
+            seriesNameIntraATR === "f20" ||
+            seriesNameIntraATR === "f30" ||
+            seriesNameIntraATR === "f40" ||
+            seriesNameIntraATR === "f60" ||
+            seriesNameIntraATR === "f70" ||
+            seriesNameIntraATR === "f80" ||
+            seriesNameIntraATR === "f90"
           ) {
             chart.current.plot(0).getSeries(i).enabled(false);
           }

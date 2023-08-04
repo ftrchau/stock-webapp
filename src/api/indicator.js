@@ -55,9 +55,6 @@ const methods = {
   calculateWkHiLoRange(params) {
     return api.post("/calculateWkHiLoRange", params);
   },
-  calculateIntraFiboPivotHiLo(params) {
-    return api.post("/calculateIntraFiboPivotHiLo", params);
-  },
   calculatePivotHiLo(params) {
     return api.post("/calculatePivotHiLo", params);
   },
@@ -79,8 +76,11 @@ const methods = {
   calculateZigZag(params) {
     return api.post("/calculateZigZag", params);
   },
-  calculateDeMarkCount(params) {
-    return api.post("/calculateDeMarkCount", params);
+  calculateIntraFiboPivotHiLo(params) {
+    return api.post("/calculateIntraFiboPivotHiLo", params);
+  },
+  calculateIntraATR(params) {
+    return api.post("/calculateIntraATR", params);
   },
 };
 

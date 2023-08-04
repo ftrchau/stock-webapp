@@ -8,6 +8,8 @@ import indicatorApi from "../../api/indicator";
 
 var FLineMax = 0;
 var FLineMin = 0;
+var IntraATRMax = 0;
+var IntraATRMin = 0;
 
 const intervalTimeUnit = (interval) => {
   let timeUnit = "";
@@ -273,6 +275,8 @@ let stockDataStore = {
   stockData: [],
   FLineMax: 0,
   FLineMin: 0,
+  IntraATRMax: 0,
+  IntraATRMin: 0,
   wkHiLoChartIndex: null,
   kochartIndex: null,
   async drawVolumeProfileFunction(
@@ -1072,7 +1076,6 @@ let stockDataStore = {
   async addKO(
     chart,
     interval,
-    stockData,
     stockTool,
     ticker,
     adjustDividend,
@@ -1757,6 +1760,387 @@ let stockDataStore = {
           }
         }
       }
+    }
+  },
+  async addIntraATR(
+    chart,
+    interval,
+    stockTool,
+    ticker,
+    adjustDividend,
+    realStartTime,
+    realEndTime,
+    plotIndex,
+    update = false
+  ) {
+    var controller = chart.current.plot(0).annotations();
+    let textC = "rgb(76, 175, 80)";
+    let apiInputParam = {};
+    stockTool.parameters.forEach((opt) => {
+      apiInputParam[opt.name] =
+        Number.isNaN(+opt.value) || typeof opt.value == "boolean"
+          ? opt.value
+          : +opt.value;
+    });
+    const IntraATRresult = await indicatorApi.calculateIntraATR({
+      ...apiInputParam,
+      ticker,
+      interval,
+      adjustDividend,
+      startDate: realStartTime,
+      endDate: realEndTime,
+    });
+
+    if (IntraATRresult) {
+      let IntraATRftopData = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.ftop];
+      });
+      let IntraATRfbotData = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.fbot];
+      });
+      let IntraATRfmidData = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.fmid];
+      });
+      let IntraATRf10Data = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.f10];
+      });
+      let IntraATRf20Data = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.f20];
+      });
+      let IntraATRf30Data = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.f30];
+      });
+      let IntraATRf40Data = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.f40];
+      });
+      let IntraATRf60Data = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.f60];
+      });
+      let IntraATRf70Data = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.f70];
+      });
+      let IntraATRf80Data = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.f80];
+      });
+      let IntraATRf90Data = IntraATRresult.map((p) => {
+        return [moment(p.date).valueOf(), p.f90];
+      });
+
+      var IntraATRftopTable = anychart.data.table();
+      IntraATRftopTable.addData(IntraATRftopData);
+      var IntraATRftopMapping = IntraATRftopTable.mapAs();
+      IntraATRftopMapping.addField("value", 1);
+
+      var IntraATRfbotTable = anychart.data.table();
+      IntraATRfbotTable.addData(IntraATRfbotData);
+      var IntraATRfbotMapping = IntraATRfbotTable.mapAs();
+      IntraATRfbotMapping.addField("value", 1);
+
+      var IntraATRfmidTable = anychart.data.table();
+      IntraATRfmidTable.addData(IntraATRfmidData);
+      var IntraATRfmidMapping = IntraATRfmidTable.mapAs();
+      IntraATRfmidMapping.addField("value", 1);
+
+      var IntraATRf10Table = anychart.data.table();
+      IntraATRf10Table.addData(IntraATRf10Data);
+      var IntraATRf10Mapping = IntraATRf10Table.mapAs();
+      IntraATRf10Mapping.addField("value", 1);
+
+      var IntraATRf20Table = anychart.data.table();
+      IntraATRf20Table.addData(IntraATRf20Data);
+      var IntraATRf20Mapping = IntraATRf20Table.mapAs();
+      IntraATRf20Mapping.addField("value", 1);
+
+      var IntraATRf30Table = anychart.data.table();
+      IntraATRf30Table.addData(IntraATRf30Data);
+      var IntraATRf30Mapping = IntraATRf30Table.mapAs();
+      IntraATRf30Mapping.addField("value", 1);
+
+      var IntraATRf40Table = anychart.data.table();
+      IntraATRf40Table.addData(IntraATRf40Data);
+      var IntraATRf40Mapping = IntraATRf40Table.mapAs();
+      IntraATRf40Mapping.addField("value", 1);
+
+      var IntraATRf60Table = anychart.data.table();
+      IntraATRf60Table.addData(IntraATRf60Data);
+      var IntraATRf60Mapping = IntraATRf60Table.mapAs();
+      IntraATRf60Mapping.addField("value", 1);
+
+      var IntraATRf70Table = anychart.data.table();
+      IntraATRf70Table.addData(IntraATRf70Data);
+      var IntraATRf70Mapping = IntraATRf70Table.mapAs();
+      IntraATRf70Mapping.addField("value", 1);
+
+      var IntraATRf80Table = anychart.data.table();
+      IntraATRf80Table.addData(IntraATRf80Data);
+      var IntraATRf80Mapping = IntraATRf80Table.mapAs();
+      IntraATRf80Mapping.addField("value", 1);
+
+      var IntraATRf90Table = anychart.data.table();
+      IntraATRf90Table.addData(IntraATRf90Data);
+      var IntraATRf90Mapping = IntraATRf90Table.mapAs();
+      IntraATRf90Mapping.addField("value", 1);
+
+      let color1 = "#00bcd4";
+      let color2 = "#b2b5be";
+
+      if (!update) {
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRftopData)
+          .stroke("rgb(255, 152, 0)")
+          .name("ftop");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRfbotData)
+          .stroke("rgb(76, 175, 80)")
+          .name("fbot");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRfmidData)
+          .stroke("rgb(255, 235, 59)")
+          .name("fmid");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRf10Data)
+          .stroke(color2)
+          .name("f10");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRf20Data)
+          .stroke(color2)
+          .name("f20");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRf30Data)
+          .stroke(color2)
+          .name("f30");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRf40Data)
+          .stroke(color2)
+          .name("f40");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRf60Data)
+          .stroke(color1)
+          .name("f60");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRf70Data)
+          .stroke(color1)
+          .name("f70");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRf80Data)
+          .stroke(color1)
+          .name("f80");
+
+        chart.current
+          .plot(plotIndex.current)
+          .line(IntraATRf90Data)
+          .stroke(color1)
+          .name("f90");
+      } else {
+        let seriesNames = [
+          "ftop",
+          "fbot",
+          "fmid",
+          "f10",
+          "f20",
+          "f30",
+          "f40",
+          "f60",
+          "f70",
+          "f80",
+          "f90",
+        ];
+        let seriesMapping = {
+          ftop: IntraATRftopMapping,
+          fmid: IntraATRfmidMapping,
+          fbot: IntraATRfbotMapping,
+          f10: IntraATRf10Mapping,
+          f20: IntraATRf20Mapping,
+          f30: IntraATRf30Mapping,
+          f40: IntraATRf40Mapping,
+          f60: IntraATRf60Mapping,
+          f70: IntraATRf70Mapping,
+          f80: IntraATRf80Mapping,
+          f90: IntraATRf90Mapping,
+        };
+        let seriesLength = chart.current
+          .plot(plotIndex.current)
+          .getSeriesCount();
+
+        for (let i = seriesLength - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(plotIndex.current).getSeries(i)) {
+            let seriesName = chart.current
+              .plot(plotIndex.current)
+              .getSeries(i)
+              .name();
+            if (seriesNames.includes(seriesName)) {
+              ////console.log(seriesName);
+              chart.current
+                .plot(plotIndex.current)
+                .getSeries(i)
+                .data(seriesMapping[seriesName]);
+            }
+          }
+        }
+      }
+
+      var bb1 = controller.label({
+        xAnchor: moment(IntraATRfbotData[IntraATRfbotData.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRfbotData[IntraATRfbotData.length - 1][1],
+        text: " 0",
+        normal: { fontColor: textC },
+      });
+      bb1.background(false);
+      bb1.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb1);
+      var bb2 = controller.label({
+        xAnchor: moment(IntraATRf10Data[IntraATRf10Data.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRf10Data[IntraATRf10Data.length - 1][1],
+        text: " 10",
+        normal: { fontColor: textC },
+      });
+      bb2.background(false);
+      bb2.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb2);
+      var bb3 = controller.label({
+        xAnchor: moment(IntraATRf20Data[IntraATRf20Data.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRf20Data[IntraATRf20Data.length - 1][1],
+        text: " 20",
+        normal: { fontColor: textC },
+      });
+      bb3.background(false);
+      bb3.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb3);
+      var bb4 = controller.label({
+        xAnchor: moment(IntraATRf30Data[IntraATRf30Data.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRf30Data[IntraATRf30Data.length - 1][1],
+        text: " 30",
+        normal: { fontColor: textC },
+      });
+      bb4.background(false);
+      bb4.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb4);
+      var bb5 = controller.label({
+        xAnchor: moment(IntraATRf40Data[IntraATRf40Data.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRf40Data[IntraATRf40Data.length - 1][1],
+        text: " 40",
+        normal: { fontColor: textC },
+      });
+      bb5.background(false);
+      bb5.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb5);
+      var bb6 = controller.label({
+        xAnchor: moment(IntraATRfmidData[IntraATRfmidData.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRfmidData[IntraATRfmidData.length - 1][1],
+        text: " 50",
+        normal: { fontColor: textC },
+      });
+      bb6.background(false);
+      bb6.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb6);
+      var bb7 = controller.label({
+        xAnchor: moment(IntraATRf60Data[IntraATRf60Data.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRf60Data[IntraATRf60Data.length - 1][1],
+        text: " 60",
+        normal: { fontColor: textC },
+      });
+      bb7.background(false);
+      bb7.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb7);
+      var bb8 = controller.label({
+        xAnchor: moment(IntraATRf70Data[IntraATRf70Data.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRf70Data[IntraATRf70Data.length - 1][1],
+        text: " 70",
+        normal: { fontColor: textC },
+      });
+      bb8.background(false);
+      bb8.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb8);
+      var bb9 = controller.label({
+        xAnchor: moment(IntraATRf80Data[IntraATRf80Data.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRf80Data[IntraATRf80Data.length - 1][1],
+        text: " 80",
+        normal: { fontColor: textC },
+      });
+      bb9.background(false);
+      bb9.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb9);
+      var bb10 = controller.label({
+        xAnchor: moment(IntraATRf90Data[IntraATRf90Data.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRf90Data[IntraATRf90Data.length - 1][1],
+        text: " 90",
+        normal: { fontColor: textC },
+      });
+      bb10.background(false);
+      bb10.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb10);
+      var bb11 = controller.label({
+        xAnchor: moment(IntraATRftopData[IntraATRftopData.length - 1][0])
+          .add(2, intervalTimeUnit(interval))
+          .valueOf(),
+        valueAnchor: IntraATRftopData[IntraATRftopData.length - 1][1],
+        text: " 100",
+        normal: { fontColor: textC },
+      });
+      bb11.background(false);
+      bb11.allowEdit(false);
+      annotationIndex.IntraATRannotationIndex.push(bb11);
+
+      let range = chart.current.getSelectedRange();
+      let visibleftopData = IntraATRftopData.filter((p) => {
+        return range.firstSelected <= p[0] && range.lastSelected >= p[0];
+      }).map((r) => r[1]);
+      let visiblefbotData = IntraATRfbotData.filter((p) => {
+        return range.firstSelected <= p[0] && range.lastSelected >= p[0];
+      }).map((r) => r[1]);
+
+      stockDataStore.IntraATRMax = Math.max(...visibleftopData);
+      stockDataStore.IntraATRMin = Math.min(...visiblefbotData);
+
+      console.log(stockDataStore.IntraATRMax);
+
+      chart.current
+        .plot(0)
+        .yScale()
+        .maximum(stockDataStore.IntraATRMax.toFixed(2));
+      chart.current
+        .plot(0)
+        .yScale()
+        .minimum(stockDataStore.IntraATRMin.toFixed(2));
     }
   },
   async addIntraFline(

@@ -90,14 +90,14 @@ const stockSlice = createSlice({
         subtractRangeValue = 10;
       } else if (intervalChar === "m") {
         subtractValue = 96;
-        subtractRangeValue = 4;
+        subtractRangeValue = 24;
       }
 
       state.startDate = moment(state.tradingPeriod.regularEnd)
         .subtract(subtractValue, subtractUnit)
         .toDate();
       state.rangeStartDate = moment().isBefore(
-        moment(state.tradingPeriod.regularEnd)
+        moment(state.tradingPeriod.regularStart)
       )
         ? moment(state.tradingPeriod.regularStart)
             .subtract(subtractRangeValue, subtractUnit)
