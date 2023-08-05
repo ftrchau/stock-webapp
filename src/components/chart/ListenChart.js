@@ -221,8 +221,8 @@ function ListenChart(props) {
       console.log(allMax);
       // //console.log(min);
 
-      // props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
-      // props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+      props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
+      props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
 
       var seriesLength = props.chart.current.plot(0).getSeriesCount();
 

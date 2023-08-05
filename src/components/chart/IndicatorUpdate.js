@@ -468,6 +468,9 @@ function IndicatorUpdate(props) {
           if (stockTool.name === "MR Bottom Detector") {
             seriesChart = ["f1", "f2", "f3", "f4", "f5", "f6"];
           }
+          if (stockTool.name === "William Vix Fix Top Bottom detection") {
+            seriesChart = ["wvf", "wvfr", "Historical Volatility"];
+          }
           if (stockTool.name === "Linear Regression Channel on Pivot") {
             seriesChart = [
               "Upper Channel Line",
@@ -567,6 +570,19 @@ function IndicatorUpdate(props) {
               adjustDividend,
               startDate,
               endDate,
+              false
+            );
+          }
+          if (stockTool.name === "William Vix Fix Top Bottom detection") {
+            await stockDataStore.addVIXTopBottom(
+              chart,
+              interval,
+              stockTool,
+              ticker,
+              adjustDividend,
+              startDate,
+              endDate,
+              plotIndex,
               false
             );
           }

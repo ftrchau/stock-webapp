@@ -278,6 +278,7 @@ let stockDataStore = {
   IntraATRMax: 0,
   IntraATRMin: 0,
   wkHiLoChartIndex: null,
+  VIXTopBottomChartIndex: null,
   kochartIndex: null,
   async drawVolumeProfileFunction(
     stockTool,
@@ -915,15 +916,15 @@ let stockDataStore = {
       }
     }
   },
-  async addMRButton(
+  async addVIXTopBottom(
     chart,
     interval,
-    stockData,
     stockTool,
     ticker,
     adjustDividend,
     realStartTime,
     realEndTime,
+    plotIndex,
     update = false
   ) {
     let apiInputParam = {};
@@ -933,7 +934,7 @@ let stockDataStore = {
           ? opt.value
           : +opt.value;
     });
-    const MRBottomresult = await indicatorApi.calculateMRBottom({
+    const VIXTopBottomresult = await indicatorApi.calculateVIXTopBottom({
       ...apiInputParam,
       ticker,
       interval,
@@ -942,133 +943,258 @@ let stockDataStore = {
       endDate: realEndTime,
     });
 
-    if (MRBottomresult) {
-      let MRBottomf1Data = MRBottomresult.filter((p) => p.f1).map((p, idx) => {
-        return [moment(p.date).valueOf(), p.low];
+    if (VIXTopBottomresult) {
+      let VIXTopBottomwvfData = VIXTopBottomresult.map((p, idx) => {
+        return [moment(p.date).valueOf(), p.wvf];
+      });
+      let VIXTopBottomwvfrData = VIXTopBottomresult.map((p, idx) => {
+        return [moment(p.date).valueOf(), p.wvfr];
+      });
+      let VIXTopBottombotpoleData = VIXTopBottomresult.map((p, idx) => {
+        return [moment(p.date).valueOf(), p.botpole];
+      });
+      let VIXTopBottomtoppleData = VIXTopBottomresult.map((p, idx) => {
+        return [moment(p.date).valueOf(), p.topple];
+      });
+      let VIXTopBottomhvData = VIXTopBottomresult.map((p, idx) => {
+        return [moment(p.date).valueOf(), p.hv];
       });
 
-      let MRBottomf2Data = MRBottomresult.filter((p) => p.f2).map((p, idx) => {
-        return [moment(p.date).valueOf(), p.low];
-      });
+      var VIXTopBottomwvfTable = anychart.data.table();
+      VIXTopBottomwvfTable.addData(VIXTopBottomwvfData);
+      var VIXTopBottomwvfMapping = VIXTopBottomwvfTable.mapAs();
+      VIXTopBottomwvfMapping.addField("value", 1);
 
-      let MRBottomf3Data = MRBottomresult.filter((p) => p.f3).map((p, idx) => {
-        return [moment(p.date).valueOf(), p.low];
-      });
+      var VIXTopBottomwvfrTable = anychart.data.table();
+      VIXTopBottomwvfrTable.addData(VIXTopBottomwvfrData);
+      var VIXTopBottomwvfrMapping = VIXTopBottomwvfrTable.mapAs();
+      VIXTopBottomwvfrMapping.addField("value", 1);
 
-      let MRBottomf4Data = MRBottomresult.filter((p) => p.f4).map((p, idx) => {
-        return [moment(p.date).valueOf(), p.low];
-      });
-
-      let MRBottomf5Data = MRBottomresult.filter((p) => p.f5).map((p, idx) => {
-        return [moment(p.date).valueOf(), p.low];
-      });
-
-      let MRBottomf6Data = MRBottomresult.filter((p) => p.f6).map((p, idx) => {
-        return [moment(p.date).valueOf(), p.low];
-      });
-
-      var MRBottomf1Table = anychart.data.table();
-
-      MRBottomf1Table.addData(MRBottomf1Data);
-      var MRBottomf1Mapping = MRBottomf1Table.mapAs();
-      MRBottomf1Mapping.addField("value", 1);
-
-      var MRBottomf2Table = anychart.data.table();
-      MRBottomf2Table.addData(MRBottomf2Data);
-      var MRBottomf2Mapping = MRBottomf2Table.mapAs();
-      MRBottomf2Mapping.addField("value", 1);
-
-      var MRBottomf3Table = anychart.data.table();
-      MRBottomf3Table.addData(MRBottomf3Data);
-      var MRBottomf3Mapping = MRBottomf3Table.mapAs();
-      MRBottomf3Mapping.addField("value", 1);
-
-      var MRBottomf4Table = anychart.data.table();
-      MRBottomf4Table.addData(MRBottomf4Data);
-      var MRBottomf4Mapping = MRBottomf4Table.mapAs();
-      MRBottomf4Mapping.addField("value", 1);
-
-      var MRBottomf5Table = anychart.data.table();
-      MRBottomf5Table.addData(MRBottomf5Data);
-      var MRBottomf5Mapping = MRBottomf5Table.mapAs();
-      MRBottomf5Mapping.addField("value", 1);
-
-      var MRBottomf6Table = anychart.data.table();
-      MRBottomf6Table.addData(MRBottomf6Data);
-      var MRBottomf6Mapping = MRBottomf6Table.mapAs();
-      MRBottomf6Mapping.addField("value", 1);
+      var VIXTopBottomhvTable = anychart.data.table();
+      VIXTopBottomhvTable.addData(VIXTopBottomhvData);
+      var VIXTopBottomhvMapping = VIXTopBottomhvTable.mapAs();
+      VIXTopBottomhvMapping.addField("value", 1);
 
       if (!update) {
-        chart.current
-          .plot(0)
-          .marker(MRBottomf1Mapping)
-          .type("cross")
-          .fill("rgb(238, 238, 171)")
-          .stroke("rgb(238, 238, 171)")
-          .name("f1");
-
-        chart.current
-          .plot(0)
-          .marker(MRBottomf2Mapping)
-          .type("cross")
-          .fill("rgb(241, 226, 9)")
-          .stroke("rgb(241, 226, 9)")
-          .name("f2");
-
-        chart.current
-          .plot(0)
-          .marker(MRBottomf3Mapping)
-          .type("cross")
-          .fill("rgb(250, 177, 19)")
-          .stroke("rgb(250, 177, 19)")
-          .name("f3");
-
-        chart.current
-          .plot(0)
-          .marker(MRBottomf4Mapping)
-          .type("diagonal-cross")
-          .fill("rgb(240, 30, 30)")
-          .stroke("rgb(240, 30, 30)")
-          .name("f4");
-
-        chart.current
-          .plot(0)
-          .marker(MRBottomf5Mapping)
-          .type("diagonal-cross")
-          .fill("rgb(175, 58, 175)")
-          .stroke("rgb(175, 58, 175)")
-          .name("f5");
-
-        chart.current
-          .plot(0)
-          .marker(MRBottomf6Mapping)
-          .type("diagonal-cross")
-          .fill("rgb(31, 9, 17)")
-          .stroke("rgb(31, 9, 17)")
-          .name("f6");
+        if (
+          stockTool.parameters.find((p) => p.name === "show1").value ===
+          "Bottom"
+        ) {
+          chart.current
+            .plot(plotIndex.current + 1)
+            .column(VIXTopBottomwvfMapping)
+            .name("wvf")
+            .fill(function () {
+              if (!this.value) return this.sourceColor;
+              if (!this.x) return this.sourceColor;
+              let resultIndex = VIXTopBottomwvfData.findIndex(
+                (p) => this.value === p[1]
+              );
+              if (resultIndex < 0) {
+                return this.sourceColor;
+              }
+              if (!VIXTopBottomwvfData[resultIndex]) return;
+              if (
+                VIXTopBottomwvfData[resultIndex][1] >=
+                VIXTopBottombotpoleData[resultIndex][1]
+              ) {
+                return "rgb(245, 134, 107)";
+              } else {
+                return "rgb(140, 232, 242)";
+              }
+            });
+        } else {
+          chart.current
+            .plot(plotIndex.current + 1)
+            .column(VIXTopBottomwvfrMapping)
+            .name("wvfr")
+            .fill(function () {
+              if (!this.value) return this.sourceColor;
+              if (!this.x) return this.sourceColor;
+              let resultIndex = VIXTopBottomwvfrData.findIndex(
+                (p) => this.value === p[1]
+              );
+              if (resultIndex < 0) {
+                return this.sourceColor;
+              }
+              if (!VIXTopBottomwvfrData[resultIndex - 1]) return;
+              if (
+                VIXTopBottomwvfrData[resultIndex][1] >=
+                VIXTopBottomtoppleData[resultIndex][1]
+              ) {
+                return "rgb(203, 102, 220)";
+              } else {
+                return "rgb(186, 231, 138)";
+              }
+            });
+        }
+        if (stockTool.parameters.find((p) => p.name === "showHV").value) {
+          chart.current
+            .plot(plotIndex.current + 1)
+            .line(VIXTopBottomhvMapping)
+            .name("Historical Volatility")
+            .stroke("rgb(255, 152, 0)");
+        }
+        stockDataStore.VIXTopBottomChartIndex = plotIndex.current + 1;
+        plotIndex.current += 1;
       } else {
-        let seriesNames = ["f1", "f2", "f3", "f4", "f5", "f6"];
+        let seriesNames = ["wvf", "wvfr", "Historical Volatility"];
+        let wvfExist = false;
+        let wvfrExist = false;
         let seriesMapping = {
-          f1: MRBottomf1Mapping,
-          f2: MRBottomf2Mapping,
-          f3: MRBottomf3Mapping,
-          f4: MRBottomf4Mapping,
-          f5: MRBottomf5Mapping,
-          f6: MRBottomf6Mapping,
+          wvf: VIXTopBottomwvfMapping,
+          wvfr: VIXTopBottomwvfrMapping,
+          "Historical Volatility": VIXTopBottomhvMapping,
         };
-        let seriesLength = chart.current.plot(0).getSeriesCount();
-
+        let seriesLength = chart.current
+          .plot(stockDataStore.VIXTopBottomChartIndex)
+          .getSeriesCount();
         for (let i = seriesLength - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(0).getSeries(i)) {
-            let seriesName = chart.current.plot(0).getSeries(i).name();
+          if (
+            chart.current
+              .plot(stockDataStore.VIXTopBottomChartIndex)
+              .getSeries(i)
+          ) {
+            let seriesName = chart.current
+              .plot(stockDataStore.VIXTopBottomChartIndex)
+              .getSeries(i)
+              .name();
             if (seriesNames.includes(seriesName)) {
-              ////console.log(seriesName);
-              chart.current
-                .plot(0)
-                .getSeries(i)
-                .data(seriesMapping[seriesName]);
+              if (seriesName === "wvf") wvfExist = true;
+              if (seriesName === "wvfr") wvfrExist = true;
+              if (
+                stockTool.parameters.find((p) => p.name === "show1").value ===
+                  "Bottom" &&
+                seriesName === "wvfr"
+              ) {
+                chart.current
+                  .plot(stockDataStore.VIXTopBottomChartIndex)
+                  .removeSeries(i);
+              } else if (
+                stockTool.parameters.find((p) => p.name === "show1").value ===
+                  "Top" &&
+                seriesName === "wvf"
+              ) {
+                chart.current
+                  .plot(stockDataStore.VIXTopBottomChartIndex)
+                  .removeSeries(i);
+              } else {
+                let seriesDraw = chart.current
+                  .plot(stockDataStore.VIXTopBottomChartIndex)
+                  .getSeries(i)
+                  .data(seriesMapping[seriesName]);
+
+                if (
+                  stockTool.parameters.find((p) => p.name === "show1").value ===
+                    "Bottom" &&
+                  seriesName === "wvf"
+                ) {
+                  seriesDraw.fill(function () {
+                    if (!this.value) return this.sourceColor;
+                    if (!this.x) return this.sourceColor;
+                    let resultIndex = VIXTopBottomwvfData.findIndex(
+                      (p) => this.value === p[1]
+                    );
+                    if (resultIndex < 0) {
+                      return this.sourceColor;
+                    }
+                    if (!VIXTopBottomwvfData[resultIndex]) return;
+                    if (
+                      VIXTopBottomwvfData[resultIndex][1] >=
+                      VIXTopBottombotpoleData[resultIndex][1]
+                    ) {
+                      return "rgb(245, 134, 107)";
+                    } else {
+                      return "rgb(140, 232, 242)";
+                    }
+                  });
+                }
+                if (
+                  stockTool.parameters.find((p) => p.name === "show1").value ===
+                    "Top" &&
+                  seriesName === "wvfr"
+                ) {
+                  seriesDraw.fill(function () {
+                    if (!this.value) return this.sourceColor;
+                    if (!this.x) return this.sourceColor;
+                    let resultIndex = VIXTopBottomwvfrData.findIndex(
+                      (p) => this.value === p[1]
+                    );
+                    if (resultIndex < 0) {
+                      return this.sourceColor;
+                    }
+                    if (!VIXTopBottomwvfrData[resultIndex]) return;
+                    if (
+                      VIXTopBottomwvfrData[resultIndex][1] >=
+                      VIXTopBottomtoppleData[resultIndex][1]
+                    ) {
+                      return "rgb(203, 102, 220)";
+                    } else {
+                      return "rgb(186, 231, 138)";
+                    }
+                  });
+                }
+              }
             }
           }
+        }
+        if (
+          stockTool.parameters.find((p) => p.name === "show1").value ===
+            "Bottom" &&
+          !wvfExist
+        ) {
+          chart.current
+            .plot(stockDataStore.VIXTopBottomChartIndex)
+            .column(VIXTopBottomwvfMapping)
+            .name("wvf")
+            .fill(function () {
+              if (!this.value) return this.sourceColor;
+              if (!this.x) return this.sourceColor;
+              let resultIndex = VIXTopBottomwvfData.findIndex(
+                (p) => this.value === p[1]
+              );
+              if (resultIndex < 0) {
+                return this.sourceColor;
+              }
+              if (!VIXTopBottomwvfData[resultIndex]) return;
+              if (
+                VIXTopBottomwvfData[resultIndex][1] >=
+                VIXTopBottombotpoleData[resultIndex][1]
+              ) {
+                return "rgb(245, 134, 107)";
+              } else {
+                return "rgb(140, 232, 242)";
+              }
+            });
+        }
+        if (
+          stockTool.parameters.find((p) => p.name === "show1").value ===
+            "Top" &&
+          !wvfrExist
+        ) {
+          chart.current
+            .plot(stockDataStore.VIXTopBottomChartIndex)
+            .column(VIXTopBottomwvfrMapping)
+            .name("wvfr")
+            .fill(function () {
+              if (!this.value) return this.sourceColor;
+              if (!this.x) return this.sourceColor;
+              let resultIndex = VIXTopBottomwvfrData.findIndex(
+                (p) => this.value === p[1]
+              );
+              if (resultIndex < 0) {
+                return this.sourceColor;
+              }
+              if (!VIXTopBottomwvfrData[resultIndex]) return;
+              if (
+                VIXTopBottomwvfrData[resultIndex][1] >=
+                VIXTopBottomtoppleData[resultIndex][1]
+              ) {
+                return "rgb(203, 102, 220)";
+              } else {
+                return "rgb(186, 231, 138)";
+              }
+            });
         }
       }
     }
@@ -2133,7 +2259,7 @@ let stockDataStore = {
 
       var trstr = controller.label({
         xAnchor: moment(IntraTRData[IntraTRData.length - 1][0])
-          .subtract(20, intervalTimeUnit(interval))
+          .subtract(60, intervalTimeUnit(interval))
           .valueOf(),
         valueAnchor: IntraATRftopData[IntraATRftopData.length - 1][1],
         text:
@@ -2145,7 +2271,7 @@ let stockDataStore = {
       annotationIndex.IntraATRannotationIndex.push(trstr);
       var atrstr = controller.label({
         xAnchor: moment(IntraATRData[IntraATRData.length - 1][0])
-          .subtract(20, intervalTimeUnit(interval))
+          .subtract(60, intervalTimeUnit(interval))
           .valueOf(),
         valueAnchor: IntraATRfbotData[IntraATRfbotData.length - 1][1],
         text: "ATR " + IntraATRData[IntraATRData.length - 1][1].toFixed(2),

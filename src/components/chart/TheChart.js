@@ -803,17 +803,16 @@ function TheChart(props) {
           plotIndex: stockDataStore.wkHiLoChartIndex,
         };
       }
-
-      if (stockTool.name === "MR Bottom Detector") {
-        await stockDataStore.addMRButton(
+      if (stockTool.name === "William Vix Fix Top Bottom detection") {
+        await stockDataStore.addVIXTopBottom(
           chart,
           interval,
-          stockData,
           stockTool,
           ticker,
           adjustDividend,
           startDate,
-          endDate
+          endDate,
+          plotIndex
         );
       }
       if (stockTool.name === "Cyclical KO") {
@@ -959,16 +958,16 @@ function TheChart(props) {
           true
         );
       }
-      if (stockTool.name === "MR Bottom Detector") {
-        await stockDataStore.addMRButton(
+      if (stockTool.name === "William Vix Fix Top Bottom detection") {
+        await stockDataStore.addVIXTopBottom(
           chart,
           interval,
-          stockData,
           stockTool,
           ticker,
           adjustDividend,
           startDate,
           endDate,
+          plotIndex,
           true
         );
       }
@@ -1153,23 +1152,40 @@ function TheChart(props) {
 
         dispatch(indicatorActions.removeSelectedStockTool(index));
       }
-      if (ind.name === "MR Bottom Detector") {
-        var seriesLengthMRButtom = chart.current.plot(0).getSeriesCount();
-        for (let i = seriesLengthMRButtom - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(0).getSeries(i)) {
-            let seriesNameMRButtom = chart.current.plot(0).getSeries(i).name();
+      if (ind.name === "William Vix Fix Top Bottom detection") {
+        var seriesLengthVIXTopBottom = chart.current
+          .plot(stockDataStore.VIXTopBottomChartIndex)
+          .getSeriesCount();
+        for (let i = seriesLengthVIXTopBottom - 1 + 100; i > -1; i--) {
+          if (
+            chart.current
+              .plot(stockDataStore.VIXTopBottomChartIndex)
+              .getSeries(i)
+          ) {
+            let seriesNameVIXTopBottom = chart.current
+              .plot(stockDataStore.VIXTopBottomChartIndex)
+              .getSeries(i)
+              .name();
             if (
-              seriesNameMRButtom === "f1" ||
-              seriesNameMRButtom === "f2" ||
-              seriesNameMRButtom === "f3" ||
-              seriesNameMRButtom === "f4" ||
-              seriesNameMRButtom === "f5" ||
-              seriesNameMRButtom === "f6"
+              seriesNameVIXTopBottom === "wvf" ||
+              seriesNameVIXTopBottom === "wvfr" ||
+              seriesNameVIXTopBottom === "Historical Volatility"
             ) {
-              chart.current.plot(0).removeSeries(i);
+              chart.current
+                .plot(stockDataStore.VIXTopBottomChartIndex)
+                .removeSeries(i);
             }
           }
         }
+        if (
+          chart.current
+            .plot(stockDataStore.VIXTopBottomChartIndex)
+            .getSeriesCount() < 1
+        ) {
+          chart.current.plot(stockDataStore.VIXTopBottomChartIndex).dispose();
+          plotIndex.current -= 1;
+        }
+        dispatch(indicatorActions.removeSelectedStockTool(index));
       }
       if (ind.name === "Cyclical KO") {
         var seriesLengthKO = chart.current
@@ -1850,20 +1866,29 @@ function TheChart(props) {
           }
         }
       }
-      if (stockTool.name === "MR Bottom Detector") {
-        var seriesLengthMRButtom = chart.current.plot(0).getSeriesCount();
-        for (let i = seriesLengthMRButtom - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(0).getSeries(i)) {
-            let seriesNameMRButtom = chart.current.plot(0).getSeries(i).name();
+      if (stockTool.name === "William Vix Fix Top Bottom detection") {
+        var seriesLengthVIXTopBottom = chart.current
+          .plot(stockDataStore.VIXTopBottomChartIndex)
+          .getSeriesCount();
+        for (let i = seriesLengthVIXTopBottom - 1 + 100; i > -1; i--) {
+          if (
+            chart.current
+              .plot(stockDataStore.VIXTopBottomChartIndex)
+              .getSeries(i)
+          ) {
+            let seriesNameVIXTopBottom = chart.current
+              .plot(stockDataStore.VIXTopBottomChartIndex)
+              .getSeries(i)
+              .name();
             if (
-              seriesNameMRButtom === "f1" ||
-              seriesNameMRButtom === "f2" ||
-              seriesNameMRButtom === "f3" ||
-              seriesNameMRButtom === "f4" ||
-              seriesNameMRButtom === "f5" ||
-              seriesNameMRButtom === "f6"
+              seriesNameVIXTopBottom === "wvf" ||
+              seriesNameVIXTopBottom === "wvfr" ||
+              seriesNameVIXTopBottom === "Historical Volatility"
             ) {
-              chart.current.plot(0).getSeries(i).enabled(true);
+              chart.current
+                .plot(stockDataStore.VIXTopBottomChartIndex)
+                .getSeries(i)
+                .enabled(true);
             }
           }
         }
@@ -2023,20 +2048,27 @@ function TheChart(props) {
         }
       }
     }
-    if (stockTool.name === "MR Bottom Detector") {
-      var seriesLengthMRButtom = chart.current.plot(0).getSeriesCount();
-      for (let i = seriesLengthMRButtom - 1 + 100; i > -1; i--) {
-        if (chart.current.plot(0).getSeries(i)) {
-          let seriesNameMRButtom = chart.current.plot(0).getSeries(i).name();
+    if (stockTool.name === "William Vix Fix Top Bottom detection") {
+      var seriesLengthVIXTopBottom = chart.current
+        .plot(stockDataStore.VIXTopBottomChartIndex)
+        .getSeriesCount();
+      for (let i = seriesLengthVIXTopBottom - 1 + 100; i > -1; i--) {
+        if (
+          chart.current.plot(stockDataStore.VIXTopBottomChartIndex).getSeries(i)
+        ) {
+          let seriesNameVIXTopBottom = chart.current
+            .plot(stockDataStore.VIXTopBottomChartIndex)
+            .getSeries(i)
+            .name();
           if (
-            seriesNameMRButtom === "f1" ||
-            seriesNameMRButtom === "f2" ||
-            seriesNameMRButtom === "f3" ||
-            seriesNameMRButtom === "f4" ||
-            seriesNameMRButtom === "f5" ||
-            seriesNameMRButtom === "f6"
+            seriesNameVIXTopBottom === "wvf" ||
+            seriesNameVIXTopBottom === "wvfr" ||
+            seriesNameVIXTopBottom === "Historical Volatility"
           ) {
-            chart.current.plot(0).getSeries(i).enabled(false);
+            chart.current
+              .plot(stockDataStore.VIXTopBottomChartIndex)
+              .getSeries(i)
+              .enabled(false);
           }
         }
       }

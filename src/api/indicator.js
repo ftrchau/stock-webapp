@@ -67,6 +67,9 @@ const methods = {
   calculateMRBottom(params) {
     return api.post("/calculateMRBottom", params);
   },
+  calculateVIXTopBottom(params) {
+    return api.post("/calculateVIXTopBottom", params);
+  },
   calculateKO(params) {
     return api.post("/calculateKO", params);
   },
