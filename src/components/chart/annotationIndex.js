@@ -1,5 +1,6 @@
 let annotationIndex = {
   VolumeProfileannotationIndex: [],
+  WkHiLoRangeannotationIndex: [],
   FLineannotationIndex: [],
   ZigZagannotationIndex: [],
   IntraFlineannotationIndex: [],

@@ -277,7 +277,7 @@ let stockDataStore = {
   FLineMin: 0,
   IntraATRMax: 0,
   IntraATRMin: 0,
-  wkHiLoChartIndex: null,
+  wkHiLoChartIndex: 0,
   VIXTopBottomChartIndex: null,
   kochartIndex: null,
   async drawVolumeProfileFunction(
@@ -755,6 +755,14 @@ let stockDataStore = {
     update = false
   ) {
     let apiInputParam = {};
+
+    annotationIndex.WkHiLoRangeannotationIndex.forEach((elem) => {
+      chart.current
+        .plot(stockDataStore.wkHiLoChartIndex)
+        .annotations()
+        .removeAnnotation(elem);
+    });
+    annotationIndex.WkHiLoRangeannotationIndex = [];
     stockTool.parameters.forEach((opt) => {
       apiInputParam[opt.name] =
         Number.isNaN(+opt.value) || typeof opt.value == "boolean"
@@ -811,16 +819,6 @@ let stockDataStore = {
       var WkHiLoRangeLLpctMapping = WkHiLoRangeLLpctTable.mapAs();
       WkHiLoRangeLLpctMapping.addField("value", 1);
 
-      var WkHiLoRangeblineTable = anychart.data.table();
-      WkHiLoRangeblineTable.addData(WkHiLoRangeblineData);
-      var WkHiLoRangeblineMapping = WkHiLoRangeblineTable.mapAs();
-      WkHiLoRangeblineMapping.addField("value", 1);
-
-      var WkHiLoRangeslineTable = anychart.data.table();
-      WkHiLoRangeslineTable.addData(WkHiLoRangeslineData);
-      var WkHiLoRangeslineMapping = WkHiLoRangeslineTable.mapAs();
-      WkHiLoRangeslineMapping.addField("value", 1);
-
       var UBLineTable = anychart.data.table();
       UBLineTable.addData(UBLineData);
       var UBLineMapping = UBLineTable.mapAs();
@@ -861,16 +859,6 @@ let stockDataStore = {
           .line(MidLineMapping)
           .stroke("rgb(255, 82, 82)")
           .name("Mid");
-        chart.current
-          .plot(plotIndex.current + 1)
-          .line(WkHiLoRangeblineMapping)
-          .stroke("#800020")
-          .name("bline");
-        chart.current
-          .plot(plotIndex.current + 1)
-          .line(WkHiLoRangeslineMapping)
-          .stroke("#087830")
-          .name("sline");
         stockDataStore.wkHiLoChartIndex = plotIndex.current + 1;
         plotIndex.current += 1;
       } else {
@@ -889,8 +877,6 @@ let stockDataStore = {
           UB: UBLineMapping,
           LB: LBLineMapping,
           Mid: MidLineMapping,
-          bline: WkHiLoRangeblineMapping,
-          sline: WkHiLoRangeslineMapping,
         };
         let seriesLength = chart.current
           .plot(stockDataStore.wkHiLoChartIndex)
@@ -914,6 +900,38 @@ let stockDataStore = {
           }
         }
       }
+
+      let controller = chart.current
+        .plot(stockDataStore.wkHiLoChartIndex)
+        .annotations();
+
+      for (let j = 0; j < WkHiLoRangeblineData.length; j++) {
+        if (!WkHiLoRangeblineData[j][1]) continue;
+        annotationIndex.WkHiLoRangeannotationIndex.push(
+          controller.marker({
+            xAnchor: WkHiLoRangeblineData[j][0],
+            valueAnchor: WkHiLoRangeblineData[j][1],
+            markerType: "arrow-up",
+            fill: "#800020",
+            stroke: "#800020",
+            size: 15,
+          })
+        );
+      }
+      for (let j = 0; j < WkHiLoRangeslineData.length; j++) {
+        if (!WkHiLoRangeslineData[j][1]) continue;
+        annotationIndex.WkHiLoRangeannotationIndex.push(
+          controller.marker({
+            xAnchor: WkHiLoRangeslineData[j][0],
+            valueAnchor: WkHiLoRangeslineData[j][1],
+            markerType: "arrowDown",
+            fill: "#087830",
+            stroke: "#087830",
+            size: 15,
+          })
+        );
+      }
+      chart.current.plot(stockDataStore.wkHiLoChartIndex).yScale().minimum(-30);
     }
   },
   async addVIXTopBottom(
