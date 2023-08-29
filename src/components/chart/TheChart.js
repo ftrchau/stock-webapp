@@ -267,7 +267,7 @@ function TheChart(props) {
         ////console.log(addResult);
         var mapping = table.mapAs();
         mapping.addField("value", 1);
-        var chartTemp;
+        let chartTemp;
 
         if (Array.isArray(ind.stroke)) {
           charts[index].result = allResult;
@@ -381,17 +381,15 @@ function TheChart(props) {
                 ? plotIndex.current
                 : 0
             )
-            [ind.seriesType](mapping)
-            ["name"](ind.name);
-          // [ind.seriesType === "column" ? "fill" : "stroke"](ind.stroke);
+            [ind.seriesType](mapping);
+
+          chartTemp["name"](ind.name)[
+            ind.seriesType === "column" ? "fill" : "stroke"
+          ](ind.stroke);
         }
 
         if (ind.seriesType === "marker") {
           chartTemp.size(ind.size);
-        } else {
-          chartTemp[ind.seriesType === "column" ? "fill" : "stroke"](
-            ind.stroke
-          );
         }
         if ("markerType" in ind) {
           chartTemp.type(ind.markerType);
@@ -1902,13 +1900,13 @@ function TheChart(props) {
               } else {
                 chartTemp = chart.current
                   .plot(indicator.charts[k].plotIndexOffset + plotIndex.current)
-                  [indicator.charts[k].seriesType](mapping)
-                  ["name"](indicator.charts[k].name)
-                  [
-                    indicator.charts[k].seriesType === "column"
-                      ? "fill"
-                      : "stroke"
-                  ](indicator.charts[k].stroke);
+                  [indicator.charts[k].seriesType](mapping);
+
+                chartTemp["name"](indicator.charts[k].name)[
+                  indicator.charts[k].seriesType === "column"
+                    ? "fill"
+                    : "stroke"
+                ](indicator.charts[k].stroke);
               }
 
               if (indicator.charts[k].seriesType === "marker") {
