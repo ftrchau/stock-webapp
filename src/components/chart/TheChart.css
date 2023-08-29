@@ -9,13 +9,6 @@
   width: 1px;
   display: none;
 }
-@media only screen and (max-width: 774px) {
-  .chartToolBar {
-    display: none;
-  }
-}
-@media only screen and (min-width: 774px) {
-  .chartToolBarBottom {
-    display: none;
-  }
+.anychart-ui-support {
+  height: 100vh;
 }

@@ -2,7 +2,6 @@ import "./ChartTopBar.css";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
-  Button,
   Dropdown,
   OverlayTrigger,
   Tooltip,
@@ -11,17 +10,10 @@ import {
   NavDropdown,
 } from "react-bootstrap";
 
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker-cssmodules.css";
-
-import "react-datepicker/dist/react-datepicker.css";
-
 import { Icon } from "@iconify/react";
 import { FiTool } from "react-icons/fi";
-import { BsCalendar } from "react-icons/bs";
 
 import intervalSelection from "./INTERVAL";
-import timezoneSelection from "./TIMEZONE";
 
 import IndicatorSettings from "../settings/IndicatorSettings";
 import StockToolSettings from "../settings/StockToolSettings";
@@ -31,8 +23,6 @@ import { useCallback } from "react";
 
 import { indicatorActions } from "../../store/indicator-slice";
 import { stockActions } from "../../store/stock-slice";
-
-import moment from "moment";
 
 const intervalSelectedName = (interval) => {
   let intervalTitle = "";
@@ -50,9 +40,20 @@ const intervalSelectedName = (interval) => {
 };
 
 function ChartTopBar(props) {
-  const { chart, stockData, addStockTool, updateStockTool, removeStockTool } =
-    props;
+  const { addStockTool, updateStockTool, removeStockTool } = props;
   const indicators = useSelector((state) => state.indicator.indicators);
+  const essentialIndicators = useSelector(
+    (state) => state.indicator.indicators["Essential Indicators"]
+  );
+  const advancedIndicators = useSelector(
+    (state) => state.indicator.indicators["Advanced Indicators"]
+  );
+  const lowTimeFrameIndicators = useSelector(
+    (state) => state.indicator.indicators["Tools Suitable For Low Time Periods"]
+  );
+  const predictiveIndicators = useSelector(
+    (state) => state.indicator.indicators["Predictive Indicators"]
+  );
   const currentIndicators = useSelector(
     (state) => state.indicator.currentIndicators
   );
@@ -60,12 +61,9 @@ function ChartTopBar(props) {
   const currentStockTools = useSelector(
     (state) => state.indicator.currentStockTools
   );
-  const rangeStartDate = useSelector((state) => state.stock.rangeStartDate);
 
-  const rangeEndDate = useSelector((state) => state.stock.rangeEndDate);
   const interval = useSelector((state) => state.stock.interval);
-  const realTime = useSelector((state) => state.stock.realTime);
-  // const stockData = useSelector((state) => state.stock.stockData);
+
   //console.log(rangeStartDate);
   //console.log(rangeEndDate);
   const dispatch = useDispatch();
@@ -76,35 +74,6 @@ function ChartTopBar(props) {
     },
     [dispatch]
   );
-
-  const setRangeStartDate = useCallback(
-    (inputDate) => {
-      ////console.log(inputDate);
-      dispatch(stockActions.setRangeStartDate(inputDate));
-    },
-    [dispatch]
-  );
-  const setRangeEndDate = useCallback(
-    (inputDate) => {
-      ////console.log(inputDate);
-      dispatch(stockActions.setRangeEndDate(inputDate));
-    },
-    [dispatch]
-  );
-
-  const setLongestRange = useCallback(() => {
-    dispatch(stockActions.setLongestRange());
-    ////console.log(stockData);
-    const max = Math.max(
-      ...stockData.filter((p) => p[2] != null).map((p) => p[2])
-    );
-    const min = Math.min(
-      ...stockData.filter((p) => p[3] != null).map((p) => p[3])
-    );
-
-    chart.current.plot(0).yScale().maximum(max.toFixed(2));
-    chart.current.plot(0).yScale().minimum(min.toFixed(2));
-  }, [dispatch, stockData, chart]);
 
   const changeInterval = useCallback(
     (interval) => {
@@ -234,27 +203,24 @@ function ChartTopBar(props) {
                   }
                 >
                   <span>
-                    <Icon icon="mdi:finance" /> Indicators
+                    <Icon icon="mdi:finance" /> Essential Indicators
                   </span>
                 </OverlayTrigger>
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                {Object.keys(indicators).map((key, index) => {
+                {essentialIndicators.map((ind, index) => {
                   return (
-                    <div key={key}>
-                      <Dropdown.Header key={key + index}>{key}</Dropdown.Header>
-                      {indicators[key].map((ind) => (
-                        <Dropdown.Item
-                          as="button"
-                          key={ind.name + key}
-                          onClick={() => props.addIndicator(ind)}
-                          active={currentIndicators
-                            .map((opt) => opt.value)
-                            .includes(ind.value)}
-                        >
-                          {ind.name}
-                        </Dropdown.Item>
-                      ))}
+                    <div key={index}>
+                      <Dropdown.Item
+                        as="button"
+                        key={ind.name + index}
+                        onClick={() => props.addIndicator(ind)}
+                        active={currentIndicators
+                          .map((opt) => opt.name)
+                          .includes(ind.name)}
+                      >
+                        {ind.name}
+                      </Dropdown.Item>
                     </div>
                   );
                 })}
@@ -277,134 +243,109 @@ function ChartTopBar(props) {
                 >
                   <span>
                     <FiTool />
-                    Stock Tools
+                    Advanced Indicators
                   </span>
                 </OverlayTrigger>
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <div>
-                  {stockTools.map((tool, index) => {
-                    return (
+                {advancedIndicators.map((ind, index) => {
+                  return (
+                    <div key={index}>
                       <Dropdown.Item
                         as="button"
-                        key={index}
-                        onClick={() => addStockToolCallback(tool)}
-                        active={currentStockTools
+                        key={ind.name + index}
+                        onClick={() => props.addIndicator(ind)}
+                        active={currentIndicators
                           .map((opt) => opt.name)
-                          .includes(tool.name)}
+                          .includes(ind.name)}
                       >
-                        {tool.name}
+                        {ind.name}
                       </Dropdown.Item>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </Dropdown.Menu>
             </Dropdown>
-            <Button
-              variant="light"
-              size="sm"
-              onClick={props.toggleRealTime}
-              active={realTime}
-              style={{ whiteSpace: "nowrap" }}
-            >
-              Toggle realtime
-            </Button>
             <Dropdown>
-              <Dropdown.Toggle variant="light" id="dropdown-timezone" size="sm">
+              <Dropdown.Toggle
+                variant="light"
+                id="dropdown-stocktool"
+                size="sm"
+              >
                 <OverlayTrigger
                   key="bottom"
                   placement="bottom"
                   overlay={
-                    <Tooltip className="tooltip" id="tooltip-timezone">
-                      Change Timezone
+                    <Tooltip className="tooltip" id="tooltip-stocktool">
+                      Select Stock Tool
                     </Tooltip>
                   }
                 >
                   <span>
-                    {"UTC(" +
-                      (props.timezone.value > 0 ? "+" : "") +
-                      props.timezone.value +
-                      ")"}
+                    <FiTool />
+                    Tools Suitable For Low Time Periods
                   </span>
                 </OverlayTrigger>
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item
-                  as="button"
-                  onClick={() =>
-                    props.changeTimeZone({ name: "UTC", value: 0 })
-                  }
-                  active={props.timezone.value === 0}
-                >
-                  UTC
-                </Dropdown.Item>
-                <Dropdown.Item
-                  as="button"
-                  onClick={() =>
-                    props.changeTimeZone({ name: "Exchange", value: 0 })
-                  }
-                  active={props.timezone.name === "Exchange"}
-                >
-                  Exchange
-                </Dropdown.Item>
-                {timezoneSelection.map((timezone) => (
-                  <Dropdown.Item
-                    as="button"
-                    key={timezone.name}
-                    onClick={() => props.changeTimeZone(timezone)}
-                    active={timezone.value === props.timezone.value}
-                  >
-                    {"UTC(" +
-                      (timezone.value > 0 ? "+" : "") +
-                      timezone.value +
-                      ")" +
-                      timezone.name}
-                  </Dropdown.Item>
-                ))}
+                {lowTimeFrameIndicators.map((ind, index) => {
+                  return (
+                    <div key={index}>
+                      <Dropdown.Item
+                        as="button"
+                        key={ind.name + index}
+                        onClick={() => props.addIndicator(ind)}
+                        active={currentIndicators
+                          .map((opt) => opt.name)
+                          .includes(ind.name)}
+                      >
+                        {ind.name}
+                      </Dropdown.Item>
+                    </div>
+                  );
+                })}
               </Dropdown.Menu>
             </Dropdown>
-            <div className="pe-1 ps-1">From</div>
-            <BsCalendar />
-            {interval.charAt(interval.length - 1) !== "m" &&
-              interval.charAt(interval.length - 1) !== "h" && (
-                <DatePicker
-                  selected={rangeStartDate}
-                  dateFormat="yyyy-MMM-dd"
-                  className="react-datetime-input"
-                  onChange={(date) => setRangeStartDate(date)}
-                />
-              )}
-            {(interval.charAt(interval.length - 1) === "m" ||
-              interval.charAt(interval.length - 1) === "h") && (
-              <span style={{ whiteSpace: "nowrap" }}>
-                {moment(rangeStartDate).format("YYYY-MM-DD hh:mm:ss")}
-              </span>
-            )}
-            <div className="pe-1 ps-1">To</div>
-            <BsCalendar />
-            {interval.charAt(interval.length - 1) !== "m" &&
-              interval.charAt(interval.length - 1) !== "h" && (
-                <DatePicker
-                  selected={rangeEndDate}
-                  dateFormat="yyyy-MMM-dd"
-                  className="react-datetime-input"
-                  onChange={(date) => setRangeEndDate(date)}
-                />
-              )}
-            {(interval.charAt(interval.length - 1) === "m" ||
-              interval.charAt(interval.length - 1) === "h") && (
-              <span style={{ whiteSpace: "nowrap" }}>
-                {moment(rangeEndDate).format("YYYY-MM-DD hh:mm:ss")}
-              </span>
-            )}
-            <Button
-              variant="light"
-              size="sm"
-              onClick={() => setLongestRange()}
-              style={{ whiteSpace: "nowrap" }}
-            >
-              Longest Time
-            </Button>
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="light"
+                id="dropdown-stocktool"
+                size="sm"
+              >
+                <OverlayTrigger
+                  key="bottom"
+                  placement="bottom"
+                  overlay={
+                    <Tooltip className="tooltip" id="tooltip-stocktool">
+                      Select Stock Tool
+                    </Tooltip>
+                  }
+                >
+                  <span>
+                    <FiTool />
+                    Predictive Indicators
+                  </span>
+                </OverlayTrigger>
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {predictiveIndicators.map((ind, index) => {
+                  return (
+                    <div key={index}>
+                      <Dropdown.Item
+                        as="button"
+                        key={ind.name + index}
+                        onClick={() => props.addIndicator(ind)}
+                        active={currentIndicators
+                          .map((opt) => opt.name)
+                          .includes(ind.name)}
+                      >
+                        {ind.name}
+                      </Dropdown.Item>
+                    </div>
+                  );
+                })}
+              </Dropdown.Menu>
+            </Dropdown>
           </main>
         </Col>
       </Row>
@@ -415,16 +356,6 @@ function ChartTopBar(props) {
             removeIndicator={props.removeIndicator}
             showIndicator={props.showIndicator}
             hideIndicator={props.hideIndicator}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <StockToolSettings
-            updateStockTool={updateStockTool}
-            removeStockTool={removeStockTool}
-            showStockTool={props.showStockTool}
-            hideStockTool={props.hideStockTool}
           />
         </Col>
       </Row>

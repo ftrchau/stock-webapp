@@ -6,6 +6,1854 @@ const indicatorSlice = createSlice({
     needUpdate: false,
     initialLoad: true,
     indicators: {
+      "Essential Indicators": [
+        {
+          name: "RSI Modified",
+          value: "RSI Modified",
+          description:
+            "RSI over 50 is long, RSI below 50 is short. It is ok for most of the security. <br /><br /> eg. Set upper and lower bar to [53 & 47] or [52 & 85] etc if the security has more trendless period. <br /><br /> Line plot by scale the RSI value (%) on the Lo-Hi of each candle. <br /><br /> Line color signaling:  Green=UP, Orange=Down, Gray= sideway or in-transit",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateRSIModified",
+          parameters: [
+            {
+              name: "period",
+              label: "RSI period",
+              value: "14",
+              type: "text",
+            },
+            {
+              name: "speriod",
+              label: "RSI Smooth",
+              value: "5",
+              type: "text",
+            },
+            {
+              name: "ub",
+              label: "Upper bar",
+              value: "53",
+              type: "text",
+            },
+            {
+              name: "lb",
+              label: "Lower bar",
+              value: "47",
+              type: "text",
+            },
+            {
+              name: "Plot RSI=50 reference line?",
+              label: "Plot RSI=50 reference line?",
+              value: false,
+              type: "checkbox",
+            },
+          ],
+          charts: [
+            {
+              name: "RSI+",
+              column: "prisma",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              result: [],
+              index: -1,
+              defaultStroke: "2 rgb(169, 232, 245)",
+              stroke: [
+                {
+                  color: "2 rgb(76, 175, 80)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["trend"] === 2)
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "2 rgb(118, 255, 122)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["trend"] === 1)
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "2 rgb(247, 184, 209)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["trend"] === -1)
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "2 rgb(156, 28, 28)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["trend"] === -2)
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "RSI50",
+              column: "mid",
+              condition: {
+                parameter: "Plot RSI=50 reference line?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              stroke: "rgb(120, 123, 134)",
+            },
+          ],
+        },
+        {
+          name: "MACD Modified",
+          value: "MACD Modified",
+          description:
+            "Price percentage Oscillator allows different security to compare their strength. <br /><br /> This study put it into a complete MACD, by adding the signal line.  ",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateMACDModified",
+          parameters: [
+            {
+              name: "fast_length",
+              label: "Fast Length",
+              value: "12",
+              type: "text",
+            },
+            {
+              name: "slow_length",
+              label: "Slow Length",
+              value: "26",
+              type: "text",
+            },
+            {
+              name: "src",
+              label: "Source",
+              value: "adjclose",
+              type: "select-one",
+              items: ["open", "high", "low", "close", "adjclose"],
+            },
+            {
+              name: "signal_length",
+              label: "Signal Smoothing",
+              value: "9",
+              type: "text",
+            },
+          ],
+          charts: [
+            {
+              name: "Signal",
+              column: "signal",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              index: -1,
+              plotIndex: 0,
+              stroke: "rgba(255, 106, 0, 1)",
+            },
+
+            {
+              name: "MACD",
+              column: "macd",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              result: [],
+              index: -1,
+              stroke: [
+                {
+                  color: "rgba(83, 104, 120, 1)",
+                  conditions: ["decrease"],
+                },
+                {
+                  color: "rgba(0, 148, 255, 1)",
+                  conditions: ["increase"],
+                },
+              ],
+            },
+            {
+              name: "Histogram+",
+              column: "hist",
+              seriesType: "column",
+              result: [],
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              stroke: [
+                {
+                  color: "rgb(38, 166, 154)",
+                  conditions: ["positive", "increase"],
+                },
+                {
+                  color: "rgb(255, 205, 210)",
+                  conditions: ["negative", "increase"],
+                },
+                {
+                  color: "rgb(178, 223, 219)",
+                  conditions: ["positive", "decrease"],
+                },
+                {
+                  color: "rgb(239, 83, 80)",
+                  conditions: ["negative", "decrease"],
+                },
+              ],
+            },
+          ],
+        },
+
+        {
+          name: "Heikin Ashi Modified",
+          value: "Heikin Ashi Modified",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateHeikinAshiModified",
+          parameters: [
+            {
+              name: "smooth_period",
+              label: "smooth period",
+              value: "10",
+              type: "text",
+            },
+            {
+              name: "long_short",
+              label: "Long or short",
+              value: "Long & Short",
+              type: "select-one",
+              items: ["Long", "Short", "Long & Short"],
+            },
+          ],
+          charts: [
+            {
+              name: "hai",
+              column: "hai",
+              seriesType: "column",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: ["positive"],
+                },
+                {
+                  color: "rgb(33, 150, 243)",
+                  conditions: ["negative"],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "Pivot Hi Lo",
+          description:
+            "Pivot Points (High/Low), also known as Bar Count Reversals. <br /><br />   It is the highest/lowest point from n bar in left and m bars to right. <br /><br />  So, it is a point of concern, and its suggestion for Resistance and Support levels. <br /><br />  This study will plot the line of the Highest/lowest until a new Pivot Hi/Lo shows up. ",
+          apiFunc: "calculatePivotHiLo",
+          parameters: [
+            {
+              name: "left",
+              label: "Left",
+              value: "10",
+              type: "text",
+            },
+            {
+              name: "right",
+              label: "Right",
+              value: "10",
+              type: "text",
+            },
+          ],
+          charts: [
+            {
+              name: "Pivot High",
+              column: "pvh",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(136, 14, 79)",
+            },
+            {
+              name: "Pivot Low",
+              column: "pvl",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(33, 150, 243)",
+            },
+          ],
+          chartIndex: -1,
+          hide: false,
+        },
+        {
+          name: "MA Crossing",
+          value: "MA Crossing",
+          description:
+            "Use a MA, then apply the same MA with a time lag, signal Buy/Sell when the two lines crossover. <br /><br /> The MA line drew has colored for up and down, therefore, it provides the signal too for a single MA line. <br /><br /> The script assumes the 2nd MA line is the slower one to label the Buy/Sell signals.  <br /><br /> There are two kind of strategy that can be applied: <br /> 1. Cross over of the two MA lines for buy/sell <br /> 2. Focus on Line 1 color change, and use Line 2 trend to indentify noise on Line 1. <br /><br /> The crossing of two MA lines is better use with other indicators <br /><br /> There is no single setting to fit all ",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateMACrossing",
+          parameters: [
+            {
+              name: "src",
+              label: "Source",
+              value: "adjclose",
+              type: "select-one",
+              items: ["open", "high", "low", "close", "adjclose"],
+            },
+            {
+              name: "mc1",
+              label: "Line 1 MA type",
+              value: "EMA",
+              type: "select-one",
+              items: [
+                "ALMA",
+                "HMA",
+                "eHMA",
+                "ZLEMA",
+                "DEMA",
+                "TEMA",
+                "WMA",
+                "LSMA",
+                "RMA",
+                "VIDYA",
+                "SSF2",
+                "SSF3",
+                "EMA",
+                "SMA",
+              ],
+            },
+            {
+              name: "vlen1",
+              label: "Line 1 fast period",
+              value: "18",
+              type: "text",
+            },
+            {
+              name: "mc2",
+              label: "Line 2 MA type",
+              value: "EMA",
+              type: "select-one",
+              items: [
+                "ALMA",
+                "HMA",
+                "eHMA",
+                "ZLEMA",
+                "DEMA",
+                "TEMA",
+                "WMA",
+                "LSMA",
+                "RMA",
+                "VIDYA",
+                "SSF2",
+                "SSF3",
+                "EMA",
+                "SMA",
+              ],
+            },
+            {
+              name: "vlen2",
+              label: "Line 2 slow period",
+              value: "30",
+              type: "text",
+            },
+            {
+              name: "Draw 2nd line?",
+              label: "Draw 2nd line?",
+              value: true,
+              type: "checkbox",
+            },
+            {
+              name: "Show data source?",
+              label: "Show data source?",
+              value: true,
+              type: "checkbox",
+            },
+            {
+              name: "long_short",
+              label: "Long or short",
+              value: "Long",
+              type: "select-one",
+              items: ["Long", "Short", "Long & Short"],
+            },
+          ],
+          charts: [
+            {
+              name: "VM1",
+              column: "vm1",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: ["increase"],
+                },
+                {
+                  color: "rgb(255, 82, 82)",
+                  conditions: ["decrease"],
+                },
+              ],
+            },
+            {
+              name: "VM2",
+              column: "vm2",
+              condition: {
+                parameter: "Draw 2nd line?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              defaultStroke: "2 rgb(41, 98, 255)",
+              stroke: [
+                {
+                  color: "rgb(96, 200, 241)",
+                  conditions: ["increase"],
+                },
+                {
+                  color: "rgb(153, 149, 147)",
+                  conditions: ["decrease"],
+                },
+              ],
+            },
+            {
+              name: "MA Crossing source",
+              column: "src",
+              condition: {
+                parameter: "Show data source?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(126, 60, 60)",
+            },
+          ],
+          annotations: [
+            {
+              name: "MA Crossing Buy Label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              condition: {
+                func: function (curr, prev) {
+                  var condition = false;
+
+                  if (curr.vm1 > curr.vm2 && prev.vm1 < prev.vm2)
+                    condition = true;
+
+                  return condition;
+                },
+              },
+              parameters: {
+                valueAnchor: "vm1",
+                text: "Buy",
+                fontColor: "#363A45",
+              },
+              background: {
+                fill: "#00E676",
+                stroke: "#00E676",
+              },
+            },
+            {
+              name: "MA Crossing Sell Label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              condition: {
+                func: function (curr, prev) {
+                  var condition = false;
+
+                  if (curr.vm1 < curr.vm2 && prev.vm1 > prev.vm2)
+                    return condition;
+
+                  return condition;
+                },
+              },
+              parameters: {
+                valueAnchor: "vm1",
+                text: "Sell",
+                fontColor: "#FFFFFF",
+              },
+              background: {
+                fill: "#FF5252",
+                stroke: "#FF5252",
+              },
+            },
+          ],
+        },
+      ],
+      "Advanced Indicators": [
+        {
+          name: "supertrend",
+          value: "supertrend",
+          description:
+            "Supertrend is a trend-following indicator based on Average True Range (ATR). <br /><br /> The calculation of its single line combines trend detection and volatility. <br /><br /> It can be used to detect changes in trend direction and to position stops.",
+          groupIndex: 0,
+          hide: false,
+          apiFunc: "calculateStockSuperTrend",
+          parameters: [
+            {
+              name: "atr_lookback",
+              label: "Period",
+              value: "14",
+              type: "text",
+            },
+            {
+              name: "multiplier",
+              label: "Factor",
+              value: "2",
+              type: "text",
+            },
+          ],
+          charts: [
+            {
+              name: "Simply Supertrend",
+              column: "ST",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: [
+                {
+                  color: "2 rgb(76, 175, 80)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // ////console.log(allResult[resultIndex]);
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["ST_BUY_SELL"] === "BUY")
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "2 rgb(255, 82, 82)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["ST_BUY_SELL"] === "SELL")
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          annotations: [
+            {
+              name: "supertrend buy label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              condition: {
+                column: "BSIGNAL",
+                value: "BUY",
+              },
+              parameters: {
+                valueAnchor: "FLB",
+                textParam: "ST_BUY_SELL",
+                fontColor: "#363A45",
+              },
+              background: {
+                fill: "#00E676",
+                stroke: "#00E676",
+              },
+            },
+            {
+              name: "supertrend sell label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              condition: {
+                column: "SSIGNAL",
+                value: "SELL",
+              },
+              parameters: {
+                valueAnchor: "FUB",
+                textParam: "ST_BUY_SELL",
+                fontColor: "#363A45",
+              },
+              background: {
+                fill: "#FF5252",
+                stroke: "#FF5252",
+              },
+            },
+          ],
+        },
+        {
+          name: "Turtle Trade",
+          value: "Turtle Trade",
+          description:
+            "Basic Turtle trade is : <br /> Buy when close is higher than m-day high, exit Buy when close is lower than n-day low. <br /><br /> Sell when close is lower than m-day low, exit Sell when close is higher than n-day high. <br /><br /> ATR cut Turtle trade is: <br /> Exit Buy when close is lower than ATR*factor line, and exit Sell when close is higher than ATR*factor line. <br /><br /> Since Buy and Sell line runs independently, there is chance that both Buy and Sell are triggered ! <br /><br /> There are also cases that both Buy and Sell are exited.  <br /><br /> This script eliminates the overlap and blanks by compare close to close[2] for a decision of a buy or sell, its called signal train. ",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateTurtleTrade",
+          parameters: [
+            {
+              name: "entryLength",
+              label: "Entry length",
+              value: "6",
+              type: "text",
+            },
+            {
+              name: "exitLength",
+              label: "Exit length",
+              value: "6",
+              type: "text",
+            },
+            {
+              name: "Exit method",
+              label: "Exit method",
+              value: "Turtle cut",
+              type: "select-one",
+              items: ["Turtle cut", "ATR cut"],
+            },
+            {
+              name: "atrFactor",
+              label: "ATR factor",
+              value: "0.8",
+              type: "text",
+            },
+            {
+              name: "Fill up & align?",
+              label: "Fill up & align?",
+              value: false,
+              // value: true,
+              type: "checkbox",
+            },
+          ],
+          charts: [
+            {
+              name: "Turtle cut buy",
+              column: "llevel",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "green",
+              stroke: "green",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "Turtle cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: false,
+                },
+              ],
+            },
+            {
+              name: "Turtle cut sell",
+              column: "hlevel",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "red",
+              stroke: "red",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "Turtle cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: false,
+                },
+              ],
+            },
+            {
+              name: "ATR cut buy",
+              column: "llevelSecond",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "green",
+              stroke: "green",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "ATR cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: false,
+                },
+              ],
+            },
+            {
+              name: "ATR cut sell",
+              column: "hlevelSecond",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "red",
+              stroke: "red",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "ATR cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: false,
+                },
+              ],
+            },
+            {
+              name: "Turtle cut buy Ts",
+              column: "llevelTs",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "green",
+              stroke: "green",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "Turtle cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: true,
+                },
+              ],
+            },
+            {
+              name: "Turtle cut sell Ts",
+              column: "hlevelTs",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "red",
+              stroke: "red",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "Turtle cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: true,
+                },
+              ],
+            },
+            {
+              name: "ART cut buy Second",
+              column: "llevelTsSecond",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "green",
+              stroke: "green",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "ATR cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: true,
+                },
+              ],
+            },
+            {
+              name: "ATR cut sell Second",
+              column: "hlevelTsSecond",
+              seriesType: "marker",
+              markerType: "circle",
+              fill: "red",
+              stroke: "red",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              condition: [
+                {
+                  parameter: "Exit method",
+                  value: "ATR cut",
+                },
+                {
+                  parameter: "Fill up & align?",
+                  value: true,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "Kalman Filter",
+          value: "Kalman Filter",
+          description:
+            "This script applies ARIMA(P,D,Q) to forecast security price one step ahead. <br /><br /> ARIMA(1,1,2) model is based on :  people.duke.edu/~rnau/411arim.htm <br /><br /> Both AR and MA factor is 0.1 for all terms for simplification, <br /><br /> age of data = 1/(1-0.1)=1.1, it has a one bar lag.  ",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateKalmanFilter",
+          parameters: [
+            {
+              name: "src",
+              label: "Source",
+              value: "adjclose",
+              type: "select-one",
+              items: ["open", "high", "low", "close", "adjclose"],
+            },
+            {
+              name: "error_scaler",
+              label: "error scaler",
+              value: "5",
+              type: "text",
+            },
+          ],
+          charts: [
+            {
+              name: "Kalman Filter",
+              column: "X",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: ["increase"],
+                },
+                {
+                  color: "rgb(255, 152, 0)",
+                  conditions: ["decrease"],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "PV bull bear power",
+          value: "PV bull bear power",
+          description: "",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculatePVBullBear",
+          parameters: [
+            {
+              name: "emalength",
+              label: "smoothing period",
+              value: "20",
+              type: "text",
+            },
+            {
+              name: "ema2length",
+              label: "2nd smoothing period",
+              value: "3",
+              type: "text",
+            },
+            {
+              name: "smlevel",
+              label: "Smooth level",
+              value: "1",
+              type: "select-one",
+              items: ["0", "1", "2"],
+            },
+            {
+              name: "onvolume",
+              label: "calibrate on Volume?",
+              value: true,
+              type: "checkbox",
+            },
+            {
+              name: "showbb",
+              label: "Show Bull Bear lines?",
+              value: true,
+              type: "checkbox",
+            },
+            {
+              name: "million",
+              label: "Volume in millions?",
+              value: true,
+              type: "checkbox",
+            },
+          ],
+          charts: [
+            {
+              name: "Bull power",
+              column: "vbpe",
+              condition: {
+                parameter: "showbb",
+                value: true,
+              },
+              plotIndexOffset: 1,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "line",
+              stroke: "rgb(0, 230, 118)",
+            },
+            {
+              name: "Bear power",
+              column: "vspe",
+              condition: {
+                parameter: "showbb",
+                value: true,
+              },
+              plotIndexOffset: 1,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "line",
+              stroke: "rgb(255, 152, 0)",
+            },
+            {
+              name: "Balanced power",
+              column: "balance",
+              plotIndexOffset: 1,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "column",
+              stroke: [
+                {
+                  color: "rgb(76, 175, 80)",
+                  conditions: ["positive"],
+                },
+                {
+                  color: "rgb(255, 152, 0)",
+                  conditions: ["negative"],
+                },
+              ],
+            },
+            // {
+            //   name: "Turtle cut buy",
+            //   column: "llevel",
+            //   seriesType: "marker",
+            //   markerType: "circle",
+            //   fill: "green",
+            //   stroke: "green",
+            //   size: 3,
+            //   plotIndexOffset: 0,
+            //   plotIndex: 0,
+            //   index: -1,
+            //   condition: [
+            //     {
+            //       parameter: "Exit method",
+            //       value: "Turtle cut",
+            //     },
+            //     {
+            //       parameter: "Fill up & align?",
+            //       value: false,
+            //     },
+            //   ],
+            // },
+          ],
+        },
+        {
+          name: "William Vix Fix Top Bottom detection",
+          description:
+            "use William Vix Fix as the Top and Bottom detection tool. <br /><br /> although William Vix Fix use 22 days as length, 50 is prefered after testing. <br /><br/> changing color of the histogram helps to highlight the approaching of extremes.  <br /><br/> When price falling fast, color is dark. Wait for the color to change to low level for action is better.  <br /><br />Historical Volatility is available here for comparision, you can see that HV is lagging seriously and only valid for downturn.",
+          apiFunc: "calculateVIXTopBottom",
+          parameters: [
+            {
+              name: "length",
+              label: "VIX period",
+              value: "50",
+              type: "text",
+            },
+            {
+              name: "flength",
+              label: "Filter lookback",
+              value: "70",
+              type: "text",
+            },
+            {
+              name: "filter",
+              label: "Percentile level",
+              value: "0.97",
+              type: "text",
+            },
+            {
+              name: "show1",
+              label: "Show Top or Bottom",
+              value: "Bottom",
+              type: "select-one",
+              items: ["Top", "Bottom"],
+            },
+            {
+              name: "showHV",
+              label: "Show hist vol?",
+              value: true,
+              type: "checkbox",
+            },
+          ],
+          charts: [
+            {
+              name: "wvf",
+              column: "wvf",
+              seriesType: "column",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              condition: {
+                parameter: "show1",
+                value: "Bottom",
+              },
+              stroke: [
+                {
+                  color: "rgb(245, 134, 107)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // ////console.log(allResult[resultIndex]);
+
+                      // allResult.reverse();
+                      if (
+                        allResult[resultIndex]["wvf"] >=
+                        allResult[resultIndex]["botpole"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(140, 232, 242)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // ////console.log(allResult[resultIndex]);
+
+                      // allResult.reverse();
+                      if (
+                        allResult[resultIndex]["wvf"] <
+                        allResult[resultIndex]["botpole"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "wvfr",
+              column: "wvfr",
+              seriesType: "column",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              condition: {
+                parameter: "show1",
+                value: "Top",
+              },
+              stroke: [
+                {
+                  color: "rgb(203, 102, 220)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // ////console.log(allResult[resultIndex]);
+
+                      // allResult.reverse();
+                      if (
+                        allResult[resultIndex]["wvfr"] >=
+                        allResult[resultIndex]["topple"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(186, 231, 138)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      // ////console.log(allResult[resultIndex]);
+
+                      // allResult.reverse();
+                      if (
+                        allResult[resultIndex]["wvfr"] <
+                        allResult[resultIndex]["topple"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          chartIndex: -1,
+          hide: false,
+        },
+        {
+          name: "Cyclical KO",
+          description: "",
+          apiFunc: "calculateKO",
+          parameters: [
+            {
+              name: "len1",
+              label: "Oscillator 1 period",
+              value: "9",
+              type: "text",
+            },
+            {
+              name: "len2",
+              label: "Oscillator 2 period",
+              value: "20",
+              type: "text",
+            },
+            {
+              name: "len3",
+              label: "Oscillator 3 period",
+              value: "50",
+              type: "text",
+            },
+            {
+              name: "p1",
+              label: "Up counts",
+              value: "20",
+              type: "text",
+            },
+            {
+              name: "p2",
+              label: "Down counts",
+              value: "20",
+              type: "text",
+            },
+          ],
+          charts: [
+            {
+              name: "KO1",
+              column: "ko1",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(33, 150, 243)",
+            },
+            {
+              name: "KO2",
+              column: "ko2",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(255, 152, 0)",
+            },
+            {
+              name: "KO3",
+              column: "ko3",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(178, 181, 190)",
+            },
+          ],
+          chartIndex: -1,
+          hide: false,
+        },
+        {
+          name: "52 Wk Hi Lo Range - Buy Sell",
+          description:
+            "This is a study to check the position of current price in the Highest - lowest range of selected length, and provide a notification for potential sell or buy. <br /><br /> Default value = 240 is proxy to 1 year for daily chart  <br /><br /> Suggestion : Daily chart  - 2Y=480, 1Y=240, 6m=120, 3m=60  <br /> Weekly chart - 3Y=156, 2Y=104, 1Y=52   etc...",
+          apiFunc: "calculateWkHiLoRange",
+          parameters: [
+            {
+              name: "adjust",
+              label: "Adjust Data for dividends?",
+              value: true,
+              type: "checkbox",
+            },
+            {
+              name: "len",
+              label: "Period",
+              value: "90",
+              type: "text",
+            },
+            {
+              name: "UB",
+              label: "Hi trigger level",
+              value: "93",
+              type: "text",
+            },
+            {
+              name: "LB",
+              label: "Lo trigger Level",
+              value: "7",
+              type: "text",
+            },
+          ],
+          charts: [
+            {
+              name: "on High",
+              column: "HHpct",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(0, 188, 212)",
+            },
+            {
+              name: "on Low",
+              column: "LLpct",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(255, 152, 0)",
+            },
+            {
+              name: "UB",
+              column: "UB",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(255, 82, 82)",
+            },
+            {
+              name: "LB",
+              column: "LB",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(255, 82, 82)",
+            },
+            {
+              name: "Mid",
+              column: "Mid",
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(255, 82, 82)",
+            },
+          ],
+          annotations: [
+            {
+              name: "Wk Hi Lo Range Buy",
+              type: "marker",
+              plotIndex: 1,
+              annotationIndex: [],
+              parameters: {
+                valueAnchor: "bline",
+                markerType: "arrow-up",
+              },
+              background: {
+                fill: "#800020",
+                stroke: "#800020",
+              },
+            },
+            {
+              name: "Wk Hi Lo Range Sell",
+              type: "marker",
+              plotIndex: 1,
+              annotationIndex: [],
+              parameters: {
+                valueAnchor: "sline",
+                markerType: "arrowDown",
+              },
+              background: {
+                fill: "#087830",
+                stroke: "#087830",
+              },
+            },
+          ],
+          yscale: {
+            type: "minimum",
+            value: -30,
+          },
+
+          chartIndex: -1,
+          hide: false,
+        },
+      ],
+      "Tools Suitable For Low Time Periods": [
+        {
+          name: "10AM Hi Lo fibo",
+          apiFunc: "calculateIntraFiboPivotHiLo",
+          parameters: [
+            {
+              name: "startHour",
+              label: "startHour",
+              value: "22",
+              type: "text",
+            },
+            {
+              name: "startMinutes",
+              label: "startMinutes",
+              value: "30",
+              type: "text",
+            },
+            {
+              name: "endHour",
+              label: "endHour",
+              value: "23",
+              type: "text",
+            },
+            {
+              name: "endMinutes",
+              label: "endMinutes",
+              value: "15",
+              type: "text",
+            },
+            {
+              name: "mode",
+              label: "mode",
+              value: "Observation",
+              type: "select-one",
+              items: ["Observation", "Today Hi-Lo"],
+            },
+            {
+              name: "Extend upward fibo?",
+              label: "Extend upward fibo?",
+              value: "0",
+              type: "select",
+              items: ["0", "1", "2"],
+            },
+            {
+              name: "Extend downward fibo?",
+              label: "Extend downward fibo?",
+              value: "0",
+              type: "select",
+              items: ["0", "1", "2"],
+            },
+          ],
+          type: "custom",
+          charts: [],
+          annotations: [],
+          chartIndex: -1,
+          hide: false,
+        },
+        {
+          name: "ATR lines on lower timeframe",
+          apiFunc: "calculateIntraATR",
+          parameters: [
+            {
+              name: "n",
+              label: "ATR period",
+              value: "20",
+              type: "text",
+            },
+            {
+              name: "p",
+              label: "Align to",
+              value: "Mid of today TR",
+              type: "select",
+              items: ["day Hi", "day Lo", "TR Hi", "TR Lo", "Mid of today TR"],
+            },
+            {
+              name: "s0",
+              label: "Fill today true range",
+              value: true,
+              type: "checkbox",
+            },
+          ],
+          charts: [
+            {
+              name: "ftop",
+              column: "ftop",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(255, 152, 0)",
+            },
+          ],
+          annotations: [],
+          chartIndex: -1,
+          hide: false,
+        },
+      ],
+      "Predictive Indicators": [
+        {
+          name: "ARIMA",
+          value: "ARIMA",
+          description:
+            "This script applies ARIMA(P,D,Q) to forecast security price one step ahead. <br /><br /> ARIMA(1,1,2) model is based on :  people.duke.edu/~rnau/411arim.htm <br /><br /> Both AR and MA factor is 0.1 for all terms for simplification, age of data = 1/(1-0.1)=1.1, it has a one bar lag. ",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateARIMA",
+          parameters: [
+            {
+              name: "src",
+              label: "Source",
+              value: "adjclose",
+              type: "select-one",
+              items: ["open", "high", "low", "close", "adjclose"],
+            },
+            {
+              name: "nar",
+              label: "AR period, P",
+              value: "1",
+              type: "text",
+            },
+            {
+              name: "ndd",
+              label: "degree of difference, D",
+              value: "1",
+              type: "text",
+            },
+            {
+              name: "nma",
+              label: "MA period, Q",
+              value: "5",
+              type: "text",
+            },
+            {
+              name: "pa",
+              label: "AR factor period",
+              value: "10",
+              type: "text",
+            },
+            {
+              name: "pb",
+              label: "MA factor period",
+              value: "10",
+              type: "text",
+            },
+            {
+              name: "len",
+              label: "Length for RMSE",
+              value: "100",
+              type: "text",
+            },
+            {
+              name: "Plot forecast line or dots",
+              label: "Plot forecast line or dots",
+              value: "dots",
+              type: "select-one",
+              items: ["dots", "line"],
+            },
+            {
+              name: "Show RMSE?",
+              label: "Show RMSE?",
+              value: false,
+              type: "checkbox",
+            },
+            {
+              name: "Plot close line?",
+              label: "Plot close line?",
+              value: true,
+              type: "checkbox",
+            },
+          ],
+          seriesType: "line",
+          charts: [
+            {
+              name: "source",
+              column: "src",
+              condition: {
+                parameter: "Plot close line?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              stroke: "rgb(76, 175, 80)",
+            },
+            {
+              name: "forecast line",
+              column: "Y",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              condition: {
+                parameter: "Plot forecast line or dots",
+                value: "line",
+              },
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      if (
+                        allResult[resultIndex]["Y"] >
+                        allResult[resultIndex]["src"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(255, 152, 0)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      if (
+                        allResult[resultIndex]["Y"] <
+                        allResult[resultIndex]["src"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "forecast dots",
+              column: "Y",
+              seriesType: "marker",
+              plotIndexOffset: 0,
+              size: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              condition: {
+                parameter: "Plot forecast line or dots",
+                value: "dots",
+              },
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      if (
+                        allResult[resultIndex]["Y"] >
+                        allResult[resultIndex]["src"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(255, 152, 0)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      if (
+                        allResult[resultIndex]["Y"] <
+                        allResult[resultIndex]["src"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "latest forecast",
+              column: "Yf",
+              seriesType: "marker",
+              markerType: "circle",
+              size: 3,
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              stroke: "red",
+              range: {
+                startOffset: 0,
+                endOffset: 0,
+              },
+            },
+            {
+              name: "rmse",
+              column: "rmse",
+              condition: {
+                parameter: "Show RMSE?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 1,
+              plotIndex: 0,
+              index: -1,
+              stroke: "rgb(255, 152, 0)",
+            },
+            {
+              name: "Yf1",
+              column: "Yf1",
+              seriesType: "marker",
+              markerType: "triangle-left",
+              plotIndexOffset: 0,
+              size: 5,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+            },
+          ],
+        },
+        {
+          name: "Holt Winters",
+          value: "Holt Winters",
+          description: "",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateHoltWinters",
+          parameters: [
+            {
+              name: "nL",
+              label: "Level period",
+              value: "5",
+              type: "text",
+            },
+            {
+              name: "nT",
+              label: "Trend period",
+              value: "5",
+              type: "text",
+            },
+            {
+              name: "nS",
+              label: "Seasonial period",
+              value: "5",
+              type: "text",
+            },
+            {
+              name: "mm",
+              label: "Number of seasons",
+              value: "5",
+              type: "text",
+            },
+            {
+              name: "k",
+              label: "Forecast ahead",
+              value: "3",
+              type: "text",
+            },
+            {
+              name: "len",
+              label: "Length for RMSE",
+              value: "100",
+              type: "text",
+            },
+            {
+              name: "Plot forecast line or dots",
+              label: "Plot forecast line or dots",
+              value: "dots",
+              type: "select-one",
+              items: ["dots", "line"],
+            },
+            {
+              name: "Show RMSE?",
+              label: "Show RMSE?",
+              value: false,
+              type: "checkbox",
+            },
+            {
+              name: "Plot close line?",
+              label: "Plot close line?",
+              value: false,
+              type: "checkbox",
+            },
+          ],
+          charts: [
+            {
+              name: "forecast",
+              column: "Y",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              condition: {
+                parameter: "Plot forecast line or dots",
+                value: "line",
+              },
+              seriesType: "line",
+              defaultStroke: "rgb(88,67,182)",
+              stroke: [
+                {
+                  color: "rgb(33, 150, 243)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      if (
+                        allResult[resultIndex]["Y"] >
+                        allResult[resultIndex]["src"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(255, 152, 0)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      if (
+                        allResult[resultIndex]["Y"] <
+                        allResult[resultIndex]["src"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "source",
+              column: "src",
+              condition: {
+                parameter: "Plot close line?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              stroke: "rgb(76, 175, 80)",
+            },
+            {
+              name: "rmse",
+              column: "rmse",
+              condition: {
+                parameter: "Show RMSE?",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              stroke: "rgb(76, 175, 80)",
+            },
+            {
+              name: "forecast dots",
+              column: "Y",
+              seriesType: "marker",
+              plotIndexOffset: 0,
+              size: 1,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              condition: {
+                parameter: "Plot forecast line or dots",
+                value: "dots",
+              },
+              defaultStroke: "rgb(88,67,182)",
+              stroke: [
+                {
+                  color: "rgb(33, 150, 243)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      if (
+                        allResult[resultIndex]["Y"] >
+                        allResult[resultIndex]["src"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(255, 152, 0)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      var condition = false;
+
+                      if (
+                        allResult[resultIndex]["Y"] <
+                        allResult[resultIndex]["src"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "Yf",
+              column: "Yf",
+              seriesType: "marker",
+              markerType: "triangle-left",
+              plotIndexOffset: 0,
+              size: 5,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+            },
+          ],
+        },
+      ],
       "Traditional Indicator": [
         {
           name: "ALMA",
@@ -338,612 +2186,8 @@ const indicatorSlice = createSlice({
             },
           ],
         },
-        {
-          name: "supertrend",
-          value: "supertrend",
-          description:
-            "Supertrend is a trend-following indicator based on Average True Range (ATR). <br /><br /> The calculation of its single line combines trend detection and volatility. <br /><br /> It can be used to detect changes in trend direction and to position stops.",
-          groupIndex: 0,
-          hide: false,
-          apiFunc: "calculateStockSuperTrend",
-          parameters: [
-            {
-              name: "atr_lookback",
-              label: "Period",
-              value: "14",
-              type: "text",
-            },
-            {
-              name: "multiplier",
-              label: "Factor",
-              value: "2",
-              type: "text",
-            },
-          ],
-          charts: [
-            {
-              name: "Simply Supertrend",
-              column: "ST",
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              result: [],
-              stroke: [
-                {
-                  color: "2 rgb(76, 175, 80)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      // ////console.log(allResult[resultIndex]);
-
-                      // allResult.reverse();
-                      if (allResult[resultIndex]["ST_BUY_SELL"] === "BUY")
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-                {
-                  color: "2 rgb(255, 82, 82)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      // allResult.reverse();
-                      if (allResult[resultIndex]["ST_BUY_SELL"] === "SELL")
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-          annotations: [
-            {
-              name: "supertrend buy label",
-              type: "label",
-              plotIndex: 0,
-              annotationIndex: [],
-              condition: {
-                column: "BSIGNAL",
-                value: "BUY",
-              },
-              parameters: {
-                valueAnchor: "FLB",
-                textParam: "ST_BUY_SELL",
-                fontColor: "#363A45",
-              },
-              background: {
-                fill: "#00E676",
-                stroke: "#00E676",
-              },
-            },
-            {
-              name: "supertrend sell label",
-              type: "label",
-              plotIndex: 0,
-              annotationIndex: [],
-              condition: {
-                column: "SSIGNAL",
-                value: "SELL",
-              },
-              parameters: {
-                valueAnchor: "FUB",
-                textParam: "ST_BUY_SELL",
-                fontColor: "#363A45",
-              },
-              background: {
-                fill: "#FF5252",
-                stroke: "#FF5252",
-              },
-            },
-          ],
-        },
       ],
       "Innovative Indicators": [
-        {
-          name: "ARIMA",
-          value: "ARIMA",
-          description:
-            "This script applies ARIMA(P,D,Q) to forecast security price one step ahead. <br /><br /> ARIMA(1,1,2) model is based on :  people.duke.edu/~rnau/411arim.htm <br /><br /> Both AR and MA factor is 0.1 for all terms for simplification, age of data = 1/(1-0.1)=1.1, it has a one bar lag. ",
-          groupIndex: 1,
-          hide: false,
-          apiFunc: "calculateARIMA",
-          parameters: [
-            {
-              name: "src",
-              label: "Source",
-              value: "adjclose",
-              type: "select-one",
-              items: ["open", "high", "low", "close", "adjclose"],
-            },
-            {
-              name: "nar",
-              label: "AR period, P",
-              value: "1",
-              type: "text",
-            },
-            {
-              name: "ndd",
-              label: "degree of difference, D",
-              value: "1",
-              type: "text",
-            },
-            {
-              name: "nma",
-              label: "MA period, Q",
-              value: "5",
-              type: "text",
-            },
-            {
-              name: "pa",
-              label: "AR factor period",
-              value: "10",
-              type: "text",
-            },
-            {
-              name: "pb",
-              label: "MA factor period",
-              value: "10",
-              type: "text",
-            },
-            {
-              name: "len",
-              label: "Length for RMSE",
-              value: "100",
-              type: "text",
-            },
-            {
-              name: "Plot forecast line or dots",
-              label: "Plot forecast line or dots",
-              value: "dots",
-              type: "select-one",
-              items: ["dots", "line"],
-            },
-            {
-              name: "Show RMSE?",
-              label: "Show RMSE?",
-              value: false,
-              type: "checkbox",
-            },
-            {
-              name: "Plot close line?",
-              label: "Plot close line?",
-              value: true,
-              type: "checkbox",
-            },
-          ],
-          seriesType: "line",
-          charts: [
-            {
-              name: "source",
-              column: "src",
-              condition: {
-                parameter: "Plot close line?",
-                value: true,
-              },
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              stroke: "rgb(76, 175, 80)",
-            },
-            {
-              name: "forecast line",
-              column: "Y",
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              result: [],
-              condition: {
-                parameter: "Plot forecast line or dots",
-                value: "line",
-              },
-              stroke: [
-                {
-                  color: "rgb(0, 230, 118)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      if (
-                        allResult[resultIndex]["Y"] >
-                        allResult[resultIndex]["src"]
-                      )
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-                {
-                  color: "rgb(255, 152, 0)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      if (
-                        allResult[resultIndex]["Y"] <
-                        allResult[resultIndex]["src"]
-                      )
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              name: "forecast dots",
-              column: "Y",
-              seriesType: "marker",
-              plotIndexOffset: 0,
-              size: 1,
-              plotIndex: 0,
-              index: -1,
-              result: [],
-              condition: {
-                parameter: "Plot forecast line or dots",
-                value: "dots",
-              },
-              stroke: [
-                {
-                  color: "rgb(0, 230, 118)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      if (
-                        allResult[resultIndex]["Y"] >
-                        allResult[resultIndex]["src"]
-                      )
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-                {
-                  color: "rgb(255, 152, 0)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      if (
-                        allResult[resultIndex]["Y"] <
-                        allResult[resultIndex]["src"]
-                      )
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              name: "latest forecast",
-              column: "Yf",
-              seriesType: "marker",
-              markerType: "circle",
-              size: 3,
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              stroke: "red",
-              range: {
-                startOffset: 0,
-                endOffset: 0,
-              },
-            },
-            {
-              name: "rmse",
-              column: "rmse",
-              condition: {
-                parameter: "Show RMSE?",
-                value: true,
-              },
-              seriesType: "line",
-              plotIndexOffset: 1,
-              plotIndex: 0,
-              index: -1,
-              stroke: "rgb(255, 152, 0)",
-            },
-          ],
-        },
-        {
-          name: "Heikin Ashi Modified",
-          value: "Heikin Ashi Modified",
-          groupIndex: 1,
-          hide: false,
-          apiFunc: "calculateHeikinAshiModified",
-          parameters: [
-            {
-              name: "smooth_period",
-              label: "smooth period",
-              value: "10",
-              type: "text",
-            },
-            {
-              name: "long_short",
-              label: "Long or short",
-              value: "Long & Short",
-              type: "select-one",
-              items: ["Long", "Short", "Long & Short"],
-            },
-          ],
-          charts: [
-            {
-              name: "hai",
-              column: "hai",
-              seriesType: "column",
-              plotIndexOffset: 1,
-              plotIndex: 0,
-              index: -1,
-              result: [],
-              stroke: [
-                {
-                  color: "rgb(0, 230, 118)",
-                  conditions: ["positive"],
-                },
-                {
-                  color: "rgb(33, 150, 243)",
-                  conditions: ["negative"],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          name: "Kalman Filter",
-          value: "Kalman Filter",
-          description:
-            "This script applies ARIMA(P,D,Q) to forecast security price one step ahead. <br /><br /> ARIMA(1,1,2) model is based on :  people.duke.edu/~rnau/411arim.htm <br /><br /> Both AR and MA factor is 0.1 for all terms for simplification, <br /><br /> age of data = 1/(1-0.1)=1.1, it has a one bar lag.  ",
-          groupIndex: 1,
-          hide: false,
-          apiFunc: "calculateKalmanFilter",
-          parameters: [
-            {
-              name: "src",
-              label: "Source",
-              value: "adjclose",
-              type: "select-one",
-              items: ["open", "high", "low", "close", "adjclose"],
-            },
-            {
-              name: "error_scaler",
-              label: "error scaler",
-              value: "5",
-              type: "text",
-            },
-          ],
-          charts: [
-            {
-              name: "Kalman Filter",
-              column: "X",
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              result: [],
-              stroke: [
-                {
-                  color: "rgb(0, 230, 118)",
-                  conditions: ["increase"],
-                },
-                {
-                  color: "rgb(255, 152, 0)",
-                  conditions: ["decrease"],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          name: "MA Crossing",
-          value: "MA Crossing",
-          description:
-            "Use a MA, then apply the same MA with a time lag, signal Buy/Sell when the two lines crossover. <br /><br /> The MA line drew has colored for up and down, therefore, it provides the signal too for a single MA line. <br /><br /> The script assumes the 2nd MA line is the slower one to label the Buy/Sell signals.  <br /><br /> There are two kind of strategy that can be applied: <br /> 1. Cross over of the two MA lines for buy/sell <br /> 2. Focus on Line 1 color change, and use Line 2 trend to indentify noise on Line 1. <br /><br /> The crossing of two MA lines is better use with other indicators <br /><br /> There is no single setting to fit all ",
-          groupIndex: 1,
-          hide: false,
-          apiFunc: "calculateMACrossing",
-          parameters: [
-            {
-              name: "src",
-              label: "Source",
-              value: "adjclose",
-              type: "select-one",
-              items: ["open", "high", "low", "close", "adjclose"],
-            },
-            {
-              name: "mc1",
-              label: "Line 1 MA type",
-              value: "EMA",
-              type: "select-one",
-              items: [
-                "ALMA",
-                "HMA",
-                "eHMA",
-                "ZLEMA",
-                "DEMA",
-                "TEMA",
-                "WMA",
-                "LSMA",
-                "RMA",
-                "VIDYA",
-                "SSF2",
-                "SSF3",
-                "EMA",
-                "SMA",
-              ],
-            },
-            {
-              name: "vlen1",
-              label: "Line 1 fast period",
-              value: "18",
-              type: "text",
-            },
-            {
-              name: "mc2",
-              label: "Line 2 MA type",
-              value: "EMA",
-              type: "select-one",
-              items: [
-                "ALMA",
-                "HMA",
-                "eHMA",
-                "ZLEMA",
-                "DEMA",
-                "TEMA",
-                "WMA",
-                "LSMA",
-                "RMA",
-                "VIDYA",
-                "SSF2",
-                "SSF3",
-                "EMA",
-                "SMA",
-              ],
-            },
-            {
-              name: "vlen2",
-              label: "Line 2 slow period",
-              value: "30",
-              type: "text",
-            },
-            {
-              name: "Draw 2nd line?",
-              label: "Draw 2nd line?",
-              value: true,
-              type: "checkbox",
-            },
-            {
-              name: "Show data source?",
-              label: "Show data source?",
-              value: true,
-              type: "checkbox",
-            },
-            {
-              name: "long_short",
-              label: "Long or short",
-              value: "Long",
-              type: "select-one",
-              items: ["Long", "Short", "Long & Short"],
-            },
-          ],
-          charts: [
-            {
-              name: "VM1",
-              column: "vm1",
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              result: [],
-              stroke: [
-                {
-                  color: "rgb(0, 230, 118)",
-                  conditions: ["increase"],
-                },
-                {
-                  color: "rgb(255, 82, 82)",
-                  conditions: ["decrease"],
-                },
-              ],
-            },
-            {
-              name: "VM2",
-              column: "vm2",
-              condition: {
-                parameter: "Draw 2nd line?",
-                value: true,
-              },
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              result: [],
-              defaultStroke: "2 rgb(41, 98, 255)",
-              stroke: [
-                {
-                  color: "rgb(96, 200, 241)",
-                  conditions: ["increase"],
-                },
-                {
-                  color: "rgb(153, 149, 147)",
-                  conditions: ["decrease"],
-                },
-              ],
-            },
-            {
-              name: "MA Crossing source",
-              column: "src",
-              condition: {
-                parameter: "Show data source?",
-                value: true,
-              },
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              result: [],
-              stroke: "rgb(126, 60, 60)",
-            },
-          ],
-          annotations: [
-            {
-              name: "MA Crossing Buy Label",
-              type: "label",
-              plotIndex: 0,
-              annotationIndex: [],
-              condition: {
-                func: function (curr, prev) {
-                  var condition = false;
-
-                  if (curr.vm1 > curr.vm2 && prev.vm1 < prev.vm2)
-                    condition = true;
-
-                  return condition;
-                },
-              },
-              parameters: {
-                valueAnchor: "vm1",
-                text: "Buy",
-                fontColor: "#363A45",
-              },
-              background: {
-                fill: "#00E676",
-                stroke: "#00E676",
-              },
-            },
-            {
-              name: "MA Crossing Sell Label",
-              type: "label",
-              plotIndex: 0,
-              annotationIndex: [],
-              condition: {
-                func: function (curr, prev) {
-                  var condition = false;
-
-                  if (curr.vm1 < curr.vm2 && prev.vm1 > prev.vm2)
-                    return condition;
-
-                  return condition;
-                },
-              },
-              parameters: {
-                valueAnchor: "vm1",
-                text: "Sell",
-                fontColor: "#FFFFFF",
-              },
-              background: {
-                fill: "#FF5252",
-                stroke: "#FF5252",
-              },
-            },
-          ],
-        },
         {
           name: "MA Drift",
           value: "MA Drift",
@@ -1018,441 +2262,6 @@ const indicatorSlice = createSlice({
             },
           ],
         },
-        {
-          name: "MACD Modified",
-          value: "MACD Modified",
-          description:
-            "Price percentage Oscillator allows different security to compare their strength. <br /><br /> This study put it into a complete MACD, by adding the signal line.  ",
-          groupIndex: 1,
-          hide: false,
-          apiFunc: "calculateMACDModified",
-          parameters: [
-            {
-              name: "fast_length",
-              label: "Fast Length",
-              value: "12",
-              type: "text",
-            },
-            {
-              name: "slow_length",
-              label: "Slow Length",
-              value: "26",
-              type: "text",
-            },
-            {
-              name: "src",
-              label: "Source",
-              value: "adjclose",
-              type: "select-one",
-              items: ["open", "high", "low", "close", "adjclose"],
-            },
-            {
-              name: "signal_length",
-              label: "Signal Smoothing",
-              value: "9",
-              type: "text",
-            },
-          ],
-          charts: [
-            {
-              name: "Signal",
-              column: "signal",
-              seriesType: "line",
-              plotIndexOffset: 1,
-              index: -1,
-              plotIndex: 0,
-              stroke: "rgba(255, 106, 0, 1)",
-            },
-
-            {
-              name: "MACD",
-              column: "macd",
-              seriesType: "line",
-              plotIndexOffset: 1,
-              plotIndex: 0,
-              result: [],
-              index: -1,
-              stroke: [
-                {
-                  color: "rgba(83, 104, 120, 1)",
-                  conditions: ["decrease"],
-                },
-                {
-                  color: "rgba(0, 148, 255, 1)",
-                  conditions: ["increase"],
-                },
-              ],
-            },
-            {
-              name: "Histogram+",
-              column: "hist",
-              seriesType: "column",
-              result: [],
-              plotIndexOffset: 1,
-              plotIndex: 0,
-              index: -1,
-              stroke: [
-                {
-                  color: "rgb(38, 166, 154)",
-                  conditions: ["positive", "increase"],
-                },
-                {
-                  color: "rgb(255, 205, 210)",
-                  conditions: ["negative", "increase"],
-                },
-                {
-                  color: "rgb(178, 223, 219)",
-                  conditions: ["positive", "decrease"],
-                },
-                {
-                  color: "rgb(239, 83, 80)",
-                  conditions: ["negative", "decrease"],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          name: "RSI Modified",
-          value: "RSI Modified",
-          description:
-            "RSI over 50 is long, RSI below 50 is short. It is ok for most of the security. <br /><br /> eg. Set upper and lower bar to [53 & 47] or [52 & 85] etc if the security has more trendless period. <br /><br /> Line plot by scale the RSI value (%) on the Lo-Hi of each candle. <br /><br /> Line color signaling:  Green=UP, Orange=Down, Gray= sideway or in-transit",
-          groupIndex: 1,
-          hide: false,
-          apiFunc: "calculateRSIModified",
-          parameters: [
-            {
-              name: "period",
-              label: "RSI period",
-              value: "14",
-              type: "text",
-            },
-            {
-              name: "speriod",
-              label: "RSI Smooth",
-              value: "5",
-              type: "text",
-            },
-            {
-              name: "ub",
-              label: "Upper bar",
-              value: "53",
-              type: "text",
-            },
-            {
-              name: "lb",
-              label: "Lower bar",
-              value: "47",
-              type: "text",
-            },
-            {
-              name: "Plot RSI=50 reference line?",
-              label: "Plot RSI=50 reference line?",
-              value: false,
-              type: "checkbox",
-            },
-          ],
-          charts: [
-            {
-              name: "RSI+",
-              column: "prisma",
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              result: [],
-              index: -1,
-              defaultStroke: "2 rgb(169, 232, 245)",
-              stroke: [
-                {
-                  color: "2 rgb(76, 175, 80)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      // allResult.reverse();
-                      if (allResult[resultIndex]["trend"] === 2)
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-                {
-                  color: "2 rgb(118, 255, 122)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      // allResult.reverse();
-                      if (allResult[resultIndex]["trend"] === 1)
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-                {
-                  color: "2 rgb(247, 184, 209)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      // allResult.reverse();
-                      if (allResult[resultIndex]["trend"] === -1)
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-                {
-                  color: "2 rgb(156, 28, 28)",
-                  conditions: [
-                    function ($this, resultIndex, allResult) {
-                      var condition = false;
-
-                      // allResult.reverse();
-                      if (allResult[resultIndex]["trend"] === -2)
-                        condition = true;
-                      return condition;
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              name: "RSI50",
-              column: "mid",
-              condition: {
-                parameter: "Plot RSI=50 reference line?",
-                value: true,
-              },
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              stroke: "rgb(120, 123, 134)",
-            },
-          ],
-        },
-        {
-          name: "Turtle Trade",
-          value: "Turtle Trade",
-          description:
-            "Basic Turtle trade is : <br /> Buy when close is higher than m-day high, exit Buy when close is lower than n-day low. <br /><br /> Sell when close is lower than m-day low, exit Sell when close is higher than n-day high. <br /><br /> ATR cut Turtle trade is: <br /> Exit Buy when close is lower than ATR*factor line, and exit Sell when close is higher than ATR*factor line. <br /><br /> Since Buy and Sell line runs independently, there is chance that both Buy and Sell are triggered ! <br /><br /> There are also cases that both Buy and Sell are exited.  <br /><br /> This script eliminates the overlap and blanks by compare close to close[2] for a decision of a buy or sell, its called signal train. ",
-          groupIndex: 1,
-          hide: false,
-          apiFunc: "calculateTurtleTrade",
-          parameters: [
-            {
-              name: "entryLength",
-              label: "Entry length",
-              value: "6",
-              type: "text",
-            },
-            {
-              name: "exitLength",
-              label: "Exit length",
-              value: "6",
-              type: "text",
-            },
-            {
-              name: "Exit method",
-              label: "Exit method",
-              value: "Turtle cut",
-              type: "select-one",
-              items: ["Turtle cut", "ATR cut"],
-            },
-            {
-              name: "atrFactor",
-              label: "ATR factor",
-              value: "0.8",
-              type: "text",
-            },
-            {
-              name: "Fill up & align?",
-              label: "Fill up & align?",
-              value: false,
-              // value: true,
-              type: "checkbox",
-            },
-          ],
-          charts: [
-            {
-              name: "Turtle cut buy",
-              column: "llevel",
-              seriesType: "marker",
-              markerType: "circle",
-              fill: "green",
-              stroke: "green",
-              size: 3,
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              condition: [
-                {
-                  parameter: "Exit method",
-                  value: "Turtle cut",
-                },
-                {
-                  parameter: "Fill up & align?",
-                  value: false,
-                },
-              ],
-            },
-            {
-              name: "Turtle cut sell",
-              column: "hlevel",
-              seriesType: "marker",
-              markerType: "circle",
-              fill: "red",
-              stroke: "red",
-              size: 3,
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              condition: [
-                {
-                  parameter: "Exit method",
-                  value: "Turtle cut",
-                },
-                {
-                  parameter: "Fill up & align?",
-                  value: false,
-                },
-              ],
-            },
-            {
-              name: "ATR cut buy",
-              column: "llevelSecond",
-              seriesType: "marker",
-              markerType: "circle",
-              fill: "green",
-              stroke: "green",
-              size: 3,
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              condition: [
-                {
-                  parameter: "Exit method",
-                  value: "ATR cut",
-                },
-                {
-                  parameter: "Fill up & align?",
-                  value: false,
-                },
-              ],
-            },
-            {
-              name: "ATR cut sell",
-              column: "hlevelSecond",
-              seriesType: "marker",
-              markerType: "circle",
-              fill: "red",
-              stroke: "red",
-              size: 3,
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              condition: [
-                {
-                  parameter: "Exit method",
-                  value: "ATR cut",
-                },
-                {
-                  parameter: "Fill up & align?",
-                  value: false,
-                },
-              ],
-            },
-            {
-              name: "Turtle cut buy Ts",
-              column: "llevelTs",
-              seriesType: "marker",
-              markerType: "circle",
-              fill: "green",
-              stroke: "green",
-              size: 3,
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              condition: [
-                {
-                  parameter: "Exit method",
-                  value: "Turtle cut",
-                },
-                {
-                  parameter: "Fill up & align?",
-                  value: true,
-                },
-              ],
-            },
-            {
-              name: "Turtle cut sell Ts",
-              column: "hlevelTs",
-              seriesType: "marker",
-              markerType: "circle",
-              fill: "red",
-              stroke: "red",
-              size: 3,
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              condition: [
-                {
-                  parameter: "Exit method",
-                  value: "Turtle cut",
-                },
-                {
-                  parameter: "Fill up & align?",
-                  value: true,
-                },
-              ],
-            },
-            {
-              name: "ART cut buy Second",
-              column: "llevelTsSecond",
-              seriesType: "marker",
-              markerType: "circle",
-              fill: "green",
-              stroke: "green",
-              size: 3,
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              condition: [
-                {
-                  parameter: "Exit method",
-                  value: "ATR cut",
-                },
-                {
-                  parameter: "Fill up & align?",
-                  value: true,
-                },
-              ],
-            },
-            {
-              name: "ATR cut sell Second",
-              column: "hlevelTsSecond",
-              seriesType: "marker",
-              markerType: "circle",
-              fill: "red",
-              stroke: "red",
-              size: 3,
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              condition: [
-                {
-                  parameter: "Exit method",
-                  value: "ATR cut",
-                },
-                {
-                  parameter: "Fill up & align?",
-                  value: true,
-                },
-              ],
-            },
-          ],
-        },
       ],
     },
     currentIndicators: [],
@@ -1485,29 +2294,7 @@ const indicatorSlice = createSlice({
         VolumeStroke: "1 rgb(255, 255, 255)",
         hide: false,
       },
-      {
-        name: "Pivot Hi Lo",
-        description:
-          "Pivot Points (High/Low), also known as Bar Count Reversals. <br /><br />   It is the highest/lowest point from n bar in left and m bars to right. <br /><br />  So, it is a point of concern, and its suggestion for Resistance and Support levels. <br /><br />  This study will plot the line of the Highest/lowest until a new Pivot Hi/Lo shows up. ",
-        parameters: [
-          {
-            name: "left",
-            label: "Left",
-            value: "10",
-            type: "text",
-          },
-          {
-            name: "right",
-            label: "Right",
-            value: "10",
-            type: "text",
-          },
-        ],
-        pivotHighStroke: "rgb(136, 14, 79)",
-        pivotLowStroke: "rgb(33, 150, 243)",
-        chartIndex: -1,
-        hide: false,
-      },
+
       {
         name: "Fibo Lines",
         description: "",
@@ -1547,117 +2334,7 @@ const indicatorSlice = createSlice({
         chartIndex: -1,
         hide: false,
       },
-      {
-        name: "52 Wk Hi Lo Range - Buy Sell",
-        description:
-          "This is a study to check the position of current price in the Highest - lowest range of selected length, and provide a notification for potential sell or buy. <br /><br /> Default value = 240 is proxy to 1 year for daily chart  <br /><br /> Suggestion : Daily chart  - 2Y=480, 1Y=240, 6m=120, 3m=60  <br /> Weekly chart - 3Y=156, 2Y=104, 1Y=52   etc...",
-        parameters: [
-          {
-            name: "adjust",
-            label: "Adjust Data for dividends?",
-            value: true,
-            type: "checkbox",
-          },
-          {
-            name: "len",
-            label: "Period",
-            value: "90",
-            type: "text",
-          },
-          {
-            name: "UB",
-            label: "Hi trigger level",
-            value: "93",
-            type: "text",
-          },
-          {
-            name: "LB",
-            label: "Lo trigger Level",
-            value: "7",
-            type: "text",
-          },
-        ],
-        chartIndex: -1,
-        hide: false,
-      },
-      {
-        name: "William Vix Fix Top Bottom detection",
-        description:
-          "use William Vix Fix as the Top and Bottom detection tool. <br /><br /> although William Vix Fix use 22 days as length, 50 is prefered after testing. <br /><br/> changing color of the histogram helps to highlight the approaching of extremes.  <br /><br/> When price falling fast, color is dark. Wait for the color to change to low level for action is better.  <br /><br />Historical Volatility is available here for comparision, you can see that HV is lagging seriously and only valid for downturn.",
-        parameters: [
-          {
-            name: "length",
-            label: "VIX period",
-            value: "50",
-            type: "text",
-          },
-          {
-            name: "flength",
-            label: "Filter lookback",
-            value: "70",
-            type: "text",
-          },
-          {
-            name: "filter",
-            label: "Percentile level",
-            value: "0.97",
-            type: "text",
-          },
-          {
-            name: "show1",
-            label: "Show Top or Bottom",
-            value: "Bottom",
-            type: "select-one",
-            items: ["Top", "Bottom"],
-          },
-          {
-            name: "showHV",
-            label: "Show hist vol?",
-            value: true,
-            type: "checkbox",
-          },
-        ],
-        chartIndex: -1,
-        hide: false,
-      },
-      {
-        name: "Cyclical KO",
-        description: "",
-        parameters: [
-          {
-            name: "len1",
-            label: "Oscillator 1 period",
-            value: "9",
-            type: "text",
-          },
-          {
-            name: "len2",
-            label: "Oscillator 2 period",
-            value: "20",
-            type: "text",
-          },
-          {
-            name: "len3",
-            label: "Oscillator 3 period",
-            value: "50",
-            type: "text",
-          },
-          {
-            name: "p1",
-            label: "Up counts",
-            value: "20",
-            type: "text",
-          },
-          {
-            name: "p2",
-            label: "Down counts",
-            value: "20",
-            type: "text",
-          },
-        ],
-        chartIndex: -1,
-        hide: false,
-      },
+
       {
         name: "Linear Regression Channel on Pivot",
         description:
@@ -1746,84 +2423,6 @@ const indicatorSlice = createSlice({
         zigzagPredictiveStrokeColor: "rgb(181, 175, 21)",
         zigzagSecondPredictiveStrokeColor: "rgb(255, 82, 82)",
       },
-      {
-        name: "ATR lines on lower timeframe",
-        parameters: [
-          {
-            name: "n",
-            label: "ATR period",
-            value: "20",
-            type: "text",
-          },
-          {
-            name: "p",
-            label: "Align to",
-            value: "Mid of today TR",
-            type: "select",
-            items: ["day Hi", "day Lo", "TR Hi", "TR Lo", "Mid of today TR"],
-          },
-          {
-            name: "s0",
-            label: "Fill today true range",
-            value: true,
-            type: "checkbox",
-          },
-        ],
-        chartIndex: -1,
-        hide: false,
-      },
-      {
-        name: "10AM Hi Lo fibo",
-        parameters: [
-          {
-            name: "startHour",
-            label: "startHour",
-            value: "22",
-            type: "text",
-          },
-          {
-            name: "startMinutes",
-            label: "startMinutes",
-            value: "30",
-            type: "text",
-          },
-          {
-            name: "endHour",
-            label: "endHour",
-            value: "23",
-            type: "text",
-          },
-          {
-            name: "endMinutes",
-            label: "endMinutes",
-            value: "15",
-            type: "text",
-          },
-          {
-            name: "mode",
-            label: "mode",
-            value: "Observation",
-            type: "select-one",
-            items: ["Observation", "Today Hi-Lo"],
-          },
-          {
-            name: "Extend upward fibo?",
-            label: "Extend upward fibo?",
-            value: "0",
-            type: "select",
-            items: ["0", "1", "2"],
-          },
-          {
-            name: "Extend downward fibo?",
-            label: "Extend downward fibo?",
-            value: "0",
-            type: "select",
-            items: ["0", "1", "2"],
-          },
-        ],
-        chartIndex: -1,
-        hide: false,
-      },
     ],
     currentStockTools: [],
   },
@@ -1889,6 +2488,19 @@ const indicatorSlice = createSlice({
         if (state.currentIndicators[i].name === name) {
           for (let j = 0; j < state.currentIndicators[i].charts.length; j++) {
             state.currentIndicators[i].charts[j].index -= 1;
+          }
+        }
+      }
+    },
+    resetIndicatorChartPlot(state, action) {
+      let index_input = action.payload;
+      console.log("payload: " + index_input);
+      if (index_input < state.currentIndicators.length - 1) {
+        for (let i = index_input; i < state.currentIndicators.length; i++) {
+          for (let j = 0; j < state.currentIndicators[i].charts.length; j++) {
+            if (state.currentIndicators[i].charts[j].plotIndex > 0) {
+              state.currentIndicators[i].charts[j].plotIndex -= 1;
+            }
           }
         }
       }

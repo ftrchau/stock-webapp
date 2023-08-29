@@ -52,6 +52,9 @@ const methods = {
   calculateARIMA(params) {
     return api.post("/calculateARIMA", params);
   },
+  calculateHoltWinters(params) {
+    return api.post("/calculateHoltWinters", params);
+  },
   calculateWkHiLoRange(params) {
     return api.post("/calculateWkHiLoRange", params);
   },
@@ -78,6 +81,9 @@ const methods = {
   },
   calculateZigZag(params) {
     return api.post("/calculateZigZag", params);
+  },
+  calculatePVBullBear(params) {
+    return api.post("/calculatePVBullBear", params);
   },
   calculateIntraFiboPivotHiLo(params) {
     return api.post("/calculateIntraFiboPivotHiLo", params);

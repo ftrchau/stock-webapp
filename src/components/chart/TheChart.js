@@ -148,6 +148,15 @@ function TheChart(props) {
   const addIndicator = useCallback(
     async (indicator) => {
       ////console.log("does addIndicator get called?");
+
+      let apiInputParam = {};
+      indicator.parameters.forEach((opt) => {
+        apiInputParam[opt.name] =
+          Number.isNaN(+opt.value) || typeof opt.value == "boolean"
+            ? opt.value
+            : +opt.value;
+      });
+
       var charts = indicator.charts.map((item) => ({ ...item }));
       var annotations =
         "annotations" in indicator
@@ -157,13 +166,32 @@ function TheChart(props) {
             }))
           : [];
 
-      let apiInputParam = {};
-      indicator.parameters.forEach((opt) => {
-        apiInputParam[opt.name] =
-          Number.isNaN(+opt.value) || typeof opt.value == "boolean"
-            ? opt.value
-            : +opt.value;
-      });
+      if (indicator.type === "custom") {
+        if (indicator.name === "10AM Hi Lo fibo") {
+          await stockDataStore.addIntraFline(
+            chart.current,
+            interval,
+            stockData,
+            indicator,
+            ticker,
+            adjustDividend,
+            startDate,
+            endDate,
+            tradingPeriod
+          );
+        }
+        if (indicator.name === "ATR lines on lower timeframe") {
+        }
+        dispatch(
+          indicatorActions.addIndicator({
+            indicator,
+            charts,
+            annotations,
+          })
+        );
+
+        return;
+      }
 
       let allResult = await indicatorCallback(indicator.apiFunc, {
         ...apiInputParam,
@@ -210,11 +238,18 @@ function TheChart(props) {
                 index <= allResult.length - 1 - ind.range.endOffset
             )
             .map((p, index) => {
-              return [moment(p.date).valueOf(), +p[ind.column]];
+              return [
+                moment(p.date).valueOf(),
+                p[ind.column] ? +p[ind.column] : null,
+              ];
             });
         } else {
           addResult = allResult.map((p, index) => {
-            return [moment(p.date).valueOf(), +p[ind.column]];
+            return [
+              moment(p.date).valueOf(),
+              // +p[ind.column],
+              p[ind.column] ? +p[ind.column] : null,
+            ];
             // return [moment.utc(p.date).valueOf(), +p[ind.column]];
             // return [
             //   moment.utc(p.date).format("YYYY-MM-DD hh:mm:ss"),
@@ -347,12 +382,16 @@ function TheChart(props) {
                 : 0
             )
             [ind.seriesType](mapping)
-            ["name"](ind.name)
-            [ind.seriesType === "column" ? "fill" : "stroke"](ind.stroke);
+            ["name"](ind.name);
+          // [ind.seriesType === "column" ? "fill" : "stroke"](ind.stroke);
         }
 
         if (ind.seriesType === "marker") {
           chartTemp.size(ind.size);
+        } else {
+          chartTemp[ind.seriesType === "column" ? "fill" : "stroke"](
+            ind.stroke
+          );
         }
         if ("markerType" in ind) {
           chartTemp.type(ind.markerType);
@@ -412,6 +451,9 @@ function TheChart(props) {
         indicator.annotations.forEach((anno, index) => {
           let annoMappings = allResult
             .filter((p, idx) => {
+              if (!("condition" in anno)) {
+                return p[anno.parameters.valueAnchor];
+              }
               if ("func" in anno.condition) {
                 return idx < 1
                   ? true
@@ -420,24 +462,40 @@ function TheChart(props) {
               return p[anno.condition.column] === anno.condition.value;
             })
             .map((p) => {
-              return {
+              let annoObj = {
                 fontSize: 10,
                 xAnchor: moment(p.date).valueOf(),
                 valueAnchor: p[anno.parameters.valueAnchor],
-                text:
-                  "textParam" in anno.parameters
-                    ? p[anno.parameters.textParam]
-                    : anno.parameters.text,
-                normal: {
-                  fontColor: anno.parameters.fontColor,
-                },
-                hovered: {
-                  fontColor: anno.parameters.fontColor,
-                },
-                selected: {
-                  fontColor: anno.parameters.fontColor,
-                },
               };
+
+              if (anno.type === "label") {
+                annoObj = {
+                  ...annoObj,
+                  text:
+                    "textParam" in anno.parameters
+                      ? p[anno.parameters.textParam]
+                      : anno.parameters.text,
+                  normal: {
+                    fontColor: anno.parameters.fontColor,
+                  },
+                  hovered: {
+                    fontColor: anno.parameters.fontColor,
+                  },
+                  selected: {
+                    fontColor: anno.parameters.fontColor,
+                  },
+                };
+              }
+              if (anno.type === "marker") {
+                annoObj = {
+                  ...annoObj,
+                  markerType: anno.parameters.markerType,
+                  fill: anno.background.fill,
+                  stroke: anno.background.stroke,
+                };
+              }
+
+              return annoObj;
             });
 
           annoMappings.forEach((annoMapping) => {
@@ -447,17 +505,24 @@ function TheChart(props) {
                 .plot(anno.plotIndex)
                 .annotations()
                 [anno.type](annoMapping)
-                .background({
-                  fill: anno.background.fill,
-                  stroke: anno.background.stroke,
-                })
                 .allowEdit(false)
+              // .background({
+              //   fill: anno.background.fill,
+              //   stroke: anno.background.stroke,
+              // })
             );
           });
         });
       }
 
-      console.log(indicator.parameters);
+      if ("yscale" in indicator) {
+        chart.current
+          .plot(plotIndex.current)
+          .yScale()
+          [indicator.yscale.type](indicator.yscale.value);
+      }
+
+      console.log(indicator);
 
       dispatch(
         indicatorActions.addIndicator({
@@ -1236,6 +1301,8 @@ function TheChart(props) {
             }
           }
         }
+
+        dispatch(indicatorActions.removeSelectedStockTool(index));
       }
       if (ind.name === "Zig Zag + LR") {
         annotationIndex.ZigZagannotationIndex.forEach((elem) => {
@@ -1257,6 +1324,7 @@ function TheChart(props) {
             }
           }
         }
+        dispatch(indicatorActions.removeSelectedStockTool(index));
       }
       if (ind.name === "ATR lines on lower timeframe") {
         annotationIndex.IntraATRannotationIndex.forEach((elem) => {
@@ -1337,10 +1405,22 @@ function TheChart(props) {
         .map((ch) => ch.plotIndex)
         .filter((value, index, self) => self.indexOf(value) === index);
 
+      console.log(allPlots);
+
       allPlots.sort(function (a, b) {
         return b - a;
       });
       ////console.log(allPlots);
+      if ("annotations" in ind) {
+        ind.annotations.forEach((anno, index) => {
+          anno.annotationIndex.forEach((annoIndex) => {
+            chart.current
+              .plot(anno.plotIndex)
+              .annotations()
+              .removeAnnotation(annoIndex);
+          });
+        });
+      }
 
       for (let m = 0; m < allPlots.length; m++) {
         chartSeriesIndex = [];
@@ -1358,40 +1438,41 @@ function TheChart(props) {
           }
         }
 
-        filterCharts = ind.charts.filter((ch) => ch.plotIndex === allPlots[m]);
-        numOfCharts = filterCharts.length;
+        // filterCharts = ind.charts.filter((ch) => ch.plotIndex === allPlots[m]);
+        // numOfCharts = filterCharts.length;
 
-        indicatorIndex = [];
-        for (let index = 0; index < numOfCharts; index++) {
-          indicatorIndex.push(
-            filterCharts[index].index +
-              index +
-              Math.max(0, numOfCharts * index_input - 1)
-          );
+        // indicatorIndex = [];
+        // for (let index = 0; index < numOfCharts; index++) {
+        //   indicatorIndex.push(
+        //     filterCharts[index].index +
+        //       index +
+        //       Math.max(0, numOfCharts * index_input - 1)
+        //   );
+        // }
+        // chartSeriesIndex.reverse();
+        // for (let j = 0; j < indicatorIndex.length; j++) {
+        //   chart.current
+        //     .plot(allPlots[m])
+        //     .removeSeries(chartSeriesIndex[indicatorIndex[j]]);
+        // }
+        for (let j = 0; j < chartSeriesIndex.length; j++) {
+          chart.current.plot(allPlots[m]).removeSeries(chartSeriesIndex[j]);
         }
-        chartSeriesIndex.reverse();
-        for (let j = 0; j < indicatorIndex.length; j++) {
-          chart.current
-            .plot(allPlots[m])
-            .removeSeries(chartSeriesIndex[indicatorIndex[j]]);
-        }
+
+        console.log(allPlots[m]);
+        console.log(chart.current.plot(allPlots[m]).getSeriesCount());
         if (chart.current.plot(allPlots[m]).getSeriesCount() < 1) {
+          console.log("cond is satisfied");
           chart.current.plot(allPlots[m]).dispose();
           plotIndex.current -= 1;
         }
-        if (Math.max(...indicatorIndex) + 1 < Math.max(...chartSeriesIndex))
-          dispatch(indicatorActions.resetIndicatorIndex(ind.name));
-      }
-
-      if ("annotations" in ind) {
-        ind.annotations.forEach((anno, index) => {
-          anno.annotationIndex.forEach((annoIndex) => {
-            chart.current
-              .plot(anno.plotIndex)
-              .annotations()
-              .removeAnnotation(annoIndex);
-          });
-        });
+        // console.log(indicatorIndex);
+        console.log(chartSeriesIndex);
+        // if (Math.max(...indicatorIndex) + 1 < Math.max(...chartSeriesIndex)) {
+        //   console.log("call reset indicator index");
+        //   dispatch(indicatorActions.resetIndicatorIndex(ind.name));
+        // }
+        dispatch(indicatorActions.resetIndicatorChartPlot(index_input));
       }
     },
     [chart, dispatch]
@@ -1538,6 +1619,9 @@ function TheChart(props) {
           indicator.annotations.forEach((anno, index) => {
             let annoMappings = allResult
               .filter((p, idx) => {
+                if (!("condition" in anno)) {
+                  return p[anno.parameters.valueAnchor];
+                }
                 if ("func" in anno.condition) {
                   return idx < 1
                     ? true
@@ -1546,24 +1630,40 @@ function TheChart(props) {
                 return p[anno.condition.column] === anno.condition.value;
               })
               .map((p) => {
-                return {
+                let annoObj = {
                   fontSize: 10,
                   xAnchor: moment(p.date).valueOf(),
                   valueAnchor: p[anno.parameters.valueAnchor],
-                  text:
-                    "textParam" in anno.parameters
-                      ? p[anno.parameters.textParam]
-                      : anno.parameters.text,
-                  normal: {
-                    fontColor: anno.parameters.fontColor,
-                  },
-                  hovered: {
-                    fontColor: anno.parameters.fontColor,
-                  },
-                  selected: {
-                    fontColor: anno.parameters.fontColor,
-                  },
                 };
+
+                if (anno.type === "label") {
+                  annoObj = {
+                    ...annoObj,
+                    text:
+                      "textParam" in anno.parameters
+                        ? p[anno.parameters.textParam]
+                        : anno.parameters.text,
+                    normal: {
+                      fontColor: anno.parameters.fontColor,
+                    },
+                    hovered: {
+                      fontColor: anno.parameters.fontColor,
+                    },
+                    selected: {
+                      fontColor: anno.parameters.fontColor,
+                    },
+                  };
+                }
+                if (anno.type === "marker") {
+                  annoObj = {
+                    ...annoObj,
+                    markerType: anno.parameters.markerType,
+                    fill: anno.background.fill,
+                    stroke: anno.background.stroke,
+                  };
+                }
+
+                return annoObj;
               });
 
             annoMappings.forEach((annoMapping) => {
@@ -1573,15 +1673,22 @@ function TheChart(props) {
                   .plot(anno.plotIndex)
                   .annotations()
                   [anno.type](annoMapping)
-                  .background({
-                    fill: anno.background.fill,
-                    stroke: anno.background.stroke,
-                  })
                   .allowEdit(false)
+                // .background({
+                //   fill: anno.background.fill,
+                //   stroke: anno.background.stroke,
+                // })
               );
             });
           });
         });
+
+        if ("yscale" in indicator) {
+          chart.current
+            .plot(plotIndex.current)
+            .yScale()
+            [indicator.yscale.type](indicator.yscale.value);
+        }
 
         dispatch(
           indicatorActions.setAnnotations({
@@ -1612,6 +1719,7 @@ function TheChart(props) {
             }
           }
           let condResult;
+          let chartTemp;
           if (Array.isArray(indicator.charts[k].condition)) {
             condResult = indicator.charts[k].condition.reduce(
               (accumulator, currentCond) =>
@@ -1677,15 +1785,131 @@ function TheChart(props) {
               ////console.log(addResult);
               mapping = table.mapAs();
               mapping.addField("value", 1);
-              let chartTemp = chart.current
-                .plot(indicator.charts[k].plotIndexOffset + plotIndex.current)
-                [indicator.charts[k].seriesType](mapping)
-                ["name"](indicator.charts[k].name)
-                [
-                  indicator.charts[k].seriesType === "column"
-                    ? "fill"
-                    : "stroke"
-                ](indicator.charts[k].stroke);
+              if (Array.isArray(indicator.charts[k].stroke)) {
+                chartTemp = chart.current
+                  .plot(indicator.charts[k].plotIndexOffset + plotIndex.current)
+                  [indicator.charts[k].seriesType](mapping)
+                  ["name"](indicator.charts[k].name)
+                  [
+                    indicator.charts[k].seriesType === "column"
+                      ? "fill"
+                      : "stroke"
+                  ](function () {
+                    if (!this.value) return this.sourceColor;
+                    if (!this.x) return this.sourceColor;
+                    // ////console.log(this.x);
+                    let resultIndex = addResult.findIndex(
+                      // (p) => p[0] === moment(this.x).valueOf()
+                      // (p) => moment(p[0]).valueOf() === moment.utc(this.x).valueOf()
+                      (p) => this.value === p[1]
+                    );
+                    if (resultIndex < 0) {
+                      // ////console.log(this.x);
+                      // ////console.log(addResult);
+                      ////console.log(this);
+                      return this.sourceColor;
+                    }
+                    if (!addResult[resultIndex - 1]) return;
+                    let prevValue = addResult[resultIndex - 1][1];
+
+                    let strokeColor = "";
+                    let conditions_temp = "";
+                    // ////console.log("is this still affecting??");
+
+                    for (
+                      let i = 0;
+                      i < indicator.charts[k].stroke.length;
+                      i++
+                    ) {
+                      conditions_temp = "";
+                      for (
+                        let j = 0;
+                        j < indicator.charts[k].stroke[i].conditions.length;
+                        j++
+                      ) {
+                        // conditions_temp = "";
+                        if (
+                          typeof indicator.charts[k].stroke[i].conditions[j] ===
+                          "string"
+                        ) {
+                          if (
+                            indicator.charts[k].stroke[i].conditions[j] ===
+                            "positive"
+                          ) {
+                            conditions_temp =
+                              conditions_temp === ""
+                                ? this.value >= 0
+                                : conditions_temp && this.value >= 0;
+                          }
+                          if (
+                            indicator.charts[k].stroke[i].conditions[j] ===
+                            "negative"
+                          ) {
+                            conditions_temp =
+                              conditions_temp === ""
+                                ? this.value < 0
+                                : conditions_temp && this.value < 0;
+                          }
+                          if (
+                            indicator.charts[k].stroke[i].conditions[j] ===
+                            "increase"
+                          ) {
+                            conditions_temp =
+                              conditions_temp === ""
+                                ? this.value > prevValue
+                                : conditions_temp && this.value > prevValue;
+                          }
+                          if (
+                            indicator.charts[k].stroke[i].conditions[j] ===
+                            "decrease"
+                          ) {
+                            conditions_temp =
+                              conditions_temp === ""
+                                ? this.value < prevValue
+                                : conditions_temp && this.value < prevValue;
+                          }
+                        } else {
+                          conditions_temp =
+                            conditions_temp === ""
+                              ? indicator.charts[k].stroke[i].conditions[j](
+                                  this,
+                                  resultIndex,
+                                  allResult
+                                )
+                              : indicator.charts[k].stroke[i].conditions[j](
+                                  this,
+                                  resultIndex,
+                                  allResult
+                                );
+                        }
+                      }
+                      if (conditions_temp) {
+                        strokeColor = indicator.charts[k].stroke[i].color;
+                        break;
+                      }
+                    }
+
+                    if (conditions_temp) {
+                      return strokeColor;
+                    } else {
+                      if ("defaultStroke" in indicator.charts[k]) {
+                        return indicator.charts[k].stroke.defaultStroke;
+                      }
+                    }
+
+                    return this.sourceColor;
+                  });
+              } else {
+                chartTemp = chart.current
+                  .plot(indicator.charts[k].plotIndexOffset + plotIndex.current)
+                  [indicator.charts[k].seriesType](mapping)
+                  ["name"](indicator.charts[k].name)
+                  [
+                    indicator.charts[k].seriesType === "column"
+                      ? "fill"
+                      : "stroke"
+                  ](indicator.charts[k].stroke);
+              }
 
               if (indicator.charts[k].seriesType === "marker") {
                 chartTemp.size(indicator.charts[k].size);
@@ -2182,24 +2406,17 @@ function TheChart(props) {
   return (
     <Container fluid="md">
       <Row>
-        <Col xl={1} md={1} className="chartToolBar">
-          <ChartToolBar chart={chart} horizontal={false} />
-        </Col>
-        <Col md={11} xl={11}>
+        <Col md={12} xl={12}>
           <ChartTopBar
             chart={chart}
             ticker={ticker}
-            stockData={stockData}
             addIndicator={addIndicator}
             updateIndicator={updateIndicator}
             removeIndicator={removeIndicator}
             addStockTool={addStockTool}
             updateStockTool={updateStockTool}
             removeStockTool={removeStockTool}
-            toggleRealTime={toggleRealTime}
-            changeTimeZone={changeTimeZone}
             adjustDividend={adjustDividend}
-            timezone={timezone}
             plotIndex={plotIndex}
             initialPicked={initialPicked}
             showIndicator={showIndicator}
@@ -2207,6 +2424,10 @@ function TheChart(props) {
             showStockTool={showStockTool}
             hideStockTool={hideStockTool}
           />
+        </Col>
+      </Row>
+      <Row>
+        <Col md={12} xl={12}>
           <AnyChart
             id="stock-chart"
             width="100%"
@@ -2234,7 +2455,14 @@ function TheChart(props) {
             addStockTool={addStockTool}
           />
           <div className="chartToolBarBottom">
-            <ChartToolBar chart={chart} horizontal={true} />
+            <ChartToolBar
+              chart={chart}
+              horizontal={true}
+              toggleRealTime={toggleRealTime}
+              changeTimeZone={changeTimeZone}
+              timezone={timezone}
+              stockData={stockData}
+            />
           </div>
         </Col>
       </Row>

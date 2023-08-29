@@ -59,7 +59,8 @@ function IndicatorSetting(props) {
 
   const removeSelectedIndicator = () => {
     // props.removeIndicator(props.ind, props.index);
-    props.removeIndicator(props.ind, props.indicatorIndex);
+    // props.removeIndicator(props.ind, props.indicatorIndex);
+    props.removeIndicator(props.ind, props.index);
     dispatch(indicatorActions.removeSelectedIndicator(props.index));
   };
 
