@@ -2267,6 +2267,102 @@ const indicatorSlice = createSlice({
     currentIndicators: [],
     stockTools: [
       {
+        name: "10AM Hi Lo fibo",
+        apiFunc: "calculateIntraFiboPivotHiLo",
+        parameters: [
+          {
+            name: "startHour",
+            label: "startHour",
+            value: "22",
+            type: "text",
+          },
+          {
+            name: "startMinutes",
+            label: "startMinutes",
+            value: "30",
+            type: "text",
+          },
+          {
+            name: "endHour",
+            label: "endHour",
+            value: "23",
+            type: "text",
+          },
+          {
+            name: "endMinutes",
+            label: "endMinutes",
+            value: "15",
+            type: "text",
+          },
+          {
+            name: "mode",
+            label: "mode",
+            value: "Observation",
+            type: "select-one",
+            items: ["Observation", "Today Hi-Lo"],
+          },
+          {
+            name: "Extend upward fibo?",
+            label: "Extend upward fibo?",
+            value: "0",
+            type: "select",
+            items: ["0", "1", "2"],
+          },
+          {
+            name: "Extend downward fibo?",
+            label: "Extend downward fibo?",
+            value: "0",
+            type: "select",
+            items: ["0", "1", "2"],
+          },
+        ],
+        type: "custom",
+        charts: [],
+        annotations: [],
+        chartIndex: -1,
+        hide: false,
+      },
+      {
+        name: "ATR lines on lower timeframe",
+        apiFunc: "calculateIntraATR",
+        parameters: [
+          {
+            name: "n",
+            label: "ATR period",
+            value: "20",
+            type: "text",
+          },
+          {
+            name: "p",
+            label: "Align to",
+            value: "Mid of today TR",
+            type: "select",
+            items: ["day Hi", "day Lo", "TR Hi", "TR Lo", "Mid of today TR"],
+          },
+          {
+            name: "s0",
+            label: "Fill today true range",
+            value: true,
+            type: "checkbox",
+          },
+        ],
+        charts: [
+          {
+            name: "ftop",
+            column: "ftop",
+            seriesType: "line",
+            plotIndexOffset: 0,
+            plotIndex: 0,
+            index: -1,
+            result: [],
+            stroke: "rgb(255, 152, 0)",
+          },
+        ],
+        annotations: [],
+        chartIndex: -1,
+        hide: false,
+      },
+      {
         name: "Volume Profile",
         parameters: [
           {

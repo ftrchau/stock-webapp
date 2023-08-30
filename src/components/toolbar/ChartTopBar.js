@@ -48,9 +48,9 @@ function ChartTopBar(props) {
   const advancedIndicators = useSelector(
     (state) => state.indicator.indicators["Advanced Indicators"]
   );
-  const lowTimeFrameIndicators = useSelector(
-    (state) => state.indicator.indicators["Tools Suitable For Low Time Periods"]
-  );
+  // const lowTimeFrameIndicators = useSelector(
+  //   (state) => state.indicator.indicators["Tools Suitable For Low Time Periods"]
+  // );
   const predictiveIndicators = useSelector(
     (state) => state.indicator.indicators["Predictive Indicators"]
   );
@@ -237,7 +237,7 @@ function ChartTopBar(props) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="tooltip-stocktool">
-                      Select Stock Tool
+                      Select Indicators
                     </Tooltip>
                   }
                 >
@@ -277,7 +277,7 @@ function ChartTopBar(props) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="tooltip-stocktool">
-                      Select Stock Tool
+                      Select Tools
                     </Tooltip>
                   }
                 >
@@ -288,14 +288,14 @@ function ChartTopBar(props) {
                 </OverlayTrigger>
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                {lowTimeFrameIndicators.map((ind, index) => {
+                {stockTools.map((ind, index) => {
                   return (
                     <div key={index}>
                       <Dropdown.Item
                         as="button"
                         key={ind.name + index}
-                        onClick={() => props.addIndicator(ind)}
-                        active={currentIndicators
+                        onClick={() => props.addStockTool(ind)}
+                        active={currentStockTools
                           .map((opt) => opt.name)
                           .includes(ind.name)}
                       >
@@ -317,7 +317,7 @@ function ChartTopBar(props) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="tooltip-stocktool">
-                      Select Stock Tool
+                      Select Indicators
                     </Tooltip>
                   }
                 >
@@ -356,6 +356,16 @@ function ChartTopBar(props) {
             removeIndicator={props.removeIndicator}
             showIndicator={props.showIndicator}
             hideIndicator={props.hideIndicator}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <StockToolSettings
+            updateStockTool={updateStockTool}
+            removeStockTool={removeStockTool}
+            showStockTool={props.showStockTool}
+            hideStockTool={props.hideStockTool}
           />
         </Col>
       </Row>
