@@ -310,6 +310,298 @@ const indicatorSlice = createSlice({
           hide: false,
         },
         {
+          name: "Fibo Lines",
+          type: "custom",
+          description: "",
+          parameters: [
+            {
+              name: "pivotLength",
+              label: "High/low length",
+              value: "30",
+              type: "text",
+            },
+            {
+              name: "fiboPeriod",
+              label: "Period for Fibo",
+              value: "Auto",
+              type: "select-one",
+              items: ["Auto", "My input"],
+            },
+            {
+              name: "fiboLength",
+              label: "My length for Fibo",
+              value: "30",
+              type: "text",
+            },
+            {
+              name: "Extend upward fibo?",
+              label: "Extend upward fibo?",
+              value: false,
+              type: "checkbox",
+            },
+            {
+              name: "Extend downward fibo?",
+              label: "Extend downward fibo?",
+              value: false,
+              type: "checkbox",
+            },
+          ],
+          charts: [],
+          chartIndex: -1,
+          hide: false,
+        },
+        {
+          name: "Volume Profile",
+          type: "custom",
+          parameters: [
+            {
+              name: "Period for VP",
+              label: "Period for VP",
+              value: "Auto",
+              type: "select-one",
+              items: ["Auto", "My input"],
+            },
+            {
+              name: "vpLength",
+              label: "My length for VP",
+              value: "30",
+              type: "text",
+            },
+            {
+              name: "Row Size",
+              label: "Row Size",
+              value: "24",
+              type: "text",
+            },
+          ],
+          charts: [],
+          positiveVolumeFill: "rgb(38, 166, 154)",
+          negativeVolumeFill: "rgb(239, 83, 80)",
+          VolumeStroke: "1 rgb(255, 255, 255)",
+          hide: false,
+        },
+        {
+          name: "Linear Regression Channel on Pivot",
+          description:
+            "This auto linear regression channel is draw by input the starting point (as period of regression)  <br /><br /> Pearsons correlation coefficient  (R-sq) is provided, it is very important because a high value means the regression channel is valid. ",
+          apiFunc: "calculateLinearRegression",
+          parameters: [
+            {
+              name: "left",
+              label: "Left",
+              value: "20",
+              type: "text",
+            },
+            {
+              name: "Right",
+              label: "Right",
+              value: "20",
+              type: "text",
+            },
+            {
+              name: "shl",
+              label: "Base on Pivot",
+              value: "Hi",
+              type: "select-one",
+              items: ["Hi", "Lo"],
+            },
+            {
+              name: "Display Pivot lines?",
+              label: "Display Pivot lines?",
+              value: true,
+              type: "checkbox",
+            },
+            {
+              name: "deviations",
+              label: "Deviation(s)",
+              value: "2",
+              type: "text",
+            },
+            {
+              name: "Extend Method",
+              label: "Extend Method",
+              value: "None",
+              type: "select-one",
+              items: ["Right", "None"],
+            },
+          ],
+          charts: [
+            {
+              name: "Upper Channel Line",
+              column: "upperChannelLine",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "#FF0000",
+            },
+            {
+              name: "Middle Channel Line",
+              column: "medianChannelLine",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "#C0C000",
+            },
+            {
+              name: "Lower Channel Line",
+              column: "lowerChannelLine",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "#00FF00",
+            },
+            {
+              name: "Pivot High",
+              column: "pvh",
+              seriesType: "line",
+              condition: {
+                parameter: "Display Pivot lines?",
+                value: true,
+              },
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(136, 14, 79)",
+            },
+            {
+              name: "Pivot Low",
+              column: "pvl",
+              seriesType: "line",
+              condition: {
+                parameter: "Display Pivot lines?",
+                value: true,
+              },
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(33, 150, 243)",
+            },
+          ],
+          chartIndex: -1,
+          hide: false,
+          pivotHighStroke: "rgb(136, 14, 79)",
+          pivotLowStroke: "rgb(33, 150, 243)",
+        },
+        {
+          name: "Zig Zag + LR",
+          description:
+            "This script is based on the script by https://www.tradingview.com/v/I2xTwDzy/  with credit to Tr0sT. <br /><br /> This script modified the original and add the predictive lines for the last section of the zig zag.  <br /><br /> The yellow line points to latest high/low point, and then the red line points to the latest close, it service <br /><br /> as the predictive trend reversal. Both lines will keep changing !!! <br /><br /> The bar counts of the red line is showed in the orange label.  <br /><br /> Note: The yellow label shows the price % change of the Yellow dotted line **  <br /><br /> ZZ Lagging time = length : a new pivot point can only be confirm if lenght of bars checked.  <br /><br /> therefore, longer Zig Zag, longer lagging.  <br /><br /> Linear regression for the unconfirm period is added in this script. <br /><br /> Price change of zig zag pivot points and bar counts is also available.  <br /><br /> RSI is also able to display. Zig zag helps in counting waves, filter noises, pattern recongnition (eg head & shoulder, dual bottom/top etc) <br /><br /> Due to its lagging nature, not recommend for trading signals alone. ",
+          apiFunc: "calculateZigZag",
+          parameters: [
+            {
+              name: "length",
+              label: "High/Low length",
+              value: "20",
+              type: "text",
+            },
+            {
+              name: "Display Linear Regression?",
+              label: "Display Linear Regression?",
+              value: true,
+              type: "checkbox",
+            },
+            {
+              name: "reset1",
+              label: "Version",
+              value: "A",
+              type: "select-one",
+              items: ["A", "B"],
+            },
+          ],
+          charts: [
+            {
+              name: "Upper Linear Regression Line",
+              column: "upperChannelLine",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "#FF0000",
+            },
+            {
+              name: "Median Linear Regression Line",
+              column: "medianChannelLine",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "#C0C000",
+            },
+            {
+              name: "Lower Linear Regression Line",
+              column: "lowerChannelLine",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "#00FF00",
+            },
+          ],
+          annotations: [
+            {
+              name: "Zigzag Line",
+              type: "line",
+              plotIndex: 0,
+              annotationIndex: [],
+              parameters: {
+                valueAnchor: "value",
+                // secondXAnchor: "arrow-up",
+                secondValueAnchor: "value",
+                stroke: [
+                  {
+                    color: "rgb(0, 230, 118)",
+                    condition: function (resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (allResult[resultIndex]["dirUp"]) condition = true;
+                      return condition;
+                    },
+                  },
+                  {
+                    color: "rgb(33, 150, 243)",
+                    condition: function (resultIndex, allResult) {
+                      var condition = false;
+
+                      // allResult.reverse();
+                      if (!allResult[resultIndex]["dirUp"]) condition = true;
+                      return condition;
+                    },
+                  },
+                ],
+              },
+              background: {
+                fill: "rgb(0, 230, 118)",
+                stroke: "rgb(0, 230, 118)",
+              },
+            },
+          ],
+          chartIndex: -1,
+          annotationIndex: [],
+          hide: false,
+          zigzagFontColor: "rgb(54,58,69)",
+          lastlowUpdateFontColor: "rgb(242, 46, 173, 90)",
+          lastHighUpdateFontColor: "rgb(46, 242, 59, 72)",
+          lastLabelFontColor: "rgb(255,255,255)",
+          lastLabelFillColor: "rgb(44, 152, 240)",
+          lastLabelRSIFillColor: "rgb(235, 241, 35)",
+          lastLabelRSIFontColor: "rgb(54,58,69)",
+          lastLabelCountDownFillColor: "rgb(239, 189, 113)",
+          zigzagPredictiveStrokeColor: "rgb(181, 175, 21)",
+          zigzagSecondPredictiveStrokeColor: "rgb(255, 82, 82)",
+        },
+        {
           name: "MA Crossing",
           value: "MA Crossing",
           description:
@@ -420,6 +712,8 @@ const indicatorSlice = createSlice({
                   conditions: ["decrease"],
                 },
               ],
+              defaultStroke: "2 rgb(41, 98, 255)",
+              // stroke: "rgb(0, 230, 118)",
             },
             {
               name: "VM2",
@@ -434,6 +728,7 @@ const indicatorSlice = createSlice({
               index: -1,
               result: [],
               defaultStroke: "2 rgb(41, 98, 255)",
+              // stroke: "rgb(96, 200, 241)",
               stroke: [
                 {
                   color: "rgb(96, 200, 241)",
@@ -445,20 +740,20 @@ const indicatorSlice = createSlice({
                 },
               ],
             },
-            {
-              name: "MA Crossing source",
-              column: "src",
-              condition: {
-                parameter: "Show data source?",
-                value: true,
-              },
-              seriesType: "line",
-              plotIndexOffset: 0,
-              plotIndex: 0,
-              index: -1,
-              result: [],
-              stroke: "rgb(126, 60, 60)",
-            },
+            // {
+            //   name: "MA Crossing source",
+            //   column: "src",
+            //   condition: {
+            //     parameter: "Show data source?",
+            //     value: true,
+            //   },
+            //   seriesType: "line",
+            //   plotIndexOffset: 0,
+            //   plotIndex: 0,
+            //   index: -1,
+            //   result: [],
+            //   stroke: "rgb(126, 60, 60)",
+            // },
           ],
           annotations: [
             {
@@ -2431,55 +2726,6 @@ const indicatorSlice = createSlice({
         hide: false,
       },
 
-      {
-        name: "Linear Regression Channel on Pivot",
-        description:
-          "This auto linear regression channel is draw by input the starting point (as period of regression)  <br /><br /> Pearsons correlation coefficient  (R-sq) is provided, it is very important because a high value means the regression channel is valid. ",
-        parameters: [
-          {
-            name: "left",
-            label: "Left",
-            value: "20",
-            type: "text",
-          },
-          {
-            name: "Right",
-            label: "Right",
-            value: "20",
-            type: "text",
-          },
-          {
-            name: "shl",
-            label: "Base on Pivot",
-            value: "Hi",
-            type: "select-one",
-            items: ["Hi", "Lo"],
-          },
-          {
-            name: "Display Pivot lines?",
-            label: "Display Pivot lines?",
-            value: true,
-            type: "checkbox",
-          },
-          {
-            name: "deviations",
-            label: "Deviation(s)",
-            value: "2",
-            type: "text",
-          },
-          {
-            name: "Extend Method",
-            label: "Extend Method",
-            value: "None",
-            type: "select-one",
-            items: ["Right", "None"],
-          },
-        ],
-        chartIndex: -1,
-        hide: false,
-        pivotHighStroke: "rgb(136, 14, 79)",
-        pivotLowStroke: "rgb(33, 150, 243)",
-      },
       {
         name: "Zig Zag + LR",
         description:

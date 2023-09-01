@@ -74,6 +74,27 @@ function IndicatorUpdate(props) {
       const fetchCurrentIndicators = async () => {
         let cur = 0;
         for await (let indicator of currentIndicators) {
+          if (indicator.type === "custom") {
+            if (indicator.name === "Fibo Lines") {
+              annotationIndex.FLineannotationIndex.forEach((elem) => {
+                chart.current.plot(0).annotations().removeAnnotation(elem);
+              });
+              annotationIndex.FLineannotationIndex = [];
+
+              await stockDataStore.addFbLine(
+                chart.current,
+                interval,
+                newStockData,
+                indicator,
+                ticker,
+                adjustDividend,
+                startDate,
+                endDate,
+                true
+              );
+            }
+            return;
+          }
           var charts = indicator.charts.map((item) => ({ ...item }));
           var annotations =
             "annotations" in indicator
@@ -93,7 +114,6 @@ function IndicatorUpdate(props) {
           ////console.log(indicator.charts);
           for (let ch = 0; ch < indicator.charts.length; ch++) {
             ////console.log(indicator.charts[ch]);
-            var plotAddedBy = 0;
             var seriesLength = chart.current
               .plot(indicator.charts[ch].plotIndex)
               .getSeriesCount();
@@ -113,8 +133,6 @@ function IndicatorUpdate(props) {
               }
             }
           }
-
-          ////console.log(foundCharts);
 
           // if (foundCharts.length > 0) continue;
 
@@ -140,9 +158,10 @@ function IndicatorUpdate(props) {
 
           if (!allResult) continue;
 
-          let addResult;
+          console.log(indicator.charts);
 
           for (let p = 0; p < indicator.charts.length; p++) {
+            let addResult;
             var findChart = false;
             seriesLength = chart.current
               .plot(indicator.charts[p].plotIndex)
@@ -206,12 +225,14 @@ function IndicatorUpdate(props) {
                   ];
                 });
             } else {
-              addResult = allResult.map((r, index) => {
-                return [
-                  moment(r.date).valueOf(),
-                  +r[indicator.charts[p].column],
-                ];
-              });
+              addResult = allResult
+                .filter((r) => r[indicator.charts[p].column])
+                .map((r, index) => {
+                  return [
+                    moment(r.date).valueOf(),
+                    +r[indicator.charts[p].column],
+                  ];
+                });
             }
             var table = anychart.data.table();
             table.addData(addResult);
@@ -222,23 +243,25 @@ function IndicatorUpdate(props) {
             if (Array.isArray(indicator.charts[p].stroke)) {
               charts[p].result = allResult;
 
+              console.log(findChart);
+
               if (findChart) {
                 chart.current
                   .plot(indicator.charts[p].plotIndex)
                   .getSeries(foundSeries)
                   .data(mapping);
               } else {
+                console.log(indicator.charts[p]);
                 chartTemp = chart.current
                   .plot(indicator.charts[p].plotIndex)
                   [indicator.charts[p].seriesType](mapping)
                   [
-                    // eslint-disable-next-line no-loop-func
                     indicator.charts[p].seriesType === "column"
                       ? "fill"
                       : "stroke"
-                    // eslint-disable-next-line no-loop-func
                   ](function () {
                     if (!this.value) return this.sourceColor;
+                    if (!this.x) return this.sourceColor;
                     // ////console.log(this.x);
                     let resultIndex = addResult.findIndex(
                       // (p) => p[0] === moment(this.x).valueOf()
@@ -319,6 +342,7 @@ function IndicatorUpdate(props) {
                         }
                       }
                       if (conditions_temp) {
+                        // console.log(indicator.charts[p].stroke[i]);
                         strokeColor = indicator.charts[p].stroke[i].color;
                         break;
                       }
@@ -389,20 +413,26 @@ function IndicatorUpdate(props) {
           if (annotations.length > 0) {
             for (let index = 0; index < indicator.annotations.length; index++) {
               let anno = indicator.annotations[index];
-              let annoMappings = allResult
-                .filter((p, idx) => {
-                  if ("func" in anno.condition) {
-                    return idx < 1
-                      ? true
-                      : anno.condition.func(p, allResult[idx - 1]);
-                  }
-                  return p[anno.condition.column] === anno.condition.value;
-                })
-                .map((p) => {
-                  return {
-                    fontSize: 10,
-                    xAnchor: moment(p.date).valueOf(),
-                    valueAnchor: p[anno.parameters.valueAnchor],
+              let allResultFilter = allResult.filter((p, idx) => {
+                if (!("condition" in anno)) {
+                  return p[anno.parameters.valueAnchor];
+                }
+                if ("func" in anno.condition) {
+                  return idx < 1
+                    ? true
+                    : anno.condition.func(p, allResult[idx - 1]);
+                }
+                return p[anno.condition.column] === anno.condition.value;
+              });
+              let annoMappings = allResultFilter.map((p, idx) => {
+                let annoObj = {
+                  fontSize: 10,
+                  xAnchor: moment(p.date).valueOf(),
+                  valueAnchor: p[anno.parameters.valueAnchor],
+                };
+                if (anno.type === "label") {
+                  annoObj = {
+                    ...annoObj,
                     text:
                       "textParam" in anno.parameters
                         ? p[anno.parameters.textParam]
@@ -417,7 +447,57 @@ function IndicatorUpdate(props) {
                       fontColor: anno.parameters.fontColor,
                     },
                   };
-                });
+                }
+                if (anno.type === "marker") {
+                  annoObj = {
+                    ...annoObj,
+                    markerType: anno.parameters.markerType,
+                    fill: anno.background.fill,
+                    stroke: anno.background.stroke,
+                  };
+                }
+
+                if (
+                  "secondValueAnchor" in anno.parameters &&
+                  idx < allResultFilter.length - 1
+                ) {
+                  annoObj = {
+                    ...annoObj,
+                    secondXAnchor: moment(
+                      allResultFilter[idx + 1].date
+                    ).valueOf(),
+                    secondValueAnchor:
+                      allResultFilter[idx + 1][
+                        anno.parameters.secondValueAnchor
+                      ],
+                  };
+                  if ("stroke" in anno.parameters) {
+                    if (Array.isArray(anno.parameters.stroke)) {
+                      anno.parameters.stroke.forEach((stk) => {
+                        if (stk.condition(idx, allResultFilter)) {
+                          annoObj = {
+                            ...annoObj,
+                            stroke: {
+                              color: stk.color,
+                            },
+                          };
+
+                          return;
+                        }
+                      });
+                    } else {
+                      annoObj = {
+                        ...annoObj,
+                        stroke: {
+                          color: anno.parameters.stroke,
+                        },
+                      };
+                    }
+                  }
+                }
+
+                return annoObj;
+              });
 
               for (let s = 0; s < annoMappings.length; s++) {
                 let annoMapping = annoMappings[s];
@@ -426,13 +506,20 @@ function IndicatorUpdate(props) {
                     .plot(anno.plotIndex)
                     .annotations()
                     [anno.type](annoMapping)
-                    .background({
-                      fill: anno.background.fill,
-                      stroke: anno.background.stroke,
-                    })
                     .allowEdit(false)
+                  // .background({
+                  //   fill: anno.background.fill,
+                  //   stroke: anno.background.stroke,
+                  // })
                 );
               }
+            }
+
+            if ("yscale" in indicator) {
+              chart.current
+                .plot(plotIndex.current)
+                .yScale()
+                [indicator.yscale.type](indicator.yscale.value);
             }
 
             ////console.log(cur);

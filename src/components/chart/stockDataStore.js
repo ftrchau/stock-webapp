@@ -67,6 +67,7 @@ const drawFLine = (
   showL,
   toolName
 ) => {
+  console.log(stockData);
   var controller = chart.plot(0).annotations();
   var lastPoint = stockData[stockData.length - 1][0];
   var dd = lastPvh[1] - lastPvl[1];
@@ -253,7 +254,7 @@ const drawFLine = (
   chart
     .plot(0)
     .yScale()
-    .minimum((stockDataStore.FLineMin * 0.99).toFixed(2));
+    .minimum((stockDataStore.FLineMin * 0.9).toFixed(2));
 
   annotationIndex.FLineannotationIndex.push(line);
   annotationIndex.FLineannotationIndex.push(label);
@@ -611,7 +612,7 @@ let stockDataStore = {
 
       if (lastPvh.length > 0 && lastPvl.length > 0) {
         drawFLine(
-          chart.current,
+          chart,
           interval,
           stockData,
           lastPvh,
@@ -628,7 +629,7 @@ let stockDataStore = {
             .value
         ) {
           drawFLine(
-            chart.current,
+            chart,
             interval,
             stockData,
             lastPvh,
@@ -645,7 +646,7 @@ let stockDataStore = {
             .value
         ) {
           drawFLine(
-            chart.current,
+            chart,
             interval,
             stockData,
             lastPvh,

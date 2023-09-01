@@ -55,8 +55,8 @@ var allMin = Math.min(...compareMin);
 function ListenChart(props) {
   const dispatch = useDispatch();
 
-  const currentStockTools = useSelector(
-    (state) => state.indicator.currentStockTools
+  const currentIndicators = useSelector(
+    (state) => state.indicator.currentIndicators
   );
   const indicators = useSelector((state) => state.indicator.indicators);
 
@@ -116,9 +116,9 @@ function ListenChart(props) {
           props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
           props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
           // for volume profile only
-          for (let stockTool of currentStockTools) {
+          for (let stockInd of currentIndicators) {
             ////console.log(stockTool);
-            if (stockTool.name === "Volume Profile") {
+            if (stockInd.name === "Volume Profile") {
               annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
                 props.chart.current
                   .plot(0)
@@ -127,7 +127,7 @@ function ListenChart(props) {
               });
               annotationIndex.VolumeProfileannotationIndex = [];
               await stockDataStore.drawVolumeProfileFunction(
-                stockTool,
+                stockInd,
                 props.chart,
                 ticker,
                 interval,
@@ -245,7 +245,7 @@ function ListenChart(props) {
     realTime,
     ticker,
     dispatch,
-    currentStockTools,
+    currentIndicators,
     plotIndex,
     rangeStartDate,
     rangeEndDate,

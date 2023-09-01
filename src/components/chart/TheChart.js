@@ -180,7 +180,27 @@ function TheChart(props) {
             tradingPeriod
           );
         }
-        if (indicator.name === "ATR lines on lower timeframe") {
+        if (indicator.name === "Fibo Lines") {
+          await stockDataStore.addFbLine(
+            chart.current,
+            interval,
+            stockData,
+            indicator,
+            ticker,
+            adjustDividend,
+            startDate,
+            endDate
+          );
+        }
+        if (indicator.name === "Volume Profile") {
+          await stockDataStore.drawVolumeProfileFunction(
+            indicator,
+            chart,
+            ticker,
+            interval,
+            adjustDividend,
+            realTime
+          );
         }
         dispatch(
           indicatorActions.addIndicator({
@@ -244,18 +264,20 @@ function TheChart(props) {
               ];
             });
         } else {
-          addResult = allResult.map((p, index) => {
-            return [
-              moment(p.date).valueOf(),
-              // +p[ind.column],
-              p[ind.column] ? +p[ind.column] : null,
-            ];
-            // return [moment.utc(p.date).valueOf(), +p[ind.column]];
-            // return [
-            //   moment.utc(p.date).format("YYYY-MM-DD hh:mm:ss"),
-            //   +p[ind.column],
-            // ];
-          });
+          addResult = allResult
+            .filter((p) => p[ind.column])
+            .map((p, index) => {
+              return [
+                moment(p.date).valueOf(),
+                // +p[ind.column],
+                p[ind.column] ? +p[ind.column] : null,
+              ];
+              // return [moment.utc(p.date).valueOf(), +p[ind.column]];
+              // return [
+              //   moment.utc(p.date).format("YYYY-MM-DD hh:mm:ss"),
+              //   +p[ind.column],
+              // ];
+            });
         }
 
         // ////console.log(allResult);
@@ -447,54 +469,103 @@ function TheChart(props) {
       });
       if (annotations.length > 0) {
         indicator.annotations.forEach((anno, index) => {
-          let annoMappings = allResult
-            .filter((p, idx) => {
-              if (!("condition" in anno)) {
-                return p[anno.parameters.valueAnchor];
-              }
-              if ("func" in anno.condition) {
-                return idx < 1
-                  ? true
-                  : anno.condition.func(p, allResult[idx - 1]);
-              }
-              return p[anno.condition.column] === anno.condition.value;
-            })
-            .map((p) => {
-              let annoObj = {
-                fontSize: 10,
-                xAnchor: moment(p.date).valueOf(),
-                valueAnchor: p[anno.parameters.valueAnchor],
+          console.log(anno);
+          console.log(allResult);
+          let allResultFilter = allResult.filter((p, idx) => {
+            if (!("condition" in anno)) {
+              return p[anno.parameters.valueAnchor];
+              // &&
+              // ("secondValueAnchor" in anno.parameters
+              //   ? allResult[idx + 1][anno.parameters.secondValueAnchor]
+              //   : true)
+            }
+            if ("func" in anno.condition) {
+              return idx < 1
+                ? true
+                : anno.condition.func(p, allResult[idx - 1]);
+            }
+            return p[anno.condition.column] === anno.condition.value;
+          });
+          let annoMappings = allResultFilter.map((p, idx) => {
+            let annoObj = {
+              fontSize: 10,
+              xAnchor: moment(p.date).valueOf(),
+              valueAnchor: p[anno.parameters.valueAnchor],
+            };
+
+            if (anno.type === "label") {
+              annoObj = {
+                ...annoObj,
+                text:
+                  "textParam" in anno.parameters
+                    ? p[anno.parameters.textParam]
+                    : anno.parameters.text,
+                normal: {
+                  fontColor: anno.parameters.fontColor,
+                },
+                hovered: {
+                  fontColor: anno.parameters.fontColor,
+                },
+                selected: {
+                  fontColor: anno.parameters.fontColor,
+                },
               };
+            }
+            if (anno.type === "marker") {
+              annoObj = {
+                ...annoObj,
+                markerType: anno.parameters.markerType,
+                fill: anno.background.fill,
+                stroke: anno.background.stroke,
+              };
+            }
 
-              if (anno.type === "label") {
-                annoObj = {
-                  ...annoObj,
-                  text:
-                    "textParam" in anno.parameters
-                      ? p[anno.parameters.textParam]
-                      : anno.parameters.text,
-                  normal: {
-                    fontColor: anno.parameters.fontColor,
-                  },
-                  hovered: {
-                    fontColor: anno.parameters.fontColor,
-                  },
-                  selected: {
-                    fontColor: anno.parameters.fontColor,
-                  },
-                };
-              }
-              if (anno.type === "marker") {
-                annoObj = {
-                  ...annoObj,
-                  markerType: anno.parameters.markerType,
-                  fill: anno.background.fill,
-                  stroke: anno.background.stroke,
-                };
-              }
+            if (
+              "secondValueAnchor" in anno.parameters &&
+              idx < allResultFilter.length - 1
+            ) {
+              annoObj = {
+                ...annoObj,
+                secondXAnchor: moment(allResultFilter[idx + 1].date).valueOf(),
+                secondValueAnchor:
+                  allResultFilter[idx + 1][anno.parameters.secondValueAnchor],
 
-              return annoObj;
-            });
+                // stroke: {
+                //   color: Array.isArray(anno.parameters.stroke) ? (anno.parameter.condition.reduce(
+                //     (accumulator, currentCond) =>
+                //       accumulator &&
+                //       apiInputParam[currentCond.parameter] === currentCond.value,
+                //     true
+                //   ) ? "": ""): ""
+                // }
+              };
+              if ("stroke" in anno.parameters) {
+                if (Array.isArray(anno.parameters.stroke)) {
+                  anno.parameters.stroke.forEach((stk) => {
+                    if (stk.condition(idx, allResultFilter)) {
+                      annoObj = {
+                        ...annoObj,
+                        stroke: {
+                          color: stk.color,
+                        },
+                      };
+
+                      return;
+                    }
+                  });
+                } else {
+                  annoObj = {
+                    ...annoObj,
+                    stroke: {
+                      color: anno.parameters.stroke,
+                    },
+                  };
+                }
+              }
+            }
+
+            return annoObj;
+          });
 
           annoMappings.forEach((annoMapping) => {
             ////console.log(annotations[index]);
@@ -539,6 +610,8 @@ function TheChart(props) {
       plotIndex,
       startDate,
       endDate,
+      stockData,
+      tradingPeriod,
     ]
   );
 
@@ -1130,7 +1203,6 @@ function TheChart(props) {
   );
   const removeStockTool = useCallback(
     (ind, index) => {
-      console.log(ind);
       if (ind.name === "Volume Profile") {
         annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
           chart.current.plot(0).annotations().removeAnnotation(elem);
@@ -1403,11 +1475,27 @@ function TheChart(props) {
         .map((ch) => ch.plotIndex)
         .filter((value, index, self) => self.indexOf(value) === index);
 
-      console.log(allPlots);
-
       allPlots.sort(function (a, b) {
         return b - a;
       });
+
+      if (ind.type === "custom") {
+        if (ind.name === "Fibo Lines") {
+          annotationIndex.FLineannotationIndex.forEach((elem) => {
+            chart.current.plot(0).annotations().removeAnnotation(elem);
+          });
+          annotationIndex.FLineannotationIndex = [];
+        }
+
+        if (ind.name === "Volume Profile") {
+          annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
+            chart.current.plot(0).annotations().removeAnnotation(elem);
+          });
+          annotationIndex.VolumeProfileannotationIndex = [];
+        }
+
+        dispatch(indicatorActions.resetIndicatorChartPlot(index_input));
+      }
       ////console.log(allPlots);
       if ("annotations" in ind) {
         ind.annotations.forEach((anno, index) => {
@@ -1479,6 +1567,45 @@ function TheChart(props) {
   const updateIndicator = useCallback(
     async (indicator, indicator_index) => {
       ////console.log(indicator);
+      if (indicator.type === "custom") {
+        if (indicator.name === "Fibo Lines") {
+          annotationIndex.FLineannotationIndex.forEach((elem) => {
+            chart.current.plot(0).annotations().removeAnnotation(elem);
+          });
+          annotationIndex.FLineannotationIndex = [];
+
+          await stockDataStore.addFbLine(
+            chart.current,
+            interval,
+            stockData,
+            indicator,
+            ticker,
+            adjustDividend,
+            startDate,
+            endDate,
+            true
+          );
+        }
+
+        if (indicator.name === "Volume Profile") {
+          annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
+            chart.current.plot(0).annotations().removeAnnotation(elem);
+          });
+          annotationIndex.VolumeProfileannotationIndex = [];
+
+          await stockDataStore.drawVolumeProfileFunction(
+            indicator,
+            chart,
+            ticker,
+            interval,
+            adjustDividend,
+            realTime
+          );
+        }
+
+        return;
+      }
+
       var annotations =
         "annotations" in indicator
           ? indicator.annotations.map((item) => ({
@@ -1504,6 +1631,7 @@ function TheChart(props) {
         endDate,
         realTime,
       });
+
       var chartSeriesIndex;
       var indicatorChartNames;
       var seriesLength;
@@ -1511,6 +1639,8 @@ function TheChart(props) {
       var indicatorIndex;
       var filterCharts;
       var result_temp;
+      var mapping;
+      var table;
 
       var allPlots = indicator.charts
         .map((ch) => ch.plotIndex)
@@ -1518,19 +1648,6 @@ function TheChart(props) {
 
       for (let m = 0; m < allPlots.length; m++) {
         chartSeriesIndex = [];
-        indicatorChartNames = indicator.charts.map((ch) => ch.name);
-        seriesLength = chart.current.plot(allPlots[m]).getSeriesCount();
-        for (let i = seriesLength - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(allPlots[m]).getSeries(i)) {
-            let seriesName = chart.current
-              .plot(allPlots[m])
-              .getSeries(i)
-              .name();
-            if (indicatorChartNames.includes(seriesName)) {
-              chartSeriesIndex.push(i);
-            }
-          }
-        }
 
         filterCharts = indicator.charts.filter((ch) => {
           if ("condition" in ch) {
@@ -1541,69 +1658,137 @@ function TheChart(props) {
           }
           return ch.plotIndex === allPlots[m];
         });
-        numOfCharts = filterCharts.length;
-        ////console.log(numOfCharts);
+        // indicatorChartNames = filterCharts.map((ch) => ch.name);
+        seriesLength = chart.current.plot(allPlots[m]).getSeriesCount();
+        for (let i = seriesLength - 1 + 100; i > -1; i--) {
+          if (chart.current.plot(allPlots[m]).getSeries(i)) {
+            let seriesName = chart.current
+              .plot(allPlots[m])
+              .getSeries(i)
+              .name();
+            for (let j = 0; j < filterCharts.length; j++) {
+              if (seriesName === filterCharts[j].name) {
+                chartSeriesIndex.push({
+                  ...filterCharts[j],
+                  seriesIndex: i,
+                });
+              }
+            }
+            // if (indicatorChartNames.includes(seriesName)) {
+            //   // chartSeriesIndex.push(i);
+            //   chartSeriesIndex.push({
 
-        indicatorIndex = [];
-
-        for (let index = 0; index < numOfCharts; index++) {
+            //   });
+            // }
+          }
+        }
+        console.log(chartSeriesIndex);
+        for (let j = 0; j < chartSeriesIndex.length; j++) {
           result_temp = [];
           for (let r = 0; r < allResult.length; r++) {
-            if ("range" in filterCharts[index]) {
+            if ("range" in chartSeriesIndex[j]) {
               ////console.log(filterCharts[index]);
               if (
                 !(
                   r >=
                     allResult.length -
                       1 -
-                      filterCharts[index].range.startOffset &&
+                      chartSeriesIndex[j].range.startOffset &&
                   r <=
-                    allResult.length - 1 - filterCharts[index].range.endOffset
+                    allResult.length - 1 - chartSeriesIndex[j].range.endOffset
                 )
               )
                 continue;
             }
+            if (!allResult[r][chartSeriesIndex[j].column]) continue;
             result_temp.push([
               allResult[r].date,
-              +allResult[r][filterCharts[index].column],
+              +allResult[r][chartSeriesIndex[j].column],
             ]);
           }
           ////console.log(result_temp);
-          indicatorIndex.push({
-            index:
-              filterCharts[index].index +
-              index +
-              Math.max(0, numOfCharts * indicator_index - 1),
-            result: result_temp,
-          });
-        }
-        chartSeriesIndex.reverse();
-        indicatorIndex.reverse();
-
-        for (let j = 0; j < indicatorIndex.length; j++) {
-          var table = anychart.data.table();
-          ////console.log(indicatorIndex[j].result);
-          table.addData(indicatorIndex[j].result);
-          var mapping = table.mapAs();
+          // indicatorIndex.push({
+          //   index:
+          //     filterCharts[index].index +
+          //     index +
+          //     Math.max(0, numOfCharts * indicator_index - 1),
+          //   result: result_temp,
+          // });
+          table = anychart.data.table();
+          table.addData(result_temp);
+          mapping = table.mapAs();
           mapping.addField("value", 1);
-          if (
-            chart.current
-              .plot(allPlots[m])
-              .getSeries(
-                chartSeriesIndex[indicatorIndex[j].index] - indicator_index
-              )
-          ) {
-            chart.current
-              .plot(allPlots[m])
-              .getSeries(
-                chartSeriesIndex[indicatorIndex[j].index] - indicator_index
-              )
-              .data(mapping);
-
-            ////console.log("data is mapping");
-          }
+          chart.current
+            .plot(allPlots[m])
+            .getSeries(chartSeriesIndex[j].seriesIndex)
+            .data(mapping);
         }
       }
+
+      // numOfCharts = filterCharts.length;
+      // ////console.log(numOfCharts);
+
+      // indicatorIndex = [];
+
+      // for (let index = 0; index < numOfCharts; index++) {
+      //   result_temp = [];
+      //   for (let r = 0; r < allResult.length; r++) {
+      //     if ("range" in filterCharts[index]) {
+      //       ////console.log(filterCharts[index]);
+      //       if (
+      //         !(
+      //           r >=
+      //             allResult.length -
+      //               1 -
+      //               filterCharts[index].range.startOffset &&
+      //           r <=
+      //             allResult.length - 1 - filterCharts[index].range.endOffset
+      //         )
+      //       )
+      //         continue;
+      //     }
+      //     result_temp.push([
+      //       allResult[r].date,
+      //       +allResult[r][filterCharts[index].column],
+      //     ]);
+      //   }
+      //   ////console.log(result_temp);
+      //   indicatorIndex.push({
+      //     index:
+      //       filterCharts[index].index +
+      //       index +
+      //       Math.max(0, numOfCharts * indicator_index - 1),
+      //     result: result_temp,
+      //   });
+      // }
+
+      // chartSeriesIndex.reverse();
+      // indicatorIndex.reverse();
+
+      // for (let j = 0; j < indicatorIndex.length; j++) {
+      //   var table = anychart.data.table();
+      //   ////console.log(indicatorIndex[j].result);
+      //   table.addData(indicatorIndex[j].result);
+      //   var mapping = table.mapAs();
+      //   mapping.addField("value", 1);
+      //   if (
+      //     chart.current
+      //       .plot(allPlots[m])
+      //       .getSeries(
+      //         chartSeriesIndex[indicatorIndex[j].index] - indicator_index
+      //       )
+      //   ) {
+      //     chart.current
+      //       .plot(allPlots[m])
+      //       .getSeries(
+      //         chartSeriesIndex[indicatorIndex[j].index] - indicator_index
+      //       )
+      //       .data(mapping);
+
+      //     ////console.log("data is mapping");
+      //   }
+      // }
+      // }
 
       if ("annotations" in indicator) {
         indicator.annotations.forEach((anno, index) => {
@@ -1615,54 +1800,90 @@ function TheChart(props) {
           });
 
           indicator.annotations.forEach((anno, index) => {
-            let annoMappings = allResult
-              .filter((p, idx) => {
-                if (!("condition" in anno)) {
-                  return p[anno.parameters.valueAnchor];
-                }
-                if ("func" in anno.condition) {
-                  return idx < 1
-                    ? true
-                    : anno.condition.func(p, allResult[idx - 1]);
-                }
-                return p[anno.condition.column] === anno.condition.value;
-              })
-              .map((p) => {
-                let annoObj = {
-                  fontSize: 10,
-                  xAnchor: moment(p.date).valueOf(),
-                  valueAnchor: p[anno.parameters.valueAnchor],
+            let allResultFilter = allResult.filter((p, idx) => {
+              if (!("condition" in anno)) {
+                return p[anno.parameters.valueAnchor];
+              }
+              if ("func" in anno.condition) {
+                return idx < 1
+                  ? true
+                  : anno.condition.func(p, allResult[idx - 1]);
+              }
+              return p[anno.condition.column] === anno.condition.value;
+            });
+            let annoMappings = allResultFilter.map((p, idx) => {
+              let annoObj = {
+                fontSize: 10,
+                xAnchor: moment(p.date).valueOf(),
+                valueAnchor: p[anno.parameters.valueAnchor],
+              };
+
+              if (anno.type === "label") {
+                annoObj = {
+                  ...annoObj,
+                  text:
+                    "textParam" in anno.parameters
+                      ? p[anno.parameters.textParam]
+                      : anno.parameters.text,
+                  normal: {
+                    fontColor: anno.parameters.fontColor,
+                  },
+                  hovered: {
+                    fontColor: anno.parameters.fontColor,
+                  },
+                  selected: {
+                    fontColor: anno.parameters.fontColor,
+                  },
                 };
+              }
+              if (anno.type === "marker") {
+                annoObj = {
+                  ...annoObj,
+                  markerType: anno.parameters.markerType,
+                  fill: anno.background.fill,
+                  stroke: anno.background.stroke,
+                };
+              }
 
-                if (anno.type === "label") {
-                  annoObj = {
-                    ...annoObj,
-                    text:
-                      "textParam" in anno.parameters
-                        ? p[anno.parameters.textParam]
-                        : anno.parameters.text,
-                    normal: {
-                      fontColor: anno.parameters.fontColor,
-                    },
-                    hovered: {
-                      fontColor: anno.parameters.fontColor,
-                    },
-                    selected: {
-                      fontColor: anno.parameters.fontColor,
-                    },
-                  };
-                }
-                if (anno.type === "marker") {
-                  annoObj = {
-                    ...annoObj,
-                    markerType: anno.parameters.markerType,
-                    fill: anno.background.fill,
-                    stroke: anno.background.stroke,
-                  };
-                }
+              if (
+                "secondValueAnchor" in anno.parameters &&
+                idx < allResultFilter.length - 1
+              ) {
+                annoObj = {
+                  ...annoObj,
+                  secondXAnchor: moment(
+                    allResultFilter[idx + 1].date
+                  ).valueOf(),
+                  secondValueAnchor:
+                    allResultFilter[idx + 1][anno.parameters.secondValueAnchor],
+                };
+                if ("stroke" in anno.parameters) {
+                  if (Array.isArray(anno.parameters.stroke)) {
+                    anno.parameters.stroke.forEach((stk) => {
+                      if (stk.condition(idx, allResultFilter)) {
+                        annoObj = {
+                          ...annoObj,
+                          stroke: {
+                            color: stk.color,
+                          },
+                        };
 
-                return annoObj;
-              });
+                        return;
+                      }
+                    });
+                  } else {
+                    annoObj = {
+                      ...annoObj,
+                      stroke: {
+                        color: anno.parameters.stroke,
+                      },
+                    };
+                  }
+                }
+              }
+
+              return annoObj;
+            });
 
             annoMappings.forEach((annoMapping) => {
               ////console.log(annotations[index]);
@@ -1942,7 +2163,16 @@ function TheChart(props) {
         }
       }
     },
-    [adjustDividend, dispatch, interval, realTime, ticker, startDate, endDate]
+    [
+      adjustDividend,
+      dispatch,
+      interval,
+      realTime,
+      ticker,
+      startDate,
+      endDate,
+      stockData,
+    ]
   );
 
   const showIndicator = useCallback(
