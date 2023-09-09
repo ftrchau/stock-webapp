@@ -447,6 +447,7 @@ function IndicatorUpdate(props) {
                     selected: {
                       fontColor: anno.parameters.fontColor,
                     },
+                    padding: 0,
                   };
                 }
                 if (anno.type === "marker") {

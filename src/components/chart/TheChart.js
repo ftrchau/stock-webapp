@@ -1855,6 +1855,7 @@ function TheChart(props) {
                   selected: {
                     fontColor: anno.parameters.fontColor,
                   },
+                  padding: 0,
                 };
               }
               if (anno.type === "marker") {
@@ -2053,7 +2054,8 @@ function TheChart(props) {
               if ("range" in indicator) {
                 addResultColumns = allResult.filter(
                   (value, index) =>
-                    index >= allResult.length - 1 - indicator.range.startOffset &&
+                    index >=
+                      allResult.length - 1 - indicator.range.startOffset &&
                     index <= allResult.length - 1 - indicator.range.endOffset
                 );
                 addResult = addResultColumns.map((p, index) => {
@@ -2073,7 +2075,7 @@ function TheChart(props) {
                   ];
                 });
               }
-            
+
               table = anychart.data.table();
               table.addData(addResult);
               ////console.log(addResult);
