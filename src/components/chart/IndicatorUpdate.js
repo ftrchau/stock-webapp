@@ -162,6 +162,7 @@ function IndicatorUpdate(props) {
 
           for (let p = 0; p < indicator.charts.length; p++) {
             let addResult;
+            let addResultColumns;
             var findChart = false;
             seriesLength = chart.current
               .plot(indicator.charts[p].plotIndex)
@@ -208,31 +209,31 @@ function IndicatorUpdate(props) {
 
             if ("range" in indicator.charts[p]) {
               ////console.log(allResult);
-              addResult = allResult
-                .filter(
-                  (value, index) =>
-                    index >=
-                      allResult.length -
-                        1 -
-                        indicator.charts[p].range.startOffset &&
-                    index <=
-                      allResult.length - 1 - indicator.charts[p].range.endOffset
-                )
-                .map((r, index) => {
-                  return [
-                    moment(r.date).valueOf(),
-                    +r[indicator.charts[p].column],
-                  ];
-                });
+              addResultColumns = allResult.filter(
+                (value, index) =>
+                  index >=
+                    allResult.length -
+                      1 -
+                      indicator.charts[p].range.startOffset &&
+                  index <=
+                    allResult.length - 1 - indicator.charts[p].range.endOffset
+              );
+              addResult = addResultColumns.map((r, index) => {
+                return [
+                  moment(r.date).valueOf(),
+                  +r[indicator.charts[p].column],
+                ];
+              });
             } else {
-              addResult = allResult
-                .filter((r) => r[indicator.charts[p].column])
-                .map((r, index) => {
-                  return [
-                    moment(r.date).valueOf(),
-                    +r[indicator.charts[p].column],
-                  ];
-                });
+              addResultColumns = allResult.filter(
+                (r) => r[indicator.charts[p].column]
+              );
+              addResult = addResultColumns.map((r, index) => {
+                return [
+                  moment(r.date).valueOf(),
+                  +r[indicator.charts[p].column],
+                ];
+              });
             }
             var table = anychart.data.table();
             table.addData(addResult);
@@ -267,8 +268,9 @@ function IndicatorUpdate(props) {
                       // (p) => p[0] === moment(this.x).valueOf()
                       (p) => p[1] === this.value
                     );
-                    if (!addResult[resultIndex - 1]) return;
-                    let prevValue = addResult[resultIndex - 1][1];
+                    let prevValue = !addResult[resultIndex - 1]
+                      ? null
+                      : addResult[resultIndex - 1][1];
 
                     let strokeColor = "";
                     let conditions_temp = "";
@@ -332,12 +334,12 @@ function IndicatorUpdate(props) {
                               ? indicator.charts[p].stroke[i].conditions[j](
                                   this,
                                   resultIndex,
-                                  allResult
+                                  addResultColumns
                                 )
                               : indicator.charts[p].stroke[i].conditions[j](
                                   this,
                                   resultIndex,
-                                  allResult
+                                  addResultColumns
                                 );
                         }
                       }
@@ -361,7 +363,6 @@ function IndicatorUpdate(props) {
                   .name(indicator.charts[p].name);
               }
             } else {
-              console.log(indicator.charts[p].plotIndex);
               chartTemp = chart.current
                 .plot(indicator.charts[p].plotIndex)
                 [indicator.charts[p].seriesType](mapping)

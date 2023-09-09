@@ -202,6 +202,18 @@ function TheChart(props) {
             realTime
           );
         }
+        if (indicator.name === "ATR lines on lower timeframe") {
+          await stockDataStore.addIntraATR(
+            chart,
+            interval,
+            indicator,
+            ticker,
+            adjustDividend,
+            startDate,
+            endDate,
+            plotIndex
+          );
+        }
         dispatch(
           indicatorActions.addIndicator({
             indicator,
@@ -248,36 +260,36 @@ function TheChart(props) {
           }
         }
         let addResult;
+        let addResultColumns;
 
         if ("range" in ind) {
           ////console.log(allResult);
-          addResult = allResult
-            .filter(
-              (value, index) =>
-                index >= allResult.length - 1 - ind.range.startOffset &&
-                index <= allResult.length - 1 - ind.range.endOffset
-            )
-            .map((p, index) => {
-              return [
-                moment(p.date).valueOf(),
-                p[ind.column] ? +p[ind.column] : null,
-              ];
-            });
+          addResultColumns = allResult.filter(
+            (value, index) =>
+              index >= allResult.length - 1 - ind.range.startOffset &&
+              index <= allResult.length - 1 - ind.range.endOffset
+          );
+          addResult = addResultColumns.map((p, index) => {
+            return [
+              moment(p.date).valueOf(),
+              p[ind.column] ? +p[ind.column] : null,
+            ];
+          });
         } else {
-          addResult = allResult
-            .filter((p) => p[ind.column])
-            .map((p, index) => {
-              return [
-                moment(p.date).valueOf(),
-                // +p[ind.column],
-                p[ind.column] ? +p[ind.column] : null,
-              ];
-              // return [moment.utc(p.date).valueOf(), +p[ind.column]];
-              // return [
-              //   moment.utc(p.date).format("YYYY-MM-DD hh:mm:ss"),
-              //   +p[ind.column],
-              // ];
-            });
+          addResultColumns = allResult.filter((p) => p[ind.column]);
+
+          addResult = addResultColumns.map((p, index) => {
+            return [
+              moment(p.date).valueOf(),
+              // +p[ind.column],
+              p[ind.column] ? +p[ind.column] : null,
+            ];
+            // return [moment.utc(p.date).valueOf(), +p[ind.column]];
+            // return [
+            //   moment.utc(p.date).format("YYYY-MM-DD hh:mm:ss"),
+            //   +p[ind.column],
+            // ];
+          });
         }
 
         // ////console.log(allResult);
@@ -285,6 +297,7 @@ function TheChart(props) {
         // addResult.reverse();
         ////console.log(addResult);
         var table = anychart.data.table();
+        // table.addData(addResult);
         table.addData(addResult);
         ////console.log(addResult);
         var mapping = table.mapAs();
@@ -326,8 +339,10 @@ function TheChart(props) {
                 ////console.log(this);
                 return this.sourceColor;
               }
-              if (!addResult[resultIndex - 1]) return;
-              let prevValue = addResult[resultIndex - 1][1];
+              // if (!addResult[resultIndex - 1]) return;
+              let prevValue = !addResult[resultIndex - 1]
+                ? null
+                : addResult[resultIndex - 1][1];
 
               let strokeColor = "";
               let conditions_temp = "";
@@ -368,13 +383,15 @@ function TheChart(props) {
                         ? ind.stroke[i].conditions[j](
                             this,
                             resultIndex,
-                            allResult
+                            addResultColumns
                           )
                         : ind.stroke[i].conditions[j](
                             this,
                             resultIndex,
-                            allResult
+                            addResultColumns
                           );
+
+                    // console.log(conditions_temp);
                   }
                 }
                 if (conditions_temp) {
@@ -469,8 +486,6 @@ function TheChart(props) {
       });
       if (annotations.length > 0) {
         indicator.annotations.forEach((anno, index) => {
-          console.log(anno);
-          console.log(allResult);
           let allResultFilter = allResult.filter((p, idx) => {
             if (!("condition" in anno)) {
               return p[anno.parameters.valueAnchor];
@@ -509,6 +524,7 @@ function TheChart(props) {
                 selected: {
                   fontColor: anno.parameters.fontColor,
                 },
+                padding: 0,
               };
             }
             if (anno.type === "marker") {
@@ -585,10 +601,52 @@ function TheChart(props) {
       }
 
       if ("yscale" in indicator) {
+        let yscale_value;
+        if (typeof indicator.yscale.value === "object") {
+          // console.log(allResult);
+          let range = chart.current.getSelectedRange();
+          let visibleAllResult = allResult.filter((p) => {
+            return (
+              range.firstSelected <= moment(p.date).valueOf() &&
+              range.lastSelected >= moment(p.date).valueOf()
+            );
+          });
+          let column_values = [];
+          // let current_compare;
+
+          for (let s = 0; s < indicator.yscale.value.parameters.length; s++) {
+            // column_values.concat(
+            // visibleAllResult
+            //   .filter((p) => p[indicator.yscale.value.parameters[s]])
+            //   .map((p) => p[indicator.yscale.value.parameters[s]])
+            // );
+            column_values.push(
+              indicator.yscale.type === "minimum"
+                ? Math.min(
+                    ...visibleAllResult
+                      .filter((p) => p[indicator.yscale.value.parameters[s]])
+                      .map((p) => p[indicator.yscale.value.parameters[s]])
+                  )
+                : Math.max(
+                    ...visibleAllResult
+                      .filter((p) => p[indicator.yscale.value.parameters[s]])
+                      .map((p) => p[indicator.yscale.value.parameters[s]])
+                  )
+            );
+          }
+
+          yscale_value =
+            indicator.yscale.type === "minimum"
+              ? Math.min(...column_values) * 0.98
+              : Math.max(...column_values) * 1.02;
+        } else {
+          yscale_value = indicator.yscale.value;
+        }
+
         chart.current
           .plot(plotIndex.current)
           .yScale()
-          [indicator.yscale.type](indicator.yscale.value);
+          [indicator.yscale.type](yscale_value);
       }
 
       console.log(indicator);
@@ -878,115 +936,6 @@ function TheChart(props) {
     async (stockTool) => {
       ////console.log(stockTool);
 
-      if (stockTool.name === "Volume Profile") {
-        await stockDataStore.drawVolumeProfileFunction(
-          stockTool,
-          chart,
-          ticker,
-          interval,
-          adjustDividend,
-          realTime
-        );
-      }
-      if (stockTool.name === "Pivot Hi Lo") {
-        await stockDataStore.addFline(
-          chart,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate
-        );
-      }
-      if (stockTool.name === "Fibo Lines") {
-        await stockDataStore.addFbLine(
-          chart,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate
-        );
-      }
-
-      if (stockTool.name === "52 Wk Hi Lo Range - Buy Sell") {
-        await stockDataStore.addWkHiLo(
-          chart,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          plotIndex,
-          false
-        );
-
-        // dispatch(
-        //   indicatorActions.setToolChartPlotIndex({
-        //     stockToolName: stockTool.name,
-        //     plotIndex: stockDataStore.wkHiLoChartIndex,
-        //   })
-        // );
-
-        stockTool = {
-          ...stockTool,
-          plotIndex: stockDataStore.wkHiLoChartIndex,
-        };
-      }
-      if (stockTool.name === "William Vix Fix Top Bottom detection") {
-        await stockDataStore.addVIXTopBottom(
-          chart,
-          interval,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          plotIndex
-        );
-      }
-      if (stockTool.name === "Cyclical KO") {
-        await stockDataStore.addKO(
-          chart,
-          interval,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          plotIndex
-        );
-      }
-      if (stockTool.name === "Linear Regression Channel on Pivot") {
-        await stockDataStore.addLinearRegression(
-          chart,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate
-        );
-      }
-      if (stockTool.name === "Zig Zag + LR") {
-        await stockDataStore.addZigZag(
-          chart.current,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate
-        );
-      }
       if (stockTool.name === "ATR lines on lower timeframe") {
         await stockDataStore.addIntraATR(
           chart,
@@ -1493,6 +1442,43 @@ function TheChart(props) {
           });
           annotationIndex.VolumeProfileannotationIndex = [];
         }
+        if (ind.name === "10AM Hi Lo fibo") {
+          annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
+            chart.current.plot(0).annotations().removeAnnotation(elem);
+          });
+          annotationIndex.IntraFlineannotationIndex = [];
+        }
+        if (ind.name === "ATR lines on lower timeframe") {
+          annotationIndex.IntraATRannotationIndex.forEach((elem) => {
+            chart.current.plot(0).annotations().removeAnnotation(elem);
+          });
+          annotationIndex.IntraATRannotationIndex = [];
+
+          var intraATRseriesLength = chart.current.plot(0).getSeriesCount();
+          for (let i = intraATRseriesLength - 1 + 100; i > -1; i--) {
+            if (chart.current.plot(0).getSeries(i)) {
+              let seriesNameIntraATR = chart.current
+                .plot(0)
+                .getSeries(i)
+                .name();
+              if (
+                seriesNameIntraATR === "ftop" ||
+                seriesNameIntraATR === "fbot" ||
+                seriesNameIntraATR === "fmid" ||
+                seriesNameIntraATR === "f10" ||
+                seriesNameIntraATR === "f20" ||
+                seriesNameIntraATR === "f30" ||
+                seriesNameIntraATR === "f40" ||
+                seriesNameIntraATR === "f60" ||
+                seriesNameIntraATR === "f70" ||
+                seriesNameIntraATR === "f80" ||
+                seriesNameIntraATR === "f90"
+              ) {
+                chart.current.plot(0).removeSeries(i);
+              }
+            }
+          }
+        }
 
         dispatch(indicatorActions.resetIndicatorChartPlot(index_input));
       }
@@ -1602,6 +1588,42 @@ function TheChart(props) {
             realTime
           );
         }
+        if (indicator.name === "10AM Hi Lo fibo") {
+          annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
+            chart.current.plot(0).annotations().removeAnnotation(elem);
+          });
+          annotationIndex.IntraFlineannotationIndex = [];
+          await stockDataStore.addIntraFline(
+            chart.current,
+            interval,
+            stockData,
+            indicator,
+            ticker,
+            adjustDividend,
+            startDate,
+            endDate,
+            tradingPeriod,
+            true
+          );
+        }
+        if (indicator.name === "ATR lines on lower timeframe") {
+          annotationIndex.IntraATRannotationIndex.forEach((elem) => {
+            chart.current.plot(0).annotations().removeAnnotation(elem);
+          });
+          annotationIndex.IntraATRannotationIndex = [];
+
+          await stockDataStore.addIntraATR(
+            chart,
+            interval,
+            indicator,
+            ticker,
+            adjustDividend,
+            startDate,
+            endDate,
+            plotIndex,
+            true
+          );
+        }
 
         return;
       }
@@ -1682,7 +1704,6 @@ function TheChart(props) {
             // }
           }
         }
-        console.log(chartSeriesIndex);
         for (let j = 0; j < chartSeriesIndex.length; j++) {
           result_temp = [];
           for (let r = 0; r < allResult.length; r++) {
@@ -1903,18 +1924,53 @@ function TheChart(props) {
         });
 
         if ("yscale" in indicator) {
+          let yscale_value;
+          if (typeof indicator.yscale.value === "object") {
+            // console.log(allResult);
+            let range = chart.current.getSelectedRange();
+            let visibleAllResult = allResult.filter((p) => {
+              return (
+                range.firstSelected <= moment(p.date).valueOf() &&
+                range.lastSelected >= moment(p.date).valueOf()
+              );
+            });
+            let column_values = [];
+            // let current_compare;
+
+            for (let s = 0; s < indicator.yscale.value.parameters.length; s++) {
+              // column_values.concat(
+              // visibleAllResult
+              //   .filter((p) => p[indicator.yscale.value.parameters[s]])
+              //   .map((p) => p[indicator.yscale.value.parameters[s]])
+              // );
+              column_values.push(
+                indicator.yscale.type === "minimum"
+                  ? Math.min(
+                      ...visibleAllResult
+                        .filter((p) => p[indicator.yscale.value.parameters[s]])
+                        .map((p) => p[indicator.yscale.value.parameters[s]])
+                    )
+                  : Math.max(
+                      ...visibleAllResult
+                        .filter((p) => p[indicator.yscale.value.parameters[s]])
+                        .map((p) => p[indicator.yscale.value.parameters[s]])
+                    )
+              );
+            }
+
+            yscale_value =
+              indicator.yscale.type === "minimum"
+                ? Math.min(...column_values) * 0.98
+                : Math.max(...column_values) * 1.02;
+          } else {
+            yscale_value = indicator.yscale.value;
+          }
+
           chart.current
             .plot(plotIndex.current)
             .yScale()
-            [indicator.yscale.type](indicator.yscale.value);
+            [indicator.yscale.type](yscale_value);
         }
-
-        dispatch(
-          indicatorActions.setAnnotations({
-            index: indicator_index,
-            annotations,
-          })
-        );
       }
 
       // for removing or adding chart base on condition
@@ -1991,14 +2047,33 @@ function TheChart(props) {
                 endDate,
                 realTime,
               });
-              let addResult = allResult.map((p) => {
-                return [
-                  moment(p.date).valueOf(),
-                  p[indicator.charts[k].column] === null
-                    ? null
-                    : +p[indicator.charts[k].column],
-                ];
-              });
+              let addResult;
+              let addResultColumns;
+
+              if ("range" in indicator) {
+                addResultColumns = allResult.filter(
+                  (value, index) =>
+                    index >= allResult.length - 1 - indicator.range.startOffset &&
+                    index <= allResult.length - 1 - indicator.range.endOffset
+                );
+                addResult = addResultColumns.map((p, index) => {
+                  return [
+                    moment(p.date).valueOf(),
+                    p[indicator.column] ? +p[indicator.column] : null,
+                  ];
+                });
+              } else {
+                addResultColumns = allResult.filter((p) => p[indicator.column]);
+
+                addResult = addResultColumns.map((p, index) => {
+                  return [
+                    moment(p.date).valueOf(),
+                    // +p[ind.column],
+                    p[indicator.column] ? +p[indicator.column] : null,
+                  ];
+                });
+              }
+            
               table = anychart.data.table();
               table.addData(addResult);
               ////console.log(addResult);
@@ -2028,8 +2103,9 @@ function TheChart(props) {
                       ////console.log(this);
                       return this.sourceColor;
                     }
-                    if (!addResult[resultIndex - 1]) return;
-                    let prevValue = addResult[resultIndex - 1][1];
+                    let prevValue = !addResult[resultIndex - 1]
+                      ? null
+                      : addResult[resultIndex - 1][1];
 
                     let strokeColor = "";
                     let conditions_temp = "";
@@ -2093,12 +2169,12 @@ function TheChart(props) {
                               ? indicator.charts[k].stroke[i].conditions[j](
                                   this,
                                   resultIndex,
-                                  allResult
+                                  addResultColumns
                                 )
                               : indicator.charts[k].stroke[i].conditions[j](
                                   this,
                                   resultIndex,
-                                  allResult
+                                  addResultColumns
                                 );
                         }
                       }

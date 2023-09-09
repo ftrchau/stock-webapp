@@ -112,9 +112,17 @@ function ListenChart(props) {
 
           //console.log(max);
           //console.log(min);
-
-          props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
-          props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+          let yscale_exist = false;
+          for (let j = 0; j < currentIndicators.length; j++) {
+            if ("yscale" in currentIndicators[j]) {
+              yscale_exist = true;
+              break;
+            }
+          }
+          if (!yscale_exist) {
+            props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
+            props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+          }
           // for volume profile only
           for (let stockInd of currentIndicators) {
             ////console.log(stockTool);
@@ -221,8 +229,19 @@ function ListenChart(props) {
       console.log(allMax);
       // //console.log(min);
 
-      props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
-      props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+      let yscale_exist = false;
+      for (let j = 0; j < currentIndicators.length; j++) {
+        if ("yscale" in currentIndicators[j]) {
+          yscale_exist = true;
+          break;
+        }
+      }
+
+      if (!yscale_exist) {
+        props.chart.current.plot(0).yScale().maximum(max.toFixed(2));
+
+        props.chart.current.plot(0).yScale().minimum(min.toFixed(2));
+      }
 
       var seriesLength = props.chart.current.plot(0).getSeriesCount();
 

@@ -91,6 +91,9 @@ const methods = {
   calculateIntraATR(params) {
     return api.post("/calculateIntraATR", params);
   },
+  calculateDayMA(params) {
+    return api.post("/calculateDayMA", params);
+  },
 };
 
 export default methods;

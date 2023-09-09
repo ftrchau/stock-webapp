@@ -53,7 +53,10 @@ function ChartTopBar(props) {
   const currentIndicators = useSelector(
     (state) => state.indicator.currentIndicators
   );
-  const stockTools = useSelector((state) => state.indicator.stockTools);
+  // const stockTools = useSelector((state) => state.indicator.stockTools);
+  const stockTools = useSelector(
+    (state) => state.indicator.indicators["Tools Suitable For Low Time Periods"]
+  );
   const currentStockTools = useSelector(
     (state) => state.indicator.currentStockTools
   );
@@ -290,8 +293,8 @@ function ChartTopBar(props) {
                       <Dropdown.Item
                         as="button"
                         key={ind.name + index}
-                        onClick={() => props.addStockTool(ind)}
-                        active={currentStockTools
+                        onClick={() => props.addIndicator(ind)}
+                        active={currentIndicators
                           .map((opt) => opt.name)
                           .includes(ind.name)}
                       >

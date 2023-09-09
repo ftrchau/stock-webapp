@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { RiTruckLine } from "react-icons/ri";
 
 const indicatorSlice = createSlice({
   name: "indicator",
@@ -1693,6 +1694,7 @@ const indicatorSlice = createSlice({
         {
           name: "ATR lines on lower timeframe",
           apiFunc: "calculateIntraATR",
+          type: "custom",
           parameters: [
             {
               name: "n",
@@ -1727,6 +1729,541 @@ const indicatorSlice = createSlice({
             },
           ],
           annotations: [],
+          chartIndex: -1,
+          hide: false,
+        },
+        {
+          name: "Day MA",
+          apiFunc: "calculateDayMA",
+          parameters: [
+            {
+              name: "len1",
+              label: "Line 1",
+              value: "10",
+              type: "text",
+            },
+            {
+              name: "len2",
+              label: "Line 2",
+              value: "20",
+              type: "text",
+            },
+            {
+              name: "len3",
+              label: "Line 3",
+              value: "50",
+              type: "text",
+            },
+            {
+              name: "len4",
+              label: "Line 4",
+              value: "60",
+              type: "text",
+            },
+            {
+              name: "len5",
+              label: "Line 5",
+              value: "100",
+              type: "text",
+            },
+            {
+              name: "len6",
+              label: "Line 6",
+              value: "200",
+              type: "text",
+            },
+            {
+              name: "len7",
+              label: "Line 7",
+              value: "250",
+              type: "text",
+            },
+            {
+              name: "matype",
+              label: "MA type",
+              value: "EMA",
+              type: "select",
+              items: ["EMA", "SMA"],
+            },
+            {
+              name: "d1",
+              label: "Plot daily MA lines?",
+              value: false,
+              type: "checkbox",
+            },
+          ],
+          charts: [
+            {
+              name: "day ma1",
+              column: "ma1",
+              condition: {
+                parameter: "d1",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(76, 200, 15)",
+            },
+            {
+              name: "day ma2",
+              column: "ma2",
+              condition: {
+                parameter: "d1",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(163, 255, 34)",
+            },
+            {
+              name: "day ma3",
+              column: "ma3",
+              condition: {
+                parameter: "d1",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(71, 205, 136)",
+            },
+            {
+              name: "day ma4",
+              column: "ma4",
+              condition: {
+                parameter: "d1",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(60, 229, 245)",
+            },
+            {
+              name: "day ma5",
+              column: "ma5",
+              condition: {
+                parameter: "d1",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(68, 165, 249)",
+            },
+            {
+              name: "day ma6",
+              column: "ma6",
+              condition: {
+                parameter: "d1",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(33, 131, 243)",
+            },
+            {
+              name: "day ma7",
+              column: "ma7",
+              condition: {
+                parameter: "d1",
+                value: true,
+              },
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: "rgb(61, 33, 243)",
+            },
+            {
+              name: "extend ma1",
+              column: "extend_ma1",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+                      if (
+                        allResult[resultIndex]["close"] <
+                        allResult[resultIndex]["extend_ma1"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(224, 64, 251)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+
+                      if (
+                        allResult[resultIndex]["close"] >=
+                        allResult[resultIndex]["extend_ma1"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "extend ma2",
+              column: "extend_ma2",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              defaultStroke: "rgb(224, 64, 251)",
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+                      if (
+                        allResult[resultIndex]["close"] <
+                        allResult[resultIndex]["extend_ma2"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(224, 64, 251)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+
+                      if (
+                        allResult[resultIndex]["close"] >=
+                        allResult[resultIndex]["extend_ma2"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "extend ma3",
+              column: "extend_ma3",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              defaultStroke: "rgb(224, 64, 251)",
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+                      if (
+                        allResult[resultIndex]["close"] <
+                        allResult[resultIndex]["extend_ma3"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(224, 64, 251)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+
+                      if (
+                        allResult[resultIndex]["close"] >=
+                        allResult[resultIndex]["extend_ma3"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "extend ma4",
+              column: "extend_ma4",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              defaultStroke: "rgb(224, 64, 251)",
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+                      if (
+                        allResult[resultIndex]["close"] <
+                        allResult[resultIndex]["extend_ma4"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(224, 64, 251)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+
+                      if (
+                        allResult[resultIndex]["close"] >=
+                        allResult[resultIndex]["extend_ma4"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "extend ma5",
+              column: "extend_ma5",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              defaultStroke: "rgb(224, 64, 251)",
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+                      if (
+                        allResult[resultIndex]["close"] <
+                        allResult[resultIndex]["extend_ma5"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(224, 64, 251)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+
+                      if (
+                        allResult[resultIndex]["close"] >=
+                        allResult[resultIndex]["extend_ma5"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "extend ma6",
+              column: "extend_ma6",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              defaultStroke: "rgb(224, 64, 251)",
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+                      if (
+                        allResult[resultIndex]["close"] <
+                        allResult[resultIndex]["extend_ma6"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(224, 64, 251)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+
+                      if (
+                        allResult[resultIndex]["close"] >=
+                        allResult[resultIndex]["extend_ma6"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "extend ma7",
+              column: "extend_ma7",
+              seriesType: "line",
+              plotIndexOffset: 0,
+              plotIndex: 0,
+              index: -1,
+              result: [],
+              defaultStroke: "rgb(224, 64, 251)",
+              stroke: [
+                {
+                  color: "rgb(0, 230, 118)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+                      if (
+                        allResult[resultIndex]["close"] <
+                        allResult[resultIndex]["extend_ma7"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+                {
+                  color: "rgb(224, 64, 251)",
+                  conditions: [
+                    function ($this, resultIndex, allResult) {
+                      let condition = false;
+
+                      if (
+                        allResult[resultIndex]["close"] >=
+                        allResult[resultIndex]["extend_ma7"]
+                      )
+                        condition = true;
+                      return condition;
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          annotations: [
+            {
+              name: "MA 1 Label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              parameters: {
+                textParam: "extend_ma1_text",
+                fontColor: "rgb(76, 200, 15)",
+                valueAnchor: "extend_ma1_text_position",
+              },
+            },
+            {
+              name: "MA 2 Label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              parameters: {
+                textParam: "extend_ma2_text",
+                fontColor: "rgb(163, 255, 34)",
+                valueAnchor: "extend_ma2_text_position",
+              },
+            },
+            {
+              name: "MA 3 Label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              parameters: {
+                textParam: "extend_ma3_text",
+                fontColor: "rgb(71, 205, 136)",
+                valueAnchor: "extend_ma3_text_position",
+              },
+            },
+            {
+              name: "MA 4 Label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              parameters: {
+                textParam: "extend_ma4_text",
+                fontColor: "rgb(60, 229, 245)",
+                valueAnchor: "extend_ma4_text_position",
+              },
+            },
+            {
+              name: "MA 5 Label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              parameters: {
+                textParam: "extend_ma5_text",
+                fontColor: "rgb(68, 165, 249)",
+                valueAnchor: "extend_ma5_text_position",
+              },
+            },
+            {
+              name: "MA 6 Label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              parameters: {
+                textParam: "extend_ma6_text",
+                fontColor: "rgb(33, 131, 243)",
+                valueAnchor: "extend_ma6_text_position",
+              },
+            },
+            {
+              name: "MA 7 Label",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              parameters: {
+                textParam: "extend_ma7_text",
+                fontColor: "rgb(61, 33, 243)",
+                valueAnchor: "extend_ma7_text_position",
+              },
+            },
+          ],
+          yscale: {
+            type: "minimum",
+            value: {
+              parameters: ["ma1", "ma2", "ma3", "ma4", "ma5", "ma6", "ma7"],
+              // parameters: ["ma1"],
+            },
+          },
           chartIndex: -1,
           hide: false,
         },
@@ -2656,114 +3193,6 @@ const indicatorSlice = createSlice({
         annotations: [],
         chartIndex: -1,
         hide: false,
-      },
-      {
-        name: "Volume Profile",
-        parameters: [
-          {
-            name: "Period for VP",
-            label: "Period for VP",
-            value: "Auto",
-            type: "select-one",
-            items: ["Auto", "My input"],
-          },
-          {
-            name: "vpLength",
-            label: "My length for VP",
-            value: "30",
-            type: "text",
-          },
-          {
-            name: "Row Size",
-            label: "Row Size",
-            value: "24",
-            type: "text",
-          },
-        ],
-        positiveVolumeFill: "rgb(38, 166, 154)",
-        negativeVolumeFill: "rgb(239, 83, 80)",
-        VolumeStroke: "1 rgb(255, 255, 255)",
-        hide: false,
-      },
-
-      {
-        name: "Fibo Lines",
-        description: "",
-        parameters: [
-          {
-            name: "pivotLength",
-            label: "High/low length",
-            value: "30",
-            type: "text",
-          },
-          {
-            name: "fiboPeriod",
-            label: "Period for Fibo",
-            value: "Auto",
-            type: "select-one",
-            items: ["Auto", "My input"],
-          },
-          {
-            name: "fiboLength",
-            label: "My length for Fibo",
-            value: "30",
-            type: "text",
-          },
-          {
-            name: "Extend upward fibo?",
-            label: "Extend upward fibo?",
-            value: false,
-            type: "checkbox",
-          },
-          {
-            name: "Extend downward fibo?",
-            label: "Extend downward fibo?",
-            value: false,
-            type: "checkbox",
-          },
-        ],
-        chartIndex: -1,
-        hide: false,
-      },
-
-      {
-        name: "Zig Zag + LR",
-        description:
-          "This script is based on the script by https://www.tradingview.com/v/I2xTwDzy/  with credit to Tr0sT. <br /><br /> This script modified the original and add the predictive lines for the last section of the zig zag.  <br /><br /> The yellow line points to latest high/low point, and then the red line points to the latest close, it service <br /><br /> as the predictive trend reversal. Both lines will keep changing !!! <br /><br /> The bar counts of the red line is showed in the orange label.  <br /><br /> Note: The yellow label shows the price % change of the Yellow dotted line **  <br /><br /> ZZ Lagging time = length : a new pivot point can only be confirm if lenght of bars checked.  <br /><br /> therefore, longer Zig Zag, longer lagging.  <br /><br /> Linear regression for the unconfirm period is added in this script. <br /><br /> Price change of zig zag pivot points and bar counts is also available.  <br /><br /> RSI is also able to display. Zig zag helps in counting waves, filter noises, pattern recongnition (eg head & shoulder, dual bottom/top etc) <br /><br /> Due to its lagging nature, not recommend for trading signals alone. ",
-        parameters: [
-          {
-            name: "length",
-            label: "High/Low length",
-            value: "20",
-            type: "text",
-          },
-          {
-            name: "Display Linear Regression?",
-            label: "Display Linear Regression?",
-            value: true,
-            type: "checkbox",
-          },
-          {
-            name: "reset1",
-            label: "Version",
-            value: "A",
-            type: "select-one",
-            items: ["A", "B"],
-          },
-        ],
-        chartIndex: -1,
-        annotationIndex: [],
-        hide: false,
-        zigzagFontColor: "rgb(54,58,69)",
-        lastlowUpdateFontColor: "rgb(242, 46, 173, 90)",
-        lastHighUpdateFontColor: "rgb(46, 242, 59, 72)",
-        lastLabelFontColor: "rgb(255,255,255)",
-        lastLabelFillColor: "rgb(44, 152, 240)",
-        lastLabelRSIFillColor: "rgb(235, 241, 35)",
-        lastLabelRSIFontColor: "rgb(54,58,69)",
-        lastLabelCountDownFillColor: "rgb(239, 189, 113)",
-        zigzagPredictiveStrokeColor: "rgb(181, 175, 21)",
-        zigzagSecondPredictiveStrokeColor: "rgb(255, 82, 82)",
       },
     ],
     currentStockTools: [],
