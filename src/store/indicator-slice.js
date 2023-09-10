@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { RiTruckLine } from "react-icons/ri";
 
 const indicatorSlice = createSlice({
   name: "indicator",
@@ -1178,6 +1177,86 @@ const indicatorSlice = createSlice({
                   conditions: ["decrease"],
                 },
               ],
+            },
+          ],
+        },
+        {
+          name: "Kinematic trendline",
+          value: "Kinematic trendline",
+          description: "",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateKinematicsTrend",
+          parameters: [
+            {
+              name: "left",
+              label: "Left",
+              value: "10",
+              type: "text",
+            },
+            {
+              name: "right",
+              label: "Right",
+              value: "10",
+              type: "text",
+            },
+            {
+              name: "k1",
+              label: "Line 1: 0=last bar, 1 = bar b4 last bar",
+              value: "0",
+              type: "text",
+            },
+            {
+              name: "k2",
+              label: "Line 2: 0=last bar, 1 = bar b4 last bar",
+              value: "0",
+              type: "text",
+            },
+            {
+              name: "n1",
+              label: "No of bars in future",
+              value: "10",
+              type: "text",
+            },
+            {
+              name: "s1",
+              label: "Display Resistive Line 1 ?",
+              value: true,
+              type: "checkbox",
+            },
+            {
+              name: "s2",
+              label: "Display Supportive Line 2?",
+              value: true,
+              type: "checkbox",
+            },
+          ],
+          charts: [
+            {
+              name: "Resistive Line 1",
+              column: "trendline1",
+              condition: {
+                parameter: "s1",
+                value: true,
+              },
+              plotIndexOffset: 0,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "line",
+              stroke: "rgb(48, 27, 146);1;1",
+            },
+            {
+              name: "Supportive Line 2",
+              column: "trendline2",
+              condition: {
+                parameter: "s2",
+                value: true,
+              },
+              plotIndexOffset: 0,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "line",
+              stroke: "rgb(255, 0, 208);1;1",
             },
           ],
         },

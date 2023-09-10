@@ -61,6 +61,9 @@ const methods = {
   calculatePivotHiLo(params) {
     return api.post("/calculatePivotHiLo", params);
   },
+  calculateKinematicsTrend(params) {
+    return api.post("/calculateKinematicsTrend", params);
+  },
   calculateFibo(params) {
     return api.post("/calculateFibo", params);
   },

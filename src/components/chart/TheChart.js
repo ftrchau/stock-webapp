@@ -424,7 +424,7 @@ function TheChart(props) {
 
           chartTemp["name"](ind.name)[
             ind.seriesType === "column" ? "fill" : "stroke"
-          ](ind.stroke);
+          ](...ind.stroke.split(";"));
         }
 
         if (ind.seriesType === "marker") {
@@ -2205,7 +2205,7 @@ function TheChart(props) {
                   indicator.charts[k].seriesType === "column"
                     ? "fill"
                     : "stroke"
-                ](indicator.charts[k].stroke);
+                ](...indicator.charts[k].stroke.split(";"));
               }
 
               if (indicator.charts[k].seriesType === "marker") {

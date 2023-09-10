@@ -371,7 +371,7 @@ function IndicatorUpdate(props) {
                   indicator.charts[p].seriesType === "column"
                     ? "fill"
                     : "stroke"
-                ](indicator.charts[p].stroke);
+                ](...indicator.charts[p].stroke.split(";"));
             }
             if (indicator.charts[p].seriesType === "marker") {
               chartTemp.size(indicator.charts[p].size);
