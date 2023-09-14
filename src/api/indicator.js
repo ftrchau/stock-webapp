@@ -88,6 +88,9 @@ const methods = {
   calculatePVBullBear(params) {
     return api.post("/calculatePVBullBear", params);
   },
+  calculateProbabilityCone(params) {
+    return api.post("/calculateProbabilityCone", params);
+  },
   calculateIntraFiboPivotHiLo(params) {
     return api.post("/calculateIntraFiboPivotHiLo", params);
   },

@@ -252,7 +252,6 @@ function IndicatorUpdate(props) {
                   .getSeries(foundSeries)
                   .data(mapping);
               } else {
-                console.log(indicator.charts[p]);
                 chartTemp = chart.current
                   .plot(indicator.charts[p].plotIndex)
                   [indicator.charts[p].seriesType](mapping)
@@ -503,12 +502,20 @@ function IndicatorUpdate(props) {
 
               for (let s = 0; s < annoMappings.length; s++) {
                 let annoMapping = annoMappings[s];
+                let annoTemp = chart.current
+                  .plot(anno.plotIndex)
+                  .annotations()
+                  [anno.type](annoMapping);
+
+                if (anno.type !== "line") {
+                  annoTemp.background({
+                    fill: anno.background.fill,
+                    stroke: anno.background.stroke,
+                  });
+                }
+
                 annotations[index].annotationIndex.push(
-                  chart.current
-                    .plot(anno.plotIndex)
-                    .annotations()
-                    [anno.type](annoMapping)
-                    .allowEdit(false)
+                  annoTemp.allowEdit(false)
                   // .background({
                   //   fill: anno.background.fill,
                   //   stroke: anno.background.stroke,
@@ -518,10 +525,70 @@ function IndicatorUpdate(props) {
             }
 
             if ("yscale" in indicator) {
-              chart.current
-                .plot(plotIndex.current)
-                .yScale()
-                [indicator.yscale.type](indicator.yscale.value);
+              for (let i = 0; i < indicator.yscale.length; i++) {
+                let yscale_value;
+                if (typeof indicator.yscale[i].value === "object") {
+                  // console.log(allResult);
+                  let range = chart.current.getSelectedRange();
+                  let visibleAllResult = allResult.filter((p) => {
+                    return (
+                      range.firstSelected <= moment(p.date).valueOf() &&
+                      range.lastSelected >= moment(p.date).valueOf()
+                    );
+                  });
+                  let column_values = [];
+                  // let current_compare;
+
+                  for (
+                    let s = 0;
+                    s < indicator.yscale[i].value.parameters.length;
+                    s++
+                  ) {
+                    // column_values.concat(
+                    // visibleAllResult
+                    //   .filter((p) => p[indicator.yscale.value.parameters[s]])
+                    //   .map((p) => p[indicator.yscale.value.parameters[s]])
+                    // );
+                    column_values.push(
+                      indicator.yscale[i].type === "minimum"
+                        ? Math.min(
+                            ...visibleAllResult
+                              .filter(
+                                (p) =>
+                                  p[indicator.yscale[i].value.parameters[s]]
+                              )
+                              .map(
+                                (p) =>
+                                  p[indicator.yscale[i].value.parameters[s]]
+                              )
+                          )
+                        : Math.max(
+                            ...visibleAllResult
+                              .filter(
+                                (p) =>
+                                  p[indicator.yscale[i].value.parameters[s]]
+                              )
+                              .map(
+                                (p) =>
+                                  p[indicator.yscale[i].value.parameters[s]]
+                              )
+                          )
+                    );
+                  }
+
+                  yscale_value =
+                    indicator.yscale[i].type === "minimum"
+                      ? Math.min(...column_values) * 0.98
+                      : Math.max(...column_values) * 1.02;
+                } else {
+                  yscale_value = indicator.yscale[i].value;
+                }
+
+                chart.current
+                  .plot(plotIndex.current)
+                  .yScale()
+                  [indicator.yscale[i].type](yscale_value);
+              }
             }
 
             ////console.log(cur);

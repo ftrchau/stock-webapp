@@ -1261,6 +1261,149 @@ const indicatorSlice = createSlice({
           ],
         },
         {
+          name: "Probability Cone",
+          value: "Probability Cone",
+          description: "",
+          groupIndex: 1,
+          hide: false,
+          apiFunc: "calculateProbabilityCone",
+          parameters: [
+            {
+              name: "lookback",
+              label: "Lookback Period",
+              value: "100",
+              type: "text",
+            },
+            {
+              name: "z1",
+              label: "1st cone set Z score",
+              value: "1",
+              type: "text",
+            },
+            {
+              name: "z2",
+              label: "2nd cone set Z score",
+              value: "2",
+              type: "text",
+            },
+            {
+              name: "inbar",
+              label: "bars back to place cone",
+              value: "9",
+              type: "text",
+            },
+            {
+              name: "extbar",
+              label: "bars in future",
+              value: "9",
+              type: "text",
+            },
+            {
+              name: "ad",
+              label: "allow drift",
+              value: true,
+              type: "checkbox",
+            },
+            {
+              name: "ss",
+              label: "How to set Strike?",
+              value: "Cone anchor as Strike",
+              type: "select-one",
+              items: ["Cone anchor as Strike", "My input"],
+            },
+            {
+              name: "Xin",
+              label: "My Strike input",
+              value: "1",
+              type: "text",
+            },
+            {
+              name: "dpy",
+              label: "Days per year",
+              value: "365",
+              type: "text",
+            },
+          ],
+          charts: [
+            {
+              name: "Probability Cone Upper Bound z1",
+              column: "upbound1",
+              plotIndexOffset: 0,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "line",
+              stroke: "rgb(0, 94, 255);1;1",
+            },
+            {
+              name: "Probability Cone Lower Bound z1",
+              column: "lobound1",
+              plotIndexOffset: 0,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "line",
+              stroke: "rgb(255, 115, 0);1;1",
+            },
+            {
+              name: "Probability Cone Upper Bound z2",
+              column: "upbound2",
+              plotIndexOffset: 0,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "line",
+              stroke: "rgb(211, 105, 18);1;1",
+            },
+            {
+              name: "Probability Cone Lower Bound z2",
+              column: "lobound2",
+              plotIndexOffset: 0,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "line",
+              stroke: "rgb(211, 105, 18);1;1",
+            },
+            {
+              name: "Probability Cone Mid",
+              column: "mid",
+              plotIndexOffset: 0,
+              index: -1,
+              plotIndex: 0,
+              seriesType: "line",
+              stroke: "rgb(45, 196, 110);1;1",
+            },
+          ],
+          annotations: [
+            {
+              name: "downside risk probability of the strike",
+              type: "label",
+              plotIndex: 0,
+              annotationIndex: [],
+              parameters: {
+                valueAnchor: "strike",
+                textParam: "Nd1z_text",
+                fontColor: "rgb(255,255,255)",
+              },
+              background: {
+                fill: "#d021f3",
+                stroke: "#d021f3",
+              },
+            },
+          ],
+          yscale: [
+            {
+              type: "minimum",
+              value: {
+                parameters: ["lobound1", "lobound2"],
+              },
+            },
+            {
+              type: "maximum",
+              value: {
+                parameters: ["upbound1", "upbound2"],
+              },
+            },
+          ],
+        },
+        {
           name: "PV bull bear power",
           value: "PV bull bear power",
           description: "",
@@ -1704,10 +1847,12 @@ const indicatorSlice = createSlice({
               },
             },
           ],
-          yscale: {
-            type: "minimum",
-            value: -30,
-          },
+          yscale: [
+            {
+              type: "minimum",
+              value: -30,
+            },
+          ],
 
           chartIndex: -1,
           hide: false,
@@ -2336,13 +2481,15 @@ const indicatorSlice = createSlice({
               },
             },
           ],
-          yscale: {
-            type: "minimum",
-            value: {
-              parameters: ["ma1", "ma2", "ma3", "ma4", "ma5", "ma6", "ma7"],
-              // parameters: ["ma1"],
+          yscale: [
+            {
+              type: "minimum",
+              value: {
+                parameters: ["ma1", "ma2", "ma3", "ma4", "ma5", "ma6", "ma7"],
+                // parameters: ["ma1"],
+              },
             },
-          },
+          ],
           chartIndex: -1,
           hide: false,
         },
