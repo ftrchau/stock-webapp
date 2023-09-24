@@ -10,8 +10,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { indicatorActions } from "../store/indicator-slice";
 import { stockActions } from "../store/stock-slice";
 
+import { useTranslation } from "react-i18next";
+
 function HomePage() {
   const dispatch = useDispatch();
+  const { t, i18n } = useTranslation();
+
   const navigate = useNavigate();
   const navigateHandler = (path) => {
     if (selectedTicker.value === "") {
@@ -26,7 +30,8 @@ function HomePage() {
     // });
     navigate(path);
   };
-  const selectedTicker = useSelector((state) => state.stock.ticker);
+  let selectedTicker = useSelector((state) => state.stock.ticker);
+  const [defaultValue, setDefaultValue] = useState();
   const setSelectedTicker = useCallback(
     (inputTicker) => {
       dispatch(stockActions.setTicker(inputTicker));
@@ -72,50 +77,55 @@ function HomePage() {
 
   useEffect(() => {
     dispatch(indicatorActions.resetCurrentIndicatorStockTools());
-  }, [dispatch]);
+    // if (language) {
+    //   pleasetType = t("pleasetType");
+    // }
+    if (selectedTicker.label !== "") {
+      setDefaultValue(selectedTicker);
+    }
+  }, [dispatch, selectedTicker]);
 
   return (
     <section className={classes.section}>
-      <h3 className="ma-5">Search symbol</h3>
+      <h3 className="ma-5">{t("searchSymbol")}</h3>
       <Select
-        defaultValue={selectedTicker}
+        defaultValue={defaultValue}
+        placeholder={t("pleasetType")}
         onInputChange={(value) => searchStock(value)}
         onChange={(opt) => setSelectedTicker(opt)}
         options={searchedData}
-        placeholder="Type to search, e.g. AAPL, 0700.HK"
+        noOptionsMessage={() => t("noOptions")}
         isSearchable
       />
       <Modal show={alertShow} onHide={handleAlertClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Error</Modal.Title>
+          <Modal.Title>{t("Error")}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          Please type to search for symbol, e.g. AAPL, 0700.HK
-        </Modal.Body>
+        <Modal.Body>{t("pleasetType")}</Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={handleAlertClose}>
             OK
           </Button>
         </Modal.Footer>
       </Modal>
-      <h2 className={classes.h2}>Select a Trading Timeframe</h2>
+      <h2 className={classes.h2}>{t("SelectaTradingTimeframe")}</h2>
       <ul className={classes.ul}>
         <li className={classes.li}>
-          <h3>Day Trade</h3>
+          <h3>{t("DayTrade")}</h3>
           <button
             className={classes.button}
             onClick={() => navigateHandler("/stock-webapp/day-trade")}
           >
-            Show Chart
+            {t("showChart")}
           </button>
         </li>
         <li className={classes.li}>
-          <h3>Mid to Long Term Trade</h3>
+          <h3>{t("MidtoLongTermTrade")}</h3>
           <button
             className={classes.button}
             onClick={() => navigateHandler("/stock-webapp/long-term-trade")}
           >
-            Show Chart
+            {t("showChart")}
           </button>
         </li>
       </ul>

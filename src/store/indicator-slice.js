@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import i18n from "../i18n";
 
 const indicatorSlice = createSlice({
   name: "indicator",
@@ -8,7 +9,7 @@ const indicatorSlice = createSlice({
     indicators: {
       "Essential Indicators": [
         {
-          name: "RSI Modified",
+          name: "RSI+",
           value: "RSI Modified",
           description:
             "RSI over 50 is long, RSI below 50 is short. It is ok for most of the security. <br /><br /> eg. Set upper and lower bar to [53 & 47] or [52 & 85] etc if the security has more trendless period. <br /><br /> Line plot by scale the RSI value (%) on the Lo-Hi of each candle. <br /><br /> Line color signaling:  Green=UP, Orange=Down, Gray= sideway or in-transit",
@@ -128,8 +129,8 @@ const indicatorSlice = createSlice({
           ],
         },
         {
-          name: "MACD Modified",
-          value: "MACD Modified",
+          name: "MACD+",
+          value: "MACD+",
           description:
             "Price percentage Oscillator allows different security to compare their strength. <br /><br /> This study put it into a complete MACD, by adding the signal line.  ",
           groupIndex: 1,
@@ -223,7 +224,8 @@ const indicatorSlice = createSlice({
         },
 
         {
-          name: "Heikin Ashi Modified",
+          // name: "Heikin Ashi Modified",
+          name: "HA+",
           value: "Heikin Ashi Modified",
           groupIndex: 1,
           hide: false,
@@ -266,7 +268,7 @@ const indicatorSlice = createSlice({
           ],
         },
         {
-          name: "Pivot Hi Lo",
+          name: "PivotHiLo",
           description:
             "Pivot Points (High/Low), also known as Bar Count Reversals. <br /><br />   It is the highest/lowest point from n bar in left and m bars to right. <br /><br />  So, it is a point of concern, and its suggestion for Resistance and Support levels. <br /><br />  This study will plot the line of the Highest/lowest until a new Pivot Hi/Lo shows up. ",
           apiFunc: "calculatePivotHiLo",
@@ -310,7 +312,7 @@ const indicatorSlice = createSlice({
           hide: false,
         },
         {
-          name: "Fibo Lines",
+          name: "FiboLines",
           type: "custom",
           description: "",
           parameters: [
@@ -351,7 +353,7 @@ const indicatorSlice = createSlice({
           hide: false,
         },
         {
-          name: "Volume Profile",
+          name: "VolumeProfile",
           type: "custom",
           parameters: [
             {
@@ -381,7 +383,7 @@ const indicatorSlice = createSlice({
           hide: false,
         },
         {
-          name: "Linear Regression Channel on Pivot",
+          name: "LinearRegressionChannelonPivot",
           description:
             "This auto linear regression channel is draw by input the starting point (as period of regression)  <br /><br /> Pearsons correlation coefficient  (R-sq) is provided, it is very important because a high value means the regression channel is valid. ",
           apiFunc: "calculateLinearRegression",
@@ -491,7 +493,7 @@ const indicatorSlice = createSlice({
           pivotLowStroke: "rgb(33, 150, 243)",
         },
         {
-          name: "Zig Zag + LR",
+          name: "ZigZagLR",
           description:
             "This script is based on the script by https://www.tradingview.com/v/I2xTwDzy/  with credit to Tr0sT. <br /><br /> This script modified the original and add the predictive lines for the last section of the zig zag.  <br /><br /> The yellow line points to latest high/low point, and then the red line points to the latest close, it service <br /><br /> as the predictive trend reversal. Both lines will keep changing !!! <br /><br /> The bar counts of the red line is showed in the orange label.  <br /><br /> Note: The yellow label shows the price % change of the Yellow dotted line **  <br /><br /> ZZ Lagging time = length : a new pivot point can only be confirm if lenght of bars checked.  <br /><br /> therefore, longer Zig Zag, longer lagging.  <br /><br /> Linear regression for the unconfirm period is added in this script. <br /><br /> Price change of zig zag pivot points and bar counts is also available.  <br /><br /> RSI is also able to display. Zig zag helps in counting waves, filter noises, pattern recongnition (eg head & shoulder, dual bottom/top etc) <br /><br /> Due to its lagging nature, not recommend for trading signals alone. ",
           apiFunc: "calculateZigZag",
@@ -602,7 +604,7 @@ const indicatorSlice = createSlice({
           zigzagSecondPredictiveStrokeColor: "rgb(255, 82, 82)",
         },
         {
-          name: "MA Crossing",
+          name: "MACrossing",
           value: "MA Crossing",
           description:
             "Use a MA, then apply the same MA with a time lag, signal Buy/Sell when the two lines crossover. <br /><br /> The MA line drew has colored for up and down, therefore, it provides the signal too for a single MA line. <br /><br /> The script assumes the 2nd MA line is the slower one to label the Buy/Sell signals.  <br /><br /> There are two kind of strategy that can be applied: <br /> 1. Cross over of the two MA lines for buy/sell <br /> 2. Focus on Line 1 color change, and use Line 2 trend to indentify noise on Line 1. <br /><br /> The crossing of two MA lines is better use with other indicators <br /><br /> There is no single setting to fit all ",
@@ -915,7 +917,7 @@ const indicatorSlice = createSlice({
           ],
         },
         {
-          name: "Turtle Trade",
+          name: "TurtleTrade",
           value: "Turtle Trade",
           description:
             "Basic Turtle trade is : <br /> Buy when close is higher than m-day high, exit Buy when close is lower than n-day low. <br /><br /> Sell when close is lower than m-day low, exit Sell when close is higher than n-day high. <br /><br /> ATR cut Turtle trade is: <br /> Exit Buy when close is lower than ATR*factor line, and exit Sell when close is higher than ATR*factor line. <br /><br /> Since Buy and Sell line runs independently, there is chance that both Buy and Sell are triggered ! <br /><br /> There are also cases that both Buy and Sell are exited.  <br /><br /> This script eliminates the overlap and blanks by compare close to close[2] for a decision of a buy or sell, its called signal train. ",
@@ -1136,7 +1138,7 @@ const indicatorSlice = createSlice({
           ],
         },
         {
-          name: "Kalman Filter",
+          name: "KalmanFilter",
           value: "Kalman Filter",
           description:
             "This script applies ARIMA(P,D,Q) to forecast security price one step ahead. <br /><br /> ARIMA(1,1,2) model is based on :  people.duke.edu/~rnau/411arim.htm <br /><br /> Both AR and MA factor is 0.1 for all terms for simplification, <br /><br /> age of data = 1/(1-0.1)=1.1, it has a one bar lag.  ",
@@ -1181,7 +1183,7 @@ const indicatorSlice = createSlice({
           ],
         },
         {
-          name: "Kinematic trendline",
+          name: "Kinematictrendline",
           value: "Kinematic trendline",
           description: "",
           groupIndex: 1,
@@ -1261,7 +1263,7 @@ const indicatorSlice = createSlice({
           ],
         },
         {
-          name: "Probability Cone",
+          name: "ProbabilityCone",
           value: "Probability Cone",
           description: "",
           groupIndex: 1,
@@ -1404,7 +1406,7 @@ const indicatorSlice = createSlice({
           ],
         },
         {
-          name: "PV bull bear power",
+          name: "PVbullbearpower",
           value: "PV bull bear power",
           description: "",
           groupIndex: 1,
@@ -1519,7 +1521,7 @@ const indicatorSlice = createSlice({
           ],
         },
         {
-          name: "William Vix Fix Top Bottom detection",
+          name: "VixTopsBottoms",
           description:
             "use William Vix Fix as the Top and Bottom detection tool. <br /><br /> although William Vix Fix use 22 days as length, 50 is prefered after testing. <br /><br/> changing color of the histogram helps to highlight the approaching of extremes.  <br /><br/> When price falling fast, color is dark. Wait for the color to change to low level for action is better.  <br /><br />Historical Volatility is available here for comparision, you can see that HV is lagging seriously and only valid for downturn.",
           apiFunc: "calculateVIXTopBottom",
@@ -1664,7 +1666,7 @@ const indicatorSlice = createSlice({
           hide: false,
         },
         {
-          name: "Cyclical KO",
+          name: "CyclicalKO",
           description: "",
           apiFunc: "calculateKO",
           parameters: [
@@ -1735,7 +1737,7 @@ const indicatorSlice = createSlice({
           hide: false,
         },
         {
-          name: "52 Wk Hi Lo Range - Buy Sell",
+          name: "fivetwoHiLo",
           description:
             "This is a study to check the position of current price in the Highest - lowest range of selected length, and provide a notification for potential sell or buy. <br /><br /> Default value = 240 is proxy to 1 year for daily chart  <br /><br /> Suggestion : Daily chart  - 2Y=480, 1Y=240, 6m=120, 3m=60  <br /> Weekly chart - 3Y=156, 2Y=104, 1Y=52   etc...",
           apiFunc: "calculateWkHiLoRange",
@@ -1860,7 +1862,7 @@ const indicatorSlice = createSlice({
       ],
       "Tools Suitable For Low Time Periods": [
         {
-          name: "10AM Hi Lo fibo",
+          name: "tenam",
           apiFunc: "calculateIntraFiboPivotHiLo",
           parameters: [
             {
@@ -1916,7 +1918,7 @@ const indicatorSlice = createSlice({
           hide: false,
         },
         {
-          name: "ATR lines on lower timeframe",
+          name: "ATRlinelowtimeframe",
           apiFunc: "calculateIntraATR",
           type: "custom",
           parameters: [
@@ -1957,7 +1959,7 @@ const indicatorSlice = createSlice({
           hide: false,
         },
         {
-          name: "Day MA",
+          name: "DayMA",
           apiFunc: "calculateDayMA",
           parameters: [
             {
@@ -2413,6 +2415,10 @@ const indicatorSlice = createSlice({
                 fontColor: "rgb(76, 200, 15)",
                 valueAnchor: "extend_ma1_text_position",
               },
+              background: {
+                fill: "#FFFFFF",
+                stroke: "rgb(76, 200, 15)",
+              },
             },
             {
               name: "MA 2 Label",
@@ -2423,6 +2429,10 @@ const indicatorSlice = createSlice({
                 textParam: "extend_ma2_text",
                 fontColor: "rgb(163, 255, 34)",
                 valueAnchor: "extend_ma2_text_position",
+              },
+              background: {
+                fill: "#FFFFFF",
+                stroke: "rgb(163, 255, 34)",
               },
             },
             {
@@ -2435,6 +2445,10 @@ const indicatorSlice = createSlice({
                 fontColor: "rgb(71, 205, 136)",
                 valueAnchor: "extend_ma3_text_position",
               },
+              background: {
+                fill: "#FFFFFF",
+                stroke: "rgb(71, 205, 136)",
+              },
             },
             {
               name: "MA 4 Label",
@@ -2445,6 +2459,10 @@ const indicatorSlice = createSlice({
                 textParam: "extend_ma4_text",
                 fontColor: "rgb(60, 229, 245)",
                 valueAnchor: "extend_ma4_text_position",
+              },
+              background: {
+                fill: "#FFFFFF",
+                stroke: "rgb(60, 229, 245)",
               },
             },
             {
@@ -2457,6 +2475,10 @@ const indicatorSlice = createSlice({
                 fontColor: "rgb(68, 165, 249)",
                 valueAnchor: "extend_ma5_text_position",
               },
+              background: {
+                fill: "#FFFFFF",
+                stroke: "rgb(68, 165, 249)",
+              },
             },
             {
               name: "MA 6 Label",
@@ -2468,6 +2490,10 @@ const indicatorSlice = createSlice({
                 fontColor: "rgb(33, 131, 243)",
                 valueAnchor: "extend_ma6_text_position",
               },
+              background: {
+                fill: "#FFFFFF",
+                stroke: "rgb(33, 131, 243)",
+              },
             },
             {
               name: "MA 7 Label",
@@ -2478,6 +2504,10 @@ const indicatorSlice = createSlice({
                 textParam: "extend_ma7_text",
                 fontColor: "rgb(61, 33, 243)",
                 valueAnchor: "extend_ma7_text_position",
+              },
+              background: {
+                fill: "#FFFFFF",
+                stroke: "rgb(61, 33, 243)",
               },
             },
           ],
@@ -3323,105 +3353,6 @@ const indicatorSlice = createSlice({
       ],
     },
     currentIndicators: [],
-    stockTools: [
-      {
-        name: "10AM Hi Lo fibo",
-        apiFunc: "calculateIntraFiboPivotHiLo",
-        parameters: [
-          {
-            name: "startHour",
-            label: "startHour",
-            value: "22",
-            type: "text",
-          },
-          {
-            name: "startMinutes",
-            label: "startMinutes",
-            value: "30",
-            type: "text",
-          },
-          {
-            name: "endHour",
-            label: "endHour",
-            value: "23",
-            type: "text",
-          },
-          {
-            name: "endMinutes",
-            label: "endMinutes",
-            value: "15",
-            type: "text",
-          },
-          {
-            name: "mode",
-            label: "mode",
-            value: "Observation",
-            type: "select-one",
-            items: ["Observation", "Today Hi-Lo"],
-          },
-          {
-            name: "Extend upward fibo?",
-            label: "Extend upward fibo?",
-            value: "0",
-            type: "select",
-            items: ["0", "1", "2"],
-          },
-          {
-            name: "Extend downward fibo?",
-            label: "Extend downward fibo?",
-            value: "0",
-            type: "select",
-            items: ["0", "1", "2"],
-          },
-        ],
-        type: "custom",
-        charts: [],
-        annotations: [],
-        chartIndex: -1,
-        hide: false,
-      },
-      {
-        name: "ATR lines on lower timeframe",
-        apiFunc: "calculateIntraATR",
-        parameters: [
-          {
-            name: "n",
-            label: "ATR period",
-            value: "20",
-            type: "text",
-          },
-          {
-            name: "p",
-            label: "Align to",
-            value: "Mid of today TR",
-            type: "select",
-            items: ["day Hi", "day Lo", "TR Hi", "TR Lo", "Mid of today TR"],
-          },
-          {
-            name: "s0",
-            label: "Fill today true range",
-            value: true,
-            type: "checkbox",
-          },
-        ],
-        charts: [
-          {
-            name: "ftop",
-            column: "ftop",
-            seriesType: "line",
-            plotIndexOffset: 0,
-            plotIndex: 0,
-            index: -1,
-            result: [],
-            stroke: "rgb(255, 152, 0)",
-          },
-        ],
-        annotations: [],
-        chartIndex: -1,
-        hide: false,
-      },
-    ],
-    currentStockTools: [],
   },
   reducers: {
     toggleShowIndicator(state, action) {

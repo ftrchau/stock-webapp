@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { Container, Col, Row } from "react-bootstrap";
 import IndicatorSetting from "./IndicatorSetting";
 
@@ -13,9 +14,13 @@ function IndicatorSettings({
     (state) => state.indicator.currentIndicators
   );
 
+  const { t } = useTranslation();
+
   return (
     <Container>
-      {currentIndicators.length > 0 && <span>Indicator Settings</span>}
+      {currentIndicators.length > 0 && (
+        <span>{t("indicatorSetting.Indicator Settings")}</span>
+      )}
       {currentIndicators.map((ind, index) => {
         return (
           <Row key={index}>

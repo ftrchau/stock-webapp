@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import HomePage from "./pages/HomePage";
 import DayTrade from "./pages/DayTrade";
 import LongTermTrade from "./pages/LongTermTrade";
-import Test from "./pages/Test";
 
 import RootLayout from "./pages/Root";
 

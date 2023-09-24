@@ -11,6 +11,8 @@ import {
 
 import { Icon } from "@iconify/react";
 
+import { useTranslation } from "react-i18next";
+
 import { BiEditAlt, BiBold, BiItalic } from "react-icons/bi";
 import { MdHorizontalRule } from "react-icons/md";
 import { RiDeleteBinLine } from "react-icons/ri";
@@ -43,6 +45,7 @@ const noFillList = [
 
 function DrawToolBar({ chart }) {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const drawingToolSelected = useSelector(
     (state) => state.drawing.drawingToolSelected
   );
@@ -202,6 +205,7 @@ function DrawToolBar({ chart }) {
 
     dispatch(drawingActions.toogleDrawToolBar(false));
     dispatch(drawingActions.setDrawingToolSelected({}));
+    dispatch(drawingActions.setMarkerTypeSelected({}));
   }, [chart, dispatch]);
 
   const setLabel = useCallback(
@@ -255,7 +259,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="stroke-color">
-                      Line tool colors
+                      {t("drawToolBar.Line tool colors")}
                     </Tooltip>
                   }
                 >
@@ -287,7 +291,7 @@ function DrawToolBar({ chart }) {
                     placement="bottom"
                     overlay={
                       <Tooltip className="tooltip" id="fill-color">
-                        Line Background
+                        {t("drawToolBar.Line Background")}
                       </Tooltip>
                     }
                   >
@@ -319,7 +323,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="line-width">
-                      Line tool width
+                      {t("drawToolBar.Line tool width")}
                     </Tooltip>
                   }
                 >
@@ -352,7 +356,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="line-type">
-                      Line type
+                      {t("drawToolBar.Line type")}
                     </Tooltip>
                   }
                 >
@@ -372,7 +376,7 @@ function DrawToolBar({ chart }) {
                         setAnnotationSetting(opt, "strokeType", "drawingTool")
                       }
                     >
-                      {opt.name}
+                      {t(`drawToolBar.markerStrokeType.${opt.name}`)}
                     </Dropdown.Item>
                   );
                 })}
@@ -389,7 +393,7 @@ function DrawToolBar({ chart }) {
                 placement="bottom"
                 overlay={
                   <Tooltip className="tooltip" id="delete">
-                    Remove
+                    {t("drawToolBar.Remove")}
                   </Tooltip>
                 }
               >
@@ -415,7 +419,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="label-background-color">
-                      Font color
+                      {t("drawToolBar.Font color")}
                     </Tooltip>
                   }
                 >
@@ -450,7 +454,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="label-size">
-                      Font Size
+                      {t("drawToolBar.Font Size")}
                     </Tooltip>
                   }
                 >
@@ -490,7 +494,7 @@ function DrawToolBar({ chart }) {
                 placement="bottom"
                 overlay={
                   <Tooltip className="tooltip" id="bold">
-                    Bold
+                    {t("drawToolBar.Bold")}
                   </Tooltip>
                 }
               >
@@ -517,7 +521,7 @@ function DrawToolBar({ chart }) {
                 placement="bottom"
                 overlay={
                   <Tooltip className="tooltip" id="italic">
-                    Italic
+                    {t("drawToolBar.Italic")}
                   </Tooltip>
                 }
               >
@@ -542,7 +546,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="left">
-                      {opt.name}
+                      {t(`drawToolBar.fontAlign.${opt.name}`)}
                     </Tooltip>
                   }
                 >
@@ -566,7 +570,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="left">
-                      {opt.name}
+                      {t(`drawToolBar.fontAlign.${opt.name}`)}
                     </Tooltip>
                   }
                 >
@@ -585,7 +589,7 @@ function DrawToolBar({ chart }) {
                 placement="bottom"
                 overlay={
                   <Tooltip className="tooltip" id="delete">
-                    Remove
+                    {t("drawToolBar.Remove")}
                   </Tooltip>
                 }
               >
@@ -607,7 +611,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="marker-line-color">
-                      Line tool colors
+                      {t("drawToolBar.Line tool colors")}
                     </Tooltip>
                   }
                 >
@@ -638,7 +642,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="marker-background-color">
-                      Marker background
+                      {t("drawToolBar.Marker background")}
                     </Tooltip>
                   }
                 >
@@ -669,7 +673,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="line-type">
-                      Line type
+                      {t("drawToolBar.Line type")}
                     </Tooltip>
                   }
                 >
@@ -689,7 +693,7 @@ function DrawToolBar({ chart }) {
                         setAnnotationSetting(opt, "markerStrokeType", "marker")
                       }
                     >
-                      {opt.name}
+                      {t(`drawToolBar.markerStrokeType.${opt.name}`)}
                     </Dropdown.Item>
                   );
                 })}
@@ -702,7 +706,7 @@ function DrawToolBar({ chart }) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="line-type">
-                      Marker Size
+                      {t("drawToolBar.Marker Size")}
                     </Tooltip>
                   }
                 >
@@ -736,7 +740,7 @@ function DrawToolBar({ chart }) {
                 placement="bottom"
                 overlay={
                   <Tooltip className="tooltip" id="delete">
-                    Remove
+                    {t("drawToolBar.Remove")}
                   </Tooltip>
                 }
               >

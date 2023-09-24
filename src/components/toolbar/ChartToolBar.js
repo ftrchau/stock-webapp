@@ -1,6 +1,8 @@
-import { useState, useCallback, forwardRef } from "react";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { drawingActions } from "../../store/drawing-slice";
+
+import { useTranslation } from "react-i18next";
 
 import {
   Button,
@@ -40,6 +42,7 @@ function ChartToolBar({
   stockData,
 }) {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const colorFill = useSelector((state) => state.drawing.colorFill);
   const colorStroke = useSelector((state) => state.drawing.colorStroke);
   const fontColor = useSelector((state) => state.drawing.fontColor);
@@ -98,8 +101,11 @@ function ChartToolBar({
       )
         dispatch(drawingActions.setDrawingToolSelected(annotation));
 
-      if (annotation.annotationType === "marker")
+      console.log(annotation.annotationType);
+      if (annotation.annotationType === "marker") {
+        console.log(annotation);
         dispatch(drawingActions.setMarkerTypeSelected(annotation));
+      }
       if (annotation.annotationType) {
         var drawingSettings = {
           type: annotation.annotationType,
@@ -159,7 +165,7 @@ function ChartToolBar({
             placement="right"
             overlay={
               <Tooltip className="tooltip" id="tooltip-drawing-tools">
-                Drawing Tools
+                {t("drawingTools")}
               </Tooltip>
             }
           >
@@ -176,7 +182,7 @@ function ChartToolBar({
                     <Col md="1">
                       <span className={tool.icon}></span>
                     </Col>
-                    <Col md="10">{tool.name}</Col>
+                    <Col md="5">{t(`drawingTool.${tool.name}`)}</Col>
                   </Row>
                 </Container>
               </Dropdown.Item>
@@ -186,7 +192,17 @@ function ChartToolBar({
       </Dropdown>
       <Dropdown drop="end">
         <Dropdown.Toggle variant="light" size="sm" id="dropdown-tool-label">
-          <TfiText />
+          <OverlayTrigger
+            key="top"
+            placement="top"
+            overlay={
+              <Tooltip className="tooltip" id="tooltip-drawing-tool-label">
+                {t("drawLabels")}
+              </Tooltip>
+            }
+          >
+            <TfiText />
+          </OverlayTrigger>
         </Dropdown.Toggle>
 
         <Dropdown.Menu>
@@ -211,7 +227,7 @@ function ChartToolBar({
                   <Col md="1">
                     <span className={tool.icon}></span>
                   </Col>
-                  <Col>{tool.name}</Col>
+                  <Col>{t(`markerType.${tool.name}`)}</Col>
                 </Row>
               </Dropdown.Item>
             );
@@ -225,7 +241,7 @@ function ChartToolBar({
         active={realTime}
         style={{ whiteSpace: "nowrap" }}
       >
-        Toggle realtime
+        {t("toggleRealTime")}
       </Button>
       <Dropdown drop="up">
         <Dropdown.Toggle variant="light" id="dropdown-timezone" size="sm">
@@ -234,7 +250,7 @@ function ChartToolBar({
             placement="top"
             overlay={
               <Tooltip className="tooltip" id="tooltip-timezone">
-                Change Timezone
+                {t("changeTimezone")}
               </Tooltip>
             }
           >
@@ -274,7 +290,7 @@ function ChartToolBar({
           ))}
         </Dropdown.Menu>
       </Dropdown>
-      <div className="pe-1 ps-1">From</div>
+      <div className="pe-1 ps-1">{t("from")}</div>
       <BsCalendar />
       {interval.charAt(interval.length - 1) !== "m" &&
         interval.charAt(interval.length - 1) !== "h" && (
@@ -291,7 +307,7 @@ function ChartToolBar({
           {moment(rangeStartDate).format("YYYY-MM-DD hh:mm:ss")}
         </span>
       )}
-      <div className="pe-1 ps-1">To</div>
+      <div className="pe-1 ps-1">{t("to")}</div>
       <BsCalendar />
       {interval.charAt(interval.length - 1) !== "m" &&
         interval.charAt(interval.length - 1) !== "h" && (
@@ -314,7 +330,7 @@ function ChartToolBar({
         onClick={() => setLongestRange()}
         style={{ whiteSpace: "nowrap" }}
       >
-        Longest Time
+        {t("longestTime")}
       </Button>
     </div>
   );

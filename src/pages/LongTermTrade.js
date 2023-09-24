@@ -11,8 +11,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { stockActions } from "../store/stock-slice";
 import { BiArrowBack } from "react-icons/bi";
 
+import { useTranslation } from "react-i18next";
+
 function LongTermTrade() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const ticker = useSelector((state) => state.stock.ticker.value);
 
@@ -63,11 +66,11 @@ function LongTermTrade() {
           <Col md={2} sm={3}>
             <Button variant="light" onClick={() => navigate("/stock-webapp/")}>
               <BiArrowBack />
-              Back
+              {t("back")}
             </Button>
           </Col>
           <Col md={4}>
-            <h3>Mid to Long Term Trade</h3>
+            <h3>{t("MidtoLongTermTrade")}</h3>
           </Col>
           <Col>
             <SelectSearch />

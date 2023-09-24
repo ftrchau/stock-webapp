@@ -15,24 +15,6 @@ const indicatorCallback = async (api_func, params) => {
   return await indicatorApi[api_func](params);
 };
 
-const intervalTimeUnit = (interval) => {
-  let timeUnit = "";
-  let intervalChar = interval.charAt(interval.length - 1);
-  if (intervalChar === "m") {
-    timeUnit = "minutes";
-  } else if (intervalChar === "h") {
-    timeUnit = "hours";
-  } else if (intervalChar === "d") {
-    timeUnit = "days";
-  } else if (intervalChar === "k") {
-    timeUnit = "weeks";
-  } else if (intervalChar === "o") {
-    timeUnit = "months";
-  }
-
-  return timeUnit;
-};
-
 let indicatorUpdateInterval;
 
 function IndicatorUpdate(props) {
@@ -48,10 +30,6 @@ function IndicatorUpdate(props) {
     (state) => state.indicator.currentIndicators
   );
   const indicators = useSelector((state) => state.indicator.indicators);
-  const stockTools = useSelector((state) => state.indicator.stockTools);
-  const currentStockTools = useSelector(
-    (state) => state.indicator.currentStockTools
-  );
 
   const needUpdate = useSelector((state) => state.indicator.needUpdate);
   const initialLoad = useSelector((state) => state.indicator.initialLoad);
@@ -64,7 +42,6 @@ function IndicatorUpdate(props) {
     ticker,
     initialPicked,
     addIndicator,
-    addStockTool,
     newStockData,
   } = props;
 
@@ -75,7 +52,7 @@ function IndicatorUpdate(props) {
         let cur = 0;
         for await (let indicator of currentIndicators) {
           if (indicator.type === "custom") {
-            if (indicator.name === "Fibo Lines") {
+            if (indicator.name === "FiboLines") {
               annotationIndex.FLineannotationIndex.forEach((elem) => {
                 chart.current.plot(0).annotations().removeAnnotation(elem);
               });
@@ -507,7 +484,7 @@ function IndicatorUpdate(props) {
                   .annotations()
                   [anno.type](annoMapping);
 
-                if (anno.type !== "line") {
+                if (anno.type === "label") {
                   annoTemp.background({
                     fill: anno.background.fill,
                     stroke: anno.background.stroke,
@@ -603,200 +580,10 @@ function IndicatorUpdate(props) {
           cur++;
         }
       };
-      const fetchCurrentStockTools = async () => {
-        var seriesChart = [];
-        for await (let stockTool of currentStockTools) {
-          seriesChart = [];
-          if (stockTool.name === "Pivot Hi Lo") {
-            seriesChart = ["Pivot High", "Pivot Low"];
-          }
-          if (stockTool.name === "52 Wk Hi Lo Range - Buy Sell") {
-            seriesChart = [
-              "on High",
-              "on Low",
-              "UB",
-              "LB",
-              "Mid",
-              "bline",
-              "sline",
-            ];
-          }
-          if (stockTool.name === "MR Bottom Detector") {
-            seriesChart = ["f1", "f2", "f3", "f4", "f5", "f6"];
-          }
-          if (stockTool.name === "William Vix Fix Top Bottom detection") {
-            seriesChart = ["wvf", "wvfr", "Historical Volatility"];
-          }
-          if (stockTool.name === "Linear Regression Channel on Pivot") {
-            seriesChart = [
-              "Upper Channel Line",
-              "Middle Channel Line",
-              "Lower Channel Line",
-              "Pivot High",
-              "Pivot Low",
-            ];
-          }
-          if (stockTool.name === "Zig Zag + LR") {
-            seriesChart = [
-              "Upper Linear Regression Line",
-              "Median Linear Regression Line",
-              "Lower Linear Regression Line",
-            ];
-          }
-          var foundCharts = [];
-
-          var seriesLength = chart.current
-            .plot(stockTool.plotIndex)
-            .getSeriesCount();
-
-          for (let s = seriesLength; s > -1; s--) {
-            if (chart.current.plot(stockTool.plotIndex).getSeries(s)) {
-              let seriesName = chart.current
-                .plot(stockTool.plotIndex)
-                .getSeries(s)
-                .name();
-              if (seriesChart.includes(seriesName)) {
-                foundCharts.push(seriesName);
-                break;
-              }
-            }
-          }
-
-          if (foundCharts.length > 0) continue;
-
-          if (stockTool.name === "Volume Profile") {
-            await stockDataStore.drawVolumeProfileFunction(
-              stockTool,
-              chart,
-              ticker,
-              interval,
-              adjustDividend,
-              realTime
-            );
-          }
-
-          if (stockTool.name === "Pivot Hi Lo") {
-            await stockDataStore.addFline(
-              chart,
-              interval,
-              newStockData,
-              stockTool,
-              ticker,
-              adjustDividend,
-              startDate,
-              endDate,
-              false
-            );
-          }
-
-          if (stockTool.name === "Fibo Lines") {
-            await stockDataStore.addFbLine(
-              chart,
-              interval,
-              newStockData,
-              stockTool,
-              ticker,
-              adjustDividend,
-              startDate,
-              endDate,
-              false
-            );
-          }
-
-          if (stockTool.name === "52 Wk Hi Lo Range - Buy Sell") {
-            await stockDataStore.addWkHiLo(
-              chart,
-              interval,
-              newStockData,
-              stockTool,
-              ticker,
-              adjustDividend,
-              startDate,
-              endDate,
-              stockTool.plotIndex,
-              false
-            );
-          }
-          if (stockTool.name === "MR Bottom Detector") {
-            await stockDataStore.addMRButton(
-              chart,
-              interval,
-              stockTool,
-              ticker,
-              adjustDividend,
-              startDate,
-              endDate,
-              false
-            );
-          }
-          if (stockTool.name === "William Vix Fix Top Bottom detection") {
-            await stockDataStore.addVIXTopBottom(
-              chart,
-              interval,
-              stockTool,
-              ticker,
-              adjustDividend,
-              startDate,
-              endDate,
-              plotIndex,
-              false
-            );
-          }
-          if (stockTool.name === "Cyclical KO") {
-            await stockDataStore.addKO(
-              chart,
-              interval,
-              stockTool,
-              ticker,
-              adjustDividend,
-              startDate,
-              endDate,
-              plotIndex
-            );
-          }
-          if (stockTool.name === "Linear Regression Channel on Pivot") {
-            await stockDataStore.addLinearRegression(
-              chart,
-              interval,
-              stockTool,
-              ticker,
-              adjustDividend,
-              startDate,
-              endDate,
-              false
-            );
-          }
-          if (stockTool.name === "Zig Zag + LR") {
-            await stockDataStore.addZigZag(
-              chart,
-              interval,
-              stockTool,
-              ticker,
-              adjustDividend,
-              startDate,
-              endDate,
-              false
-            );
-          }
-          if (stockTool.name === "ATR lines on lower timeframe") {
-            await stockDataStore.addIntraATR(
-              chart,
-              interval,
-              stockTool,
-              ticker,
-              adjustDividend,
-              startDate,
-              endDate,
-              plotIndex
-            );
-          }
-        }
-      };
 
       //   chart.current.plot(0).removeAllSeries();
       if (needUpdate) {
         fetchCurrentIndicators();
-        fetchCurrentStockTools();
         ////console.log(rangeStartDate);
         ////console.log(rangeEndDate);
         chart.current.selectRange(rangeStartDate, rangeEndDate);
@@ -815,19 +602,6 @@ function IndicatorUpdate(props) {
             );
           }
         };
-
-        const addStockToolCallback = async () => {
-          for await (let stocktool of initialPicked.stockTools) {
-            await addStockTool(stockTools.find((st) => st.name === stocktool));
-          }
-        };
-
-        // for (let stockTool of initialPicked.stockTools) {
-        //   dispatch(indicatorActions.addStockTools(stockTool));
-        // }
-
-        // addIndicatorCallback();
-        // addStockToolCallback();
         dispatch(indicatorActions.setInitialLoad(false));
       }
 
@@ -840,7 +614,6 @@ function IndicatorUpdate(props) {
             moment(tradingPeriod.regularEnd, moment.ISO_8601).isAfter(moment())
           ) {
             fetchCurrentIndicators();
-            fetchCurrentStockTools();
           }
         }, 60000);
       }
@@ -848,7 +621,6 @@ function IndicatorUpdate(props) {
   }, [
     chart,
     currentIndicators,
-    currentStockTools,
     dispatch,
     ticker,
     interval,
@@ -863,8 +635,10 @@ function IndicatorUpdate(props) {
     addIndicator,
     indicators,
     initialPicked,
-    addStockTool,
-    stockTools,
+    rangeStartDate,
+    rangeEndDate,
+    tradingPeriod.regularStart,
+    tradingPeriod.regularEnd,
   ]);
 
   return <div></div>;

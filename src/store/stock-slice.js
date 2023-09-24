@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import i18n from "../i18n";
 import moment from "moment";
 
 const SubtractTimeUnit = (interval) => {
@@ -24,7 +25,8 @@ const stockSlice = createSlice({
   name: "stock",
   initialState: {
     ticker: {
-      label: "Type to search, e.g. AAPL, 0700.HK",
+      // label: i18n.t("pleasetType"),
+      label: "",
       value: "",
     },
     stockData: [],

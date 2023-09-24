@@ -4,9 +4,12 @@ import stockApi from "../../api/stock";
 import { useDispatch, useSelector } from "react-redux";
 import { stockActions } from "../../store/stock-slice";
 
+import { useTranslation } from "react-i18next";
+
 function SelectSearch() {
   // const { ticker, label, setTicker } = props;
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const selectedTicker = useSelector((state) => state.stock.ticker);
   const setSelectedTicker = useCallback(
     (inputTicker) => {
@@ -48,7 +51,7 @@ function SelectSearch() {
       onInputChange={(value) => searchStock(value)}
       onChange={(opt) => setSelectedTicker(opt)}
       options={searchedData}
-      placeholder="Type to search, e.g. AAPL, 0700.HK"
+      noOptionsMessage={() => t("noOptions")}
       isSearchable
     />
   );

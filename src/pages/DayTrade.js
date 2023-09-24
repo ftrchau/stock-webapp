@@ -19,7 +19,7 @@ function DayTrade() {
   const initialPicked = useMemo(() => {
     return {
       indicators: ["Turtle Trade", "supertrend"],
-      stockTools: ["10AM Hi Lo fibo"],
+      stockTools: ["tenam"],
     };
   }, []);
 

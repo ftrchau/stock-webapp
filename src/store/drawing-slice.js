@@ -26,6 +26,7 @@ const drawingSlice = createSlice({
       state.drawingToolSelected = action.payload;
     },
     setMarkerTypeSelected(state, action) {
+      console.log(action.payload);
       state.markerTypeSelected = action.payload;
     },
     toogleDrawToolBar(state, action) {

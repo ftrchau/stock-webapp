@@ -16,13 +16,14 @@ import { FiTool } from "react-icons/fi";
 import intervalSelection from "./INTERVAL";
 
 import IndicatorSettings from "../settings/IndicatorSettings";
-import StockToolSettings from "../settings/StockToolSettings";
 import rangeSelection from "./RANGESELECTION";
 import DrawToolBar from "./DrawToolBar";
 import { useCallback } from "react";
 
 import { indicatorActions } from "../../store/indicator-slice";
 import { stockActions } from "../../store/stock-slice";
+
+import { useTranslation } from "react-i18next";
 
 const intervalSelectedName = (interval) => {
   let intervalTitle = "";
@@ -40,7 +41,7 @@ const intervalSelectedName = (interval) => {
 };
 
 function ChartTopBar(props) {
-  const { addStockTool, updateStockTool, removeStockTool } = props;
+  const { addStockTool } = props;
   const essentialIndicators = useSelector(
     (state) => state.indicator.indicators["Essential Indicators"]
   );
@@ -65,6 +66,8 @@ function ChartTopBar(props) {
 
   //console.log(rangeStartDate);
   //console.log(rangeEndDate);
+  const { t } = useTranslation();
+
   const dispatch = useDispatch();
 
   const changeRange = useCallback(
@@ -76,56 +79,11 @@ function ChartTopBar(props) {
 
   const changeInterval = useCallback(
     (interval) => {
-      // setInterval(interval.value);
-      ////console.log(interval.value);
       dispatch(stockActions.setStartDateEndDate(interval.value));
       dispatch(indicatorActions.setNeedUpdate(true));
     },
     [dispatch]
   );
-
-  const addStockToolCallback = useCallback(
-    (stockTool) => {
-      if (currentStockTools.map((p) => p.name).includes(stockTool.name)) {
-        return;
-      }
-      addStockTool(stockTool);
-    },
-    [addStockTool, currentStockTools]
-  );
-
-  // useEffect(() => {
-  //   const addInititalIndicators = async () => {
-  //     for await (let indicator of initialPicked.indicators) {
-  //       ////console.log(
-  //         [
-  //           ...indicators["Traditional Indicator"],
-  //           ...indicators["Innovative Indicators"],
-  //         ].find((ind) => ind.name === indicator)
-  //       );
-  //       await addIndicator(
-  //         [
-  //           ...indicators["Traditional Indicator"],
-  //           ...indicators["Innovative Indicators"],
-  //         ].find((ind) => ind.name === indicator)
-  //       );
-  //     }
-  //   };
-
-  //   // const addInitialStockTools = async () => {
-  //   //   for (let stockTool of initialPicked.stockTools) {
-  //   //     dispatch(
-  //   //       indicatorActions.addStockTools(
-  //   //         stockTools.find((st) => st.name === stockTool)
-  //   //       )
-  //   //     );
-  //   //     //  stockTools.find((st) => st.name === stockTool);
-  //   //   }
-  //   // };
-
-  //   addInititalIndicators();
-  //   // addInitialStockTools();
-  // }, [initialPicked, addIndicator, indicators, dispatch]);
 
   return (
     <>
@@ -139,7 +97,7 @@ function ChartTopBar(props) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="tooltip-interval">
-                      {intervalSelectedName(interval)}
+                      {t(`intervalSelection.${intervalSelectedName(interval)}`)}
                     </Tooltip>
                   }
                 >
@@ -156,17 +114,20 @@ function ChartTopBar(props) {
                           placement="bottom"
                           overlay={
                             <Tooltip className="tooltip" id="tooltip-range">
-                              Select Range
+                              {t("choosePeriod")}
                             </Tooltip>
                           }
                         >
-                          <NavDropdown title={key} id="nav-dropdown">
+                          <NavDropdown
+                            title={t(`intervalSelection.${key}`)}
+                            id="nav-dropdown"
+                          >
                             {rangeSelection[key].map((rangeOpt) => (
                               <NavDropdown.Item
                                 eventKey="4.1"
                                 onClick={() => changeRange(rangeOpt)}
                               >
-                                {rangeOpt.label}
+                                {t(`intervalSelection.${rangeOpt.label}`)}
                               </NavDropdown.Item>
                             ))}
                           </NavDropdown>
@@ -178,7 +139,7 @@ function ChartTopBar(props) {
                           key={interval.name + key}
                           onClick={() => changeInterval(interval)}
                         >
-                          {interval.name}
+                          {t(`intervalSelection.${interval.name}`)}
                         </Dropdown.Item>
                       ))}
                     </div>
@@ -197,12 +158,12 @@ function ChartTopBar(props) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="tooltip-indicator">
-                      Select Indicators
+                      {t("SelectIndicators")}
                     </Tooltip>
                   }
                 >
                   <span>
-                    <Icon icon="mdi:finance" /> Essential Indicators
+                    <Icon icon="mdi:finance" /> {t("EssentialIndicators")}
                   </span>
                 </OverlayTrigger>
               </Dropdown.Toggle>
@@ -218,7 +179,7 @@ function ChartTopBar(props) {
                           .map((opt) => opt.name)
                           .includes(ind.name)}
                       >
-                        {ind.name}
+                        {t(`indicator.${ind.name}`)}
                       </Dropdown.Item>
                     </div>
                   );
@@ -236,13 +197,13 @@ function ChartTopBar(props) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="tooltip-stocktool">
-                      Select Indicators
+                      {t("SelectIndicators")}
                     </Tooltip>
                   }
                 >
                   <span>
                     <FiTool />
-                    Advanced Indicators
+                    {t("AdvancedIndicators")}
                   </span>
                 </OverlayTrigger>
               </Dropdown.Toggle>
@@ -258,7 +219,7 @@ function ChartTopBar(props) {
                           .map((opt) => opt.name)
                           .includes(ind.name)}
                       >
-                        {ind.name}
+                        {t(`indicator.${ind.name}`)}
                       </Dropdown.Item>
                     </div>
                   );
@@ -276,13 +237,13 @@ function ChartTopBar(props) {
                   placement="bottom"
                   overlay={
                     <Tooltip className="tooltip" id="tooltip-stocktool">
-                      Select Tools
+                      {t("SelectTools")}
                     </Tooltip>
                   }
                 >
                   <span>
                     <FiTool />
-                    Tools Suitable For Low Time Periods
+                    {t("ToolsSuitableForLowTimePeriods")}
                   </span>
                 </OverlayTrigger>
               </Dropdown.Toggle>
@@ -298,7 +259,7 @@ function ChartTopBar(props) {
                           .map((opt) => opt.name)
                           .includes(ind.name)}
                       >
-                        {ind.name}
+                        {t(`indicator.${ind.name}`)}
                       </Dropdown.Item>
                     </div>
                   );
@@ -315,16 +276,6 @@ function ChartTopBar(props) {
             removeIndicator={props.removeIndicator}
             showIndicator={props.showIndicator}
             hideIndicator={props.hideIndicator}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <StockToolSettings
-            updateStockTool={updateStockTool}
-            removeStockTool={removeStockTool}
-            showStockTool={props.showStockTool}
-            hideStockTool={props.hideStockTool}
           />
         </Col>
       </Row>

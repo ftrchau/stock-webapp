@@ -126,7 +126,7 @@ function ListenChart(props) {
           // for volume profile only
           for (let stockInd of currentIndicators) {
             ////console.log(stockTool);
-            if (stockInd.name === "Volume Profile") {
+            if (stockInd.name === "VolumeProfile") {
               annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
                 props.chart.current
                   .plot(0)
@@ -188,13 +188,22 @@ function ListenChart(props) {
               });
             }
             selectedDrawingTool = { name: "label", annotationType: "label" };
-          } else {
-            selectedDrawingTool = drawingTool.find(
-              (tool) => tool.annotationType === e.annotation.type
+            dispatch(
+              drawingActions.setDrawingToolSelected(selectedDrawingTool)
             );
           }
 
-          dispatch(drawingActions.setDrawingToolSelected(selectedDrawingTool));
+          if (selectedAnno.type === "marker") {
+            selectedDrawingTool = {
+              name: "marker",
+              annotationType: "marker",
+            };
+            dispatch(drawingActions.setMarkerTypeSelected(selectedDrawingTool));
+          } else {
+            dispatch(
+              drawingActions.setDrawingToolSelected(selectedDrawingTool)
+            );
+          }
         }
 
         dispatch(drawingActions.toogleDrawToolBar(true));

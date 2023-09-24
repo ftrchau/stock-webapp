@@ -25,6 +25,8 @@ import stockApi from "../../api/stock";
 import annotationIndex from "../chart/annotationIndex";
 import stockDataStore from "./stockDataStore";
 
+import { useTranslation } from "react-i18next";
+
 import "./TheChart.css";
 
 var allMax = Math.max(stockDataStore.FLineMax, stockDataStore.IntraATRMax);
@@ -110,6 +112,7 @@ let realTimeIntervalId = null;
 function TheChart(props) {
   ////console.log("function rerender??");
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const { ticker, initialPicked } = props;
   const startDate = useSelector((state) => state.stock.startDate);
@@ -167,7 +170,7 @@ function TheChart(props) {
           : [];
 
       if (indicator.type === "custom") {
-        if (indicator.name === "10AM Hi Lo fibo") {
+        if (indicator.name === "tenam") {
           await stockDataStore.addIntraFline(
             chart.current,
             interval,
@@ -180,7 +183,7 @@ function TheChart(props) {
             tradingPeriod
           );
         }
-        if (indicator.name === "Fibo Lines") {
+        if (indicator.name === "FiboLines") {
           await stockDataStore.addFbLine(
             chart.current,
             interval,
@@ -192,7 +195,8 @@ function TheChart(props) {
             endDate
           );
         }
-        if (indicator.name === "Volume Profile") {
+        if (indicator.name === "VolumeProfile") {
+          console.log(indicator);
           await stockDataStore.drawVolumeProfileFunction(
             indicator,
             chart,
@@ -202,7 +206,7 @@ function TheChart(props) {
             realTime
           );
         }
-        if (indicator.name === "ATR lines on lower timeframe") {
+        if (indicator.name === "ATRlinelowtimeframe") {
           await stockDataStore.addIntraATR(
             chart,
             interval,
@@ -589,7 +593,7 @@ function TheChart(props) {
               .plot(anno.plotIndex)
               .annotations()
               [anno.type](annoMapping);
-            if (anno.type !== "line") {
+            if (anno.type === "label") {
               annoTemp.background({
                 fill: anno.background.fill,
                 stroke: anno.background.stroke,
@@ -941,461 +945,6 @@ function TheChart(props) {
     tradingPeriod,
   ]);
 
-  const addStockTool = useCallback(
-    async (stockTool) => {
-      ////console.log(stockTool);
-
-      if (stockTool.name === "ATR lines on lower timeframe") {
-        await stockDataStore.addIntraATR(
-          chart,
-          interval,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          plotIndex
-        );
-      }
-      if (stockTool.name === "10AM Hi Lo fibo") {
-        await stockDataStore.addIntraFline(
-          chart.current,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          tradingPeriod
-        );
-      }
-      dispatch(indicatorActions.addStockTools(stockTool));
-    },
-    [
-      chart,
-      stockData,
-      dispatch,
-      ticker,
-      interval,
-      adjustDividend,
-      plotIndex,
-      realTime,
-      startDate,
-      endDate,
-      tradingPeriod,
-    ]
-  );
-
-  const updateStockTool = useCallback(
-    async (stockTool, index) => {
-      if (stockTool.name === "Volume Profile") {
-        ////console.log(annotationIndex.VolumeProfileannotationIndex);
-        annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.VolumeProfileannotationIndex = [];
-
-        // dispatch(indicatorActions.removeSelectedStockTool(index));
-        // dispatch(indicatorActions.addStockTools(stockTool));
-        await stockDataStore.drawVolumeProfileFunction(
-          stockTool,
-          chart,
-          ticker,
-          interval,
-          adjustDividend,
-          realTime
-        );
-      }
-      if (stockTool.name === "Pivot Hi Lo") {
-        await stockDataStore.addFline(
-          chart,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          true
-        );
-      }
-      if (stockTool.name === "Fibo Lines") {
-        annotationIndex.FLineannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.FLineannotationIndex = [];
-
-        await stockDataStore.addFbLine(
-          chart,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          true
-        );
-      }
-      if (stockTool.name === "52 Wk Hi Lo Range - Buy Sell") {
-        await stockDataStore.addWkHiLo(
-          chart,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          plotIndex,
-          true
-        );
-      }
-      if (stockTool.name === "William Vix Fix Top Bottom detection") {
-        await stockDataStore.addVIXTopBottom(
-          chart,
-          interval,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          plotIndex,
-          true
-        );
-      }
-      if (stockTool.name === "Cyclical KO") {
-        await stockDataStore.addKO(
-          chart,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          plotIndex,
-          true
-        );
-      }
-      if (stockTool.name === "Linear Regression Channel on Pivot") {
-        await stockDataStore.addLinearRegression(
-          chart,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          true
-        );
-      }
-      if (stockTool.name === "Zig Zag + LR") {
-        annotationIndex.ZigZagannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.ZigZagannotationIndex = [];
-        await stockDataStore.addZigZag(
-          chart.current,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          true
-        );
-      }
-      if (stockTool.name === "ATR lines on lower timeframe") {
-        annotationIndex.IntraATRannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.IntraATRannotationIndex = [];
-
-        await stockDataStore.addIntraATR(
-          chart,
-          interval,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          plotIndex,
-          true
-        );
-      }
-      if (stockTool.name === "10AM Hi Lo fibo") {
-        annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.IntraFlineannotationIndex = [];
-        await stockDataStore.addIntraFline(
-          chart.current,
-          interval,
-          stockData,
-          stockTool,
-          ticker,
-          adjustDividend,
-          startDate,
-          endDate,
-          tradingPeriod,
-          true
-        );
-      }
-    },
-    [
-      chart,
-      interval,
-      stockData,
-      ticker,
-      adjustDividend,
-      startDate,
-      endDate,
-      plotIndex,
-      realTime,
-      tradingPeriod,
-    ]
-  );
-  const removeStockTool = useCallback(
-    (ind, index) => {
-      if (ind.name === "Volume Profile") {
-        annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.VolumeProfileannotationIndex = [];
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "Pivot Hi Lo") {
-        var seriesLength = chart.current.plot(0).getSeriesCount();
-        for (let i = seriesLength - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(0).getSeries(i)) {
-            let seriesName = chart.current.plot(0).getSeries(i).name();
-            if (seriesName === "Pivot High" || seriesName === "Pivot Low") {
-              chart.current.plot(0).removeSeries(i);
-            }
-          }
-        }
-
-        let range = chart.current.getSelectedRange();
-        let visibleStockData = stockData.filter((p) => {
-          return range.firstSelected <= p[0] && range.lastSelected >= p[0];
-        });
-
-        let stockMax = visibleStockData.map((p) => p[2]);
-        let stockMin = visibleStockData.map((p) => p[3]);
-        stockDataStore.FLineMax = Math.max(...stockMax);
-        stockDataStore.FLineMin = Math.min(...stockMin);
-
-        chart.current
-          .plot(0)
-          .yScale()
-          .maximum(stockDataStore.FLineMax.toFixed(2));
-        chart.current
-          .plot(0)
-          .yScale()
-          .minimum(stockDataStore.FLineMin.toFixed(2));
-
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "Fibo Lines") {
-        annotationIndex.FLineannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.FLineannotationIndex = [];
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "52 Wk Hi Lo Range - Buy Sell") {
-        var seriesLengthWkHi = chart.current
-          .plot(stockDataStore.wkHiLoChartIndex)
-          .getSeriesCount();
-        for (let i = seriesLengthWkHi - 1 + 100; i > -1; i--) {
-          if (
-            chart.current.plot(stockDataStore.wkHiLoChartIndex).getSeries(i)
-          ) {
-            let seriesNameWkHi = chart.current
-              .plot(stockDataStore.wkHiLoChartIndex)
-              .getSeries(i)
-              .name();
-            if (
-              seriesNameWkHi === "on High" ||
-              seriesNameWkHi === "on Low" ||
-              seriesNameWkHi === "UB" ||
-              seriesNameWkHi === "LB" ||
-              seriesNameWkHi === "Mid" ||
-              seriesNameWkHi === "bline" ||
-              seriesNameWkHi === "sline"
-            ) {
-              chart.current
-                .plot(stockDataStore.wkHiLoChartIndex)
-                .removeSeries(i);
-            }
-          }
-        }
-
-        if (
-          chart.current.plot(stockDataStore.wkHiLoChartIndex).getSeriesCount() <
-          1
-        ) {
-          chart.current.plot(stockDataStore.wkHiLoChartIndex).dispose();
-          plotIndex.current -= 1;
-        }
-
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "William Vix Fix Top Bottom detection") {
-        var seriesLengthVIXTopBottom = chart.current
-          .plot(stockDataStore.VIXTopBottomChartIndex)
-          .getSeriesCount();
-        for (let i = seriesLengthVIXTopBottom - 1 + 100; i > -1; i--) {
-          if (
-            chart.current
-              .plot(stockDataStore.VIXTopBottomChartIndex)
-              .getSeries(i)
-          ) {
-            let seriesNameVIXTopBottom = chart.current
-              .plot(stockDataStore.VIXTopBottomChartIndex)
-              .getSeries(i)
-              .name();
-            if (
-              seriesNameVIXTopBottom === "wvf" ||
-              seriesNameVIXTopBottom === "wvfr" ||
-              seriesNameVIXTopBottom === "Historical Volatility"
-            ) {
-              chart.current
-                .plot(stockDataStore.VIXTopBottomChartIndex)
-                .removeSeries(i);
-            }
-          }
-        }
-        if (
-          chart.current
-            .plot(stockDataStore.VIXTopBottomChartIndex)
-            .getSeriesCount() < 1
-        ) {
-          chart.current.plot(stockDataStore.VIXTopBottomChartIndex).dispose();
-          plotIndex.current -= 1;
-        }
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "Cyclical KO") {
-        var seriesLengthKO = chart.current
-          .plot(stockDataStore.kochartIndex)
-          .getSeriesCount();
-        for (let i = seriesLengthKO - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(stockDataStore.kochartIndex).getSeries(i)) {
-            let seriesNameKO = chart.current
-              .plot(stockDataStore.kochartIndex)
-              .getSeries(i)
-              .name();
-            if (
-              seriesNameKO === "KO1" ||
-              seriesNameKO === "KO2" ||
-              seriesNameKO === "KO3"
-            ) {
-              chart.current.plot(stockDataStore.kochartIndex).removeSeries(i);
-            }
-          }
-        }
-
-        if (
-          chart.current.plot(stockDataStore.kochartIndex).getSeriesCount() < 1
-        ) {
-          chart.current.plot(stockDataStore.kochartIndex).dispose();
-          plotIndex.current -= 1;
-        }
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "Linear Regression Channel on Pivot") {
-        var seriesLengthLinearRegression = chart.current
-          .plot(0)
-          .getSeriesCount();
-        for (let i = seriesLengthLinearRegression - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(0).getSeries(i)) {
-            let seriesNameLinearRegression = chart.current
-              .plot(0)
-              .getSeries(i)
-              .name();
-            if (
-              seriesNameLinearRegression === "Upper Channel Line" ||
-              seriesNameLinearRegression === "Middle Channel Line" ||
-              seriesNameLinearRegression === "Lower Channel Line" ||
-              seriesNameLinearRegression === "Pivot High" ||
-              seriesNameLinearRegression === "Pivot Low"
-            ) {
-              chart.current.plot(0).removeSeries(i);
-            }
-          }
-        }
-
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "Zig Zag + LR") {
-        annotationIndex.ZigZagannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.ZigZagannotationIndex = [];
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-
-        var zigZagSeriesLength = chart.current.plot(0).getSeriesCount();
-        for (let i = zigZagSeriesLength - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(0).getSeries(i)) {
-            let seriesName = chart.current.plot(0).getSeries(i).name();
-            if (
-              seriesName === "Upper Linear Regression Line" ||
-              seriesName === "Median Linear Regression Line" ||
-              seriesName === "Lower Linear Regression Line"
-            ) {
-              chart.current.plot(0).removeSeries(i);
-            }
-          }
-        }
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "ATR lines on lower timeframe") {
-        annotationIndex.IntraATRannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.IntraATRannotationIndex = [];
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "ATR lines on lower timeframe") {
-        var intraATRseriesLength = chart.current.plot(0).getSeriesCount();
-        for (let i = intraATRseriesLength - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(0).getSeries(i)) {
-            let seriesNameIntraATR = chart.current.plot(0).getSeries(i).name();
-            if (
-              seriesNameIntraATR === "ftop" ||
-              seriesNameIntraATR === "fbot" ||
-              seriesNameIntraATR === "fmid" ||
-              seriesNameIntraATR === "f10" ||
-              seriesNameIntraATR === "f20" ||
-              seriesNameIntraATR === "f30" ||
-              seriesNameIntraATR === "f40" ||
-              seriesNameIntraATR === "f60" ||
-              seriesNameIntraATR === "f70" ||
-              seriesNameIntraATR === "f80" ||
-              seriesNameIntraATR === "f90"
-            ) {
-              chart.current.plot(0).removeSeries(i);
-            }
-          }
-        }
-
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-      if (ind.name === "10AM Hi Lo fibo") {
-        annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
-          chart.current.plot(0).annotations().removeAnnotation(elem);
-        });
-        annotationIndex.IntraFlineannotationIndex = [];
-        dispatch(indicatorActions.removeSelectedStockTool(index));
-      }
-    },
-    [chart, stockData, dispatch, plotIndex]
-  );
 
   const toggleRealTime = useCallback(() => {
     dispatch(stockActions.setRealTime(!realTime));
@@ -1438,26 +987,26 @@ function TheChart(props) {
       });
 
       if (ind.type === "custom") {
-        if (ind.name === "Fibo Lines") {
+        if (ind.name === "FiboLines") {
           annotationIndex.FLineannotationIndex.forEach((elem) => {
             chart.current.plot(0).annotations().removeAnnotation(elem);
           });
           annotationIndex.FLineannotationIndex = [];
         }
 
-        if (ind.name === "Volume Profile") {
+        if (ind.name === "VolumeProfile") {
           annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
             chart.current.plot(0).annotations().removeAnnotation(elem);
           });
           annotationIndex.VolumeProfileannotationIndex = [];
         }
-        if (ind.name === "10AM Hi Lo fibo") {
+        if (ind.name === "tenam") {
           annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
             chart.current.plot(0).annotations().removeAnnotation(elem);
           });
           annotationIndex.IntraFlineannotationIndex = [];
         }
-        if (ind.name === "ATR lines on lower timeframe") {
+        if (ind.name === "ATRlinelowtimeframe") {
           annotationIndex.IntraATRannotationIndex.forEach((elem) => {
             chart.current.plot(0).annotations().removeAnnotation(elem);
           });
@@ -1563,7 +1112,7 @@ function TheChart(props) {
     async (indicator, indicator_index) => {
       ////console.log(indicator);
       if (indicator.type === "custom") {
-        if (indicator.name === "Fibo Lines") {
+        if (indicator.name === "FiboLines") {
           annotationIndex.FLineannotationIndex.forEach((elem) => {
             chart.current.plot(0).annotations().removeAnnotation(elem);
           });
@@ -1582,7 +1131,7 @@ function TheChart(props) {
           );
         }
 
-        if (indicator.name === "Volume Profile") {
+        if (indicator.name === "VolumeProfile") {
           annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
             chart.current.plot(0).annotations().removeAnnotation(elem);
           });
@@ -1597,7 +1146,7 @@ function TheChart(props) {
             realTime
           );
         }
-        if (indicator.name === "10AM Hi Lo fibo") {
+        if (indicator.name === "tenam") {
           annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
             chart.current.plot(0).annotations().removeAnnotation(elem);
           });
@@ -1615,7 +1164,7 @@ function TheChart(props) {
             true
           );
         }
-        if (indicator.name === "ATR lines on lower timeframe") {
+        if (indicator.name === "ATRlinelowtimeframe") {
           annotationIndex.IntraATRannotationIndex.forEach((elem) => {
             chart.current.plot(0).annotations().removeAnnotation(elem);
           });
@@ -1923,7 +1472,7 @@ function TheChart(props) {
                 .annotations()
                 [anno.type](annoMapping);
 
-              if (anno.type !== "line") {
+              if (anno.type === "label") {
                 annoTemp.background({
                   fill: anno.background.fill,
                   stroke: anno.background.stroke,
@@ -2373,7 +1922,7 @@ function TheChart(props) {
     (toolIndex, stockTool) => {
       console.log(toolIndex);
       var seriesLength;
-      if (stockTool.name === "Volume Profile") {
+      if (stockTool.name === "VolumeProfile") {
         annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
           elem.enabled(true);
         });
@@ -2389,7 +1938,7 @@ function TheChart(props) {
           }
         }
       }
-      if (stockTool.name === "Fibo Lines") {
+      if (stockTool.name === "FiboLines") {
         annotationIndex.FLineannotationIndex.forEach((elem) => {
           elem.enabled(true);
         });
@@ -2514,7 +2063,7 @@ function TheChart(props) {
           }
         }
       }
-      if (stockTool.name === "ATR lines on lower timeframe") {
+      if (stockTool.name === "ATRlinelowtimeframe") {
         annotationIndex.IntraATRannotationIndex.forEach((elem) => {
           elem.enabled(true);
         });
@@ -2541,7 +2090,7 @@ function TheChart(props) {
           }
         }
       }
-      if (stockTool.name === "10AM Hi Lo fibo") {
+      if (stockTool.name === "tenam") {
         annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
           elem.enabled(true);
         });
@@ -2557,7 +2106,7 @@ function TheChart(props) {
   );
   const hideStockTool = useCallback((toolIndex, stockTool) => {
     var seriesLength;
-    if (stockTool.name === "Volume Profile") {
+    if (stockTool.name === "VolumeProfile") {
       annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
         elem.enabled(false);
       });
@@ -2573,7 +2122,7 @@ function TheChart(props) {
         }
       }
     }
-    if (stockTool.name === "Fibo Lines") {
+    if (stockTool.name === "FiboLines") {
       annotationIndex.FLineannotationIndex.forEach((elem) => {
         elem.enabled(false);
       });
@@ -2692,7 +2241,7 @@ function TheChart(props) {
         }
       }
     }
-    if (stockTool.name === "ATR lines on lower timeframe") {
+    if (stockTool.name === "ATRlinelowtimeframe") {
       annotationIndex.IntraATRannotationIndex.forEach((elem) => {
         elem.enabled(false);
       });
@@ -2719,7 +2268,7 @@ function TheChart(props) {
         }
       }
     }
-    if (stockTool.name === "10AM Hi Lo fibo") {
+    if (stockTool.name === "tenam") {
       annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
         elem.enabled(false);
       });
@@ -2732,7 +2281,7 @@ function TheChart(props) {
     );
   }, []);
 
-  if (isFetching) return "Loading...";
+  if (isFetching) return t("loading");
 
   if (error) return "An error has occured:" + error.message;
 
@@ -2746,9 +2295,6 @@ function TheChart(props) {
             addIndicator={addIndicator}
             updateIndicator={updateIndicator}
             removeIndicator={removeIndicator}
-            addStockTool={addStockTool}
-            updateStockTool={updateStockTool}
-            removeStockTool={removeStockTool}
             adjustDividend={adjustDividend}
             plotIndex={plotIndex}
             initialPicked={initialPicked}
@@ -2785,7 +2331,6 @@ function TheChart(props) {
             ticker={ticker}
             initialPicked={initialPicked}
             addIndicator={addIndicator}
-            addStockTool={addStockTool}
           />
           <div className="chartToolBarBottom">
             <ChartToolBar

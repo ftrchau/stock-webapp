@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonGroup,
@@ -21,6 +22,7 @@ function IndicatorSetting(props) {
   const [show, setShow] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const formSubmittionHandler = (submitEvent) => {
     submitEvent.preventDefault();
@@ -66,7 +68,7 @@ function IndicatorSetting(props) {
 
   return (
     <div>
-      {props.ind.name}
+      {t(`indicator.${props.ind.name}`)}
       <ButtonGroup>
         {props.ind.hide ? (
           <Button
@@ -85,12 +87,12 @@ function IndicatorSetting(props) {
             <AiOutlineEye />
           </Button>
         )}
-        {props.ind.description && (
+        {t(`indicatorDesc.${props.ind.name}`) && (
           <Button variant="light" size="sm">
             <BsQuestionCircle onClick={() => setShowInfo(true)} />
           </Button>
         )}
-        {props.ind.description && (
+        {t(`indicatorDesc.${props.ind.name}`) && (
           <Modal
             show={showInfo}
             onHide={() => setShowInfo(false)}
@@ -99,11 +101,13 @@ function IndicatorSetting(props) {
           >
             <Modal.Header closeButton>
               <Modal.Title id="example-custom-modal-styling-title">
-                {props.ind.name}
+                {t(`indicator.${props.ind.name}`)}
               </Modal.Title>
             </Modal.Header>
             <Modal.Body
-              dangerouslySetInnerHTML={{ __html: props.ind.description }}
+              dangerouslySetInnerHTML={{
+                __html: t(`indicatorDesc.${props.ind.name}`),
+              }}
             ></Modal.Body>
           </Modal>
         )}
@@ -112,7 +116,7 @@ function IndicatorSetting(props) {
           placement="bottom"
           overlay={
             <Tooltip className="tooltip-settings" id="tooltip-settings">
-              Settings
+              {t("indicatorSetting.Settings")}
             </Tooltip>
           }
         >
@@ -128,7 +132,7 @@ function IndicatorSetting(props) {
             >
               <Modal.Header closeButton>
                 <Modal.Title id="example-custom-modal-styling-title">
-                  {props.ind.name}
+                  {t(`indicator.${props.ind.name}`)}
                 </Modal.Title>
               </Modal.Header>
               <Modal.Body>
@@ -181,18 +185,23 @@ function IndicatorSetting(props) {
                     );
                   })}
                   <Form.Group as={Row} className="mb-12" controlId="submit">
-                    <Col sm="7">
+                    <Col sm="5">
                       <Button variant="danger" type="reset">
-                        Reset
+                        {t("indicatorSetting.Remove")}
                       </Button>
                     </Col>
-                    <Col sm="2">
+                    <Col sm="3">
                       <Button variant="primary" type="submit">
-                        OK
+                        {t("indicatorSetting.OK")}
                       </Button>
                     </Col>
-                    <Col sm="2">
-                      <Button variant="secondary">Cancel</Button>
+                    <Col sm="3">
+                      <Button
+                        variant="secondary"
+                        onClick={() => setShow(false)}
+                      >
+                        {t("indicatorSetting.Cancel")}
+                      </Button>
                     </Col>
                   </Form.Group>
                 </Form>
@@ -205,7 +214,7 @@ function IndicatorSetting(props) {
           placement="bottom"
           overlay={
             <Tooltip className="tooltip-settings" id="tooltip-remove">
-              Remove
+              {t("indicatorSetting.Remove")}
             </Tooltip>
           }
         >

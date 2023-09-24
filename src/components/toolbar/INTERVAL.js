@@ -57,7 +57,7 @@ const intervalSelection = {
       value: "60m",
     },
     {
-      title: "90 minutes",
+      name: "90 minutes",
       value: "90m",
     },
   ],
