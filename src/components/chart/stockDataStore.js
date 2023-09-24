@@ -2035,7 +2035,6 @@ let stockDataStore = {
       let color1 = "#00bcd4";
       let color2 = "#b2b5be";
 
-      if (!update) {
         chart.current
           .plot(plotIndex.current)
           .line(IntraATRftopData)
@@ -2101,53 +2100,7 @@ let stockDataStore = {
           .line(IntraATRf90Data)
           .stroke(color1)
           .name("f90");
-      } else {
-        let seriesNames = [
-          "ftop",
-          "fbot",
-          "fmid",
-          "f10",
-          "f20",
-          "f30",
-          "f40",
-          "f60",
-          "f70",
-          "f80",
-          "f90",
-        ];
-        let seriesMapping = {
-          ftop: IntraATRftopMapping,
-          fmid: IntraATRfmidMapping,
-          fbot: IntraATRfbotMapping,
-          f10: IntraATRf10Mapping,
-          f20: IntraATRf20Mapping,
-          f30: IntraATRf30Mapping,
-          f40: IntraATRf40Mapping,
-          f60: IntraATRf60Mapping,
-          f70: IntraATRf70Mapping,
-          f80: IntraATRf80Mapping,
-          f90: IntraATRf90Mapping,
-        };
-        let seriesLength = chart.current
-          .plot(plotIndex.current)
-          .getSeriesCount();
-
-        for (let i = seriesLength - 1 + 100; i > -1; i--) {
-          if (chart.current.plot(plotIndex.current).getSeries(i)) {
-            let seriesName = chart.current
-              .plot(plotIndex.current)
-              .getSeries(i)
-              .name();
-            if (seriesNames.includes(seriesName)) {
-              ////console.log(seriesName);
-              chart.current
-                .plot(plotIndex.current)
-                .getSeries(i)
-                .data(seriesMapping[seriesName]);
-            }
-          }
-        }
-      }
+      
 
       var bb1 = controller.label({
         xAnchor: moment(IntraATRfbotData[IntraATRfbotData.length - 1][0])

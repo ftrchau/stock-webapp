@@ -77,9 +77,6 @@ function HomePage() {
 
   useEffect(() => {
     dispatch(indicatorActions.resetCurrentIndicatorStockTools());
-    // if (language) {
-    //   pleasetType = t("pleasetType");
-    // }
     if (selectedTicker.label !== "") {
       setDefaultValue(selectedTicker);
     }
@@ -90,7 +87,9 @@ function HomePage() {
       <h3 className="ma-5">{t("searchSymbol")}</h3>
       <Select
         defaultValue={defaultValue}
-        placeholder={t("pleasetType")}
+        placeholder={
+          selectedTicker.label !== "" ? selectedTicker.label : t("pleasetType")
+        }
         onInputChange={(value) => searchStock(value)}
         onChange={(opt) => setSelectedTicker(opt)}
         options={searchedData}

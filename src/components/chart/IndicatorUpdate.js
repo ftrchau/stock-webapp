@@ -70,6 +70,57 @@ function IndicatorUpdate(props) {
                 true
               );
             }
+            if (indicator.name === "VolumeProfile") {
+              annotationIndex.VolumeProfileannotationIndex.forEach((elem) => {
+                chart.current.plot(0).annotations().removeAnnotation(elem);
+              });
+              annotationIndex.VolumeProfileannotationIndex = [];
+
+              await stockDataStore.drawVolumeProfileFunction(
+                indicator,
+                chart,
+                ticker,
+                interval,
+                adjustDividend,
+                realTime
+              );
+            }
+            if (indicator.name === "tenam") {
+              annotationIndex.IntraFlineannotationIndex.forEach((elem) => {
+                chart.current.plot(0).annotations().removeAnnotation(elem);
+              });
+              annotationIndex.IntraFlineannotationIndex = [];
+              await stockDataStore.addIntraFline(
+                chart.current,
+                interval,
+                [],
+                indicator,
+                ticker,
+                adjustDividend,
+                startDate,
+                endDate,
+                tradingPeriod,
+                true
+              );
+            }
+            if (indicator.name === "ATRlinelowtimeframe") {
+              annotationIndex.IntraATRannotationIndex.forEach((elem) => {
+                chart.current.plot(0).annotations().removeAnnotation(elem);
+              });
+              annotationIndex.IntraATRannotationIndex = [];
+
+              await stockDataStore.addIntraATR(
+                chart,
+                interval,
+                indicator,
+                ticker,
+                adjustDividend,
+                startDate,
+                endDate,
+                plotIndex,
+                true
+              );
+            }
             return;
           }
           var charts = indicator.charts.map((item) => ({ ...item }));

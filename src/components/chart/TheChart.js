@@ -445,17 +445,7 @@ function TheChart(props) {
         if (ind.seriesType === "column") {
           chartTemp.minWidth(100);
         }
-        // ////console.log(
-        //   moment(realEndTime.current)
-        //     .subtract(9, scrollLeftTimeUnit(interval))
-        //     .format("YYYY-MM-DD HH:mm:ss")
-        // );
-        // chart.current.selectRange(
-        //   moment(realEndTime.current)
-        //     .subtract(9, scrollLeftTimeUnit(interval))
-        //     .format("YYYY-MM-DD HH:mm:ss"),
-        //   moment(realEndTime.current).format("YYYY-MM-DD HH:mm:ss")
-        // );
+
         if (ind.plotIndexOffset > plotAddedBy) {
           plotIndex.current += 1;
           plotAddedBy += 1;
@@ -712,7 +702,6 @@ function TheChart(props) {
 
     if (Object.keys(timezone).length === 0) {
       setTimezone(exchangeTimeZone.current);
-      ////console.log("triggered?");
     }
 
     anychart.format.outputTimezone(timezone.value * 60 * -1);
@@ -753,11 +742,7 @@ function TheChart(props) {
     );
     let endRange = moment(newStockData[newStockData.length - 1][0]);
 
-    ////console.log(subtractValue);
-    ////console.log(subtractUnit);
     if (!moment().subtract(subtractValue, subtractUnit).isAfter(moment())) {
-      ////console.log(moment().subtract(subtractValue, subtractUnit).valueOf());
-      ////console.log(moment().valueOf());
       chart.current.selectRange(
         moment().subtract(subtractValue, subtractUnit).valueOf(),
         moment().valueOf()
@@ -768,8 +753,6 @@ function TheChart(props) {
     var min = getStockMin(newStockData, startRange, endRange);
 
     if (allMin) min = Math.min(min, allMin);
-    ////console.log(max);
-    ////console.log(min);
 
     chart.current.plot(0).yScale().maximum(max.toFixed(2));
     chart.current.plot(0).yScale().minimum(min.toFixed(2));
@@ -795,9 +778,11 @@ function TheChart(props) {
       unitType = "year";
     }
 
+    console.log(unitType);
+
     chart.current
       .xScale()
-      .maximumGap({ intervalsCount: 20, unitType: unitType, unitCount: 1 });
+      .maximumGap({ intervalsCount: 20, unitType: unitType, unitCount: 2 });
 
     // if (["m", "h"].includes(interval.charAt(interval.length - 1))) {
     //   chart.current
@@ -944,7 +929,6 @@ function TheChart(props) {
     initialPicked,
     tradingPeriod,
   ]);
-
 
   const toggleRealTime = useCallback(() => {
     dispatch(stockActions.setRealTime(!realTime));
