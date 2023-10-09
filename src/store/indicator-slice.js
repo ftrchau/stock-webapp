@@ -1203,6 +1203,13 @@ const indicatorSlice = createSlice({
               type: "text",
             },
             {
+              name: "am",
+              label: "Auto or manual",
+              value: "Auto",
+              type: "select-one",
+              items: ["Auto", "Manual"],
+            },
+            {
               name: "k1",
               label: "Line 1: 0=last bar, 1 = bar b4 last bar",
               value: "0",
@@ -1212,6 +1219,12 @@ const indicatorSlice = createSlice({
               name: "k2",
               label: "Line 2: 0=last bar, 1 = bar b4 last bar",
               value: "0",
+              type: "text",
+            },
+            {
+              name: "sn",
+              label: "Skip n bars near pivot",
+              value: "4",
               type: "text",
             },
             {
@@ -1246,6 +1259,7 @@ const indicatorSlice = createSlice({
               plotIndex: 0,
               seriesType: "line",
               stroke: "rgb(48, 27, 146);1;1",
+              defaultStroke: "rgb(48, 27, 146);1;1",
             },
             {
               name: "Supportive Line 2",
@@ -1259,6 +1273,7 @@ const indicatorSlice = createSlice({
               plotIndex: 0,
               seriesType: "line",
               stroke: "rgb(255, 0, 208);1;1",
+              defaultStroke: "rgb(255, 0, 208);1;1",
             },
           ],
         },

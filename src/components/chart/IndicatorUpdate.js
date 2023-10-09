@@ -295,6 +295,9 @@ function IndicatorUpdate(props) {
                       // (p) => p[0] === moment(this.x).valueOf()
                       (p) => p[1] === this.value
                     );
+                    if (resultIndex < 0) {
+                      return this.sourceColor;
+                    }
                     let prevValue = !addResult[resultIndex - 1]
                       ? null
                       : addResult[resultIndex - 1][1];
